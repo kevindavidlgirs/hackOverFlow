@@ -18,7 +18,7 @@ class Member extends Model {
 
     
     public function update() {
-        if(self::get_member_by_userNameOrFullName($this->username, null)) 
+        if(self::get_member_by_userNameOrFullNameOrEmail($this->username, null, null)) 
             self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
                           array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
         else
@@ -27,8 +27,8 @@ class Member extends Model {
         return $this;
     }
 
-    public static function get_member_by_userNameOrFullName($username, $fullname) {
-        $query = self::execute("SELECT * FROM user WHERE username = :username or fullname = :fullname", array("username"=>$username, "fullname"=>$fullname));
+    public static function get_member_by_userNameOrFullNameOrEmail($username, $fullname, $email) {
+        $query = self::execute("SELECT * FROM user WHERE username = :username or fullname = :fullname or email = :email", array("username"=>$username, "fullname"=>$fullname, "email"=>$email));
         $data = $query->fetch(); // un seul résultat au maximum
         if ($query->rowCount() == 0) {
             return false;
@@ -82,9 +82,9 @@ class Member extends Model {
         return $errors;
     }
     
-    public static function validate_unicity($username, $fullname){
+    public static function validate_unicity($username, $fullname, $email){
         $errors = [];
-        $member = self::get_member_by_userNameOrFullName($username, $fullname);
+        $member = self::get_member_by_userNameOrFullNameOrEmail($username, $fullname, $email);
         if ($member) {
             $errors[] = "This user already exists.";
         } 
@@ -108,15 +108,15 @@ class Member extends Model {
     
     //renvoie un tableau d'erreur(s) 
     //le tableau est vide s'il n'y a pas d'erreur.
-    public static function validate_login($pseudo, $password) {
+    public static function validate_login($username, $password) {
         $errors = [];
-        $member = Member::get_member_by_pseudo($pseudo);
+        $member = Member::get_member_by_userNameOrFullNameOrEmail($username, null, null);
         if ($member) {
             if (!self::check_password($password, $member->hashed_password)) {
                 $errors[] = "Wrong password. Please try again.";
             }
         } else {
-            $errors[] = "Can't find a member with the pseudo '$pseudo'. Please sign up.";
+            $errors[] = "Can't find a member with the pseudo '$username'. Please sign up.";
         }
         return $errors;
     }

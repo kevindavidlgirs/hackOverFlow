@@ -44,19 +44,30 @@
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="index.php">Question <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="post/index">Question <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active">
-        <a class="nav-link" href="main/login">login</a>
+        <a class="nav-link" href="user/login">login</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="main/signup">SignUp<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="user/signup">SignUp<span class="sr-only">(current)</span></a>
       </li>
     </ul>
   </div>
 </nav>
 
 <main role="main" class="container">
-  
+      <form action=main/login method="post">
+        <table>
+            <tr>
+              <td>userName : </td>  
+              <td><input name="username" type="text" size="16"/></td>
+            </tr>
+            <tr>
+              <td>Password : </td>
+              <td><input name="password" type="password" size="16"/></td>
+        </table>
+        <input type="submit"/>  
+      </form>
 </main>
 </html>

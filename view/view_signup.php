@@ -44,20 +44,20 @@
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="">Question <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="post/index">Question <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="main/login">login</a>
+        <a class="nav-link" href="user/login">login</a>
       </li>
       <li class="nav-item active">
-        <a class="nav-link" href="main/signup">SignUp<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="user/signup">SignUp<span class="sr-only">(current)</span></a>
       </li>
     </ul>
   </div>
 </nav>
 
 <main role="main" class="container">
-      <form action="main/signup" method="POST">
+      <form action="user/signup" method="POST">
         <label>UserName : <input name="username" type="text" size="64" value="<?= $username?>"/></label>
         <label>Password : <input name="password" type="password" size="64"/></label>
         <label>Confirm password : <input name="password_confirm" type="password" size="64"/></label>

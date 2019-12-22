@@ -12,7 +12,7 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
 
     <!-- Bootstrap core CSS -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="../css/bootstrap.min.css" rel="stylesheet">
 
 
     <style>
@@ -33,6 +33,7 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
+    <base href="<?= $web_root ?>" />
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
@@ -43,13 +44,13 @@
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link active" href="">Question <span class="sr-only">(current)</span></a>
+        <a class="nav-link active" href="post/index">Question <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="main/login">login</a>
+        <a class="nav-link" href="user/login">login</a>
       </li>
       <li class="nav-item ">
-        <a class="nav-link" href="main/signup">SignUp<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="user/signup">SignUp<span class="sr-only">(current)</span></a>
       </li>
     </ul>
   </div>
