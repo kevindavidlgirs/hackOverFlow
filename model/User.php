@@ -2,12 +2,20 @@
 
 require_once "framework/Model.php";
 
-class Member extends Model {
+class User extends Model {
 
-    public $username;
-    public $hashed_password;
-    public $fullname;
-    public $email;
+    private $username;
+    private $hashed_password;
+    private $fullname;
+    private $email;
+
+    public function getUserName(){
+        return $this->username;
+    }
+
+    public function getFullName(){
+        return $this->fullname;
+    }
 
     public function __construct($username, $hashed_password, $fullname, $email) {
         $this->username = $username;
@@ -18,7 +26,7 @@ class Member extends Model {
 
     
     public function update() {
-        if(self::get_member_by_userNameOrFullNameOrEmail($this->username, null, null)) 
+        if(self::get_user_by_userNameOrFullNameOrEmail($this->username, null, null)) 
             self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
                           array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
         else
@@ -27,7 +35,9 @@ class Member extends Model {
         return $this;
     }
 
-    public static function get_member_by_userNameOrFullNameOrEmail($username, $fullname, $email) {
+    //Recherche à voir si un utilisateur existe déjà dans BD sur base de son userName
+    //Fullname ou email.
+    public static function get_user_by_userNameOrFullNameOrEmail($username, $fullname, $email) {
         $query = self::execute("SELECT * FROM user WHERE username = :username or fullname = :fullname or email = :email", array("username"=>$username, "fullname"=>$fullname, "email"=>$email));
         $data = $query->fetch(); // un seul résultat au maximum
         if ($query->rowCount() == 0) {
@@ -37,11 +47,15 @@ class Member extends Model {
         }
     }
 
-    //renvoie un tableau d'erreur(s) 
-    //le tableau est vide s'il n'y a pas d'erreur.
-    //ne s'occupe que de la validation "métier" des champs obligatoires (le pseudo)
-    //les autres champs (mot de passe, description et image) sont gérés par d'autres
-    //méthodes.
+    //Récupère un objet user à partir d'un authorId provenant d'un post.
+    public static function get_user($AutorId) {
+        $query = self::execute("SELECT * FROM user WHERE UserId =:AuthorId", array("AuthorId" => $AutorId));
+        $data = $query->fetch();
+        $results = new User($data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
+        return $results;
+    }
+
+    //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
     public function validate(){
         $errors = array();
         if (!(isset($this->username) && is_string($this->username) && strlen($this->username) > 0)) {
@@ -84,7 +98,7 @@ class Member extends Model {
     
     public static function validate_unicity($username, $fullname, $email){
         $errors = [];
-        $member = self::get_member_by_userNameOrFullNameOrEmail($username, $fullname, $email);
+        $member = self::get_user_by_userNameOrFullNameOrEmail($username, $fullname, $email);
         if ($member) {
             $errors[] = "This user already exists.";
         } 
@@ -96,21 +110,11 @@ class Member extends Model {
         return $hash === Tools::my_hash($clear_password);
     }
 
-    public static function get_members() {
-        $query = self::execute("SELECT * FROM Members", array());
-        $data = $query->fetchAll();
-        $results = [];
-        foreach ($data as $row) {
-            $results[] = new Member($row["pseudo"], $row["password"], $row["profile"], $row["picture_path"]);
-        }
-        return $results;
-    }
-    
     //renvoie un tableau d'erreur(s) 
     //le tableau est vide s'il n'y a pas d'erreur.
     public static function validate_login($username, $password) {
         $errors = [];
-        $member = Member::get_member_by_userNameOrFullNameOrEmail($username, null, null);
+        $member = Member::get_user_by_userNameOrFullNameOrEmail($username, null, null);
         if ($member) {
             if (!self::check_password($password, $member->hashed_password)) {
                 $errors[] = "Wrong password. Please try again.";

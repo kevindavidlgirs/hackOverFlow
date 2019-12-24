@@ -55,10 +55,10 @@
     </ul>
   </div>
 </nav>
-
+<!-- MAIN -->
 <main role="main" class="container">
       <form action="user/signup" method="POST">
-        <label>UserName : <input name="username" type="text" size="64" value="<?= $username?>"/></label>
+        <label>UserName : <input name="username" type="text" size="64"/></label>
         <label>Password : <input name="password" type="password" size="64"/></label>
         <label>Confirm password : <input name="password_confirm" type="password" size="64"/></label>
         <label>Full name : <input name="fullname" type="text" size="64"/></label>

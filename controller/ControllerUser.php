@@ -1,6 +1,6 @@
 <?php
 
-require_once 'model/Member.php';
+require_once 'model/User.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
 
@@ -19,7 +19,7 @@ class ControllerUser extends Controller {
             $password = $_POST['password'];
             $errors = Member::validate_login($username, $password);
             if (empty($errors)) {
-                $this->log_user(Member::get_member_by_userNameOrFullName($username));
+                $this->log_user(Member::get_user_by_userNameOrFullName($username));
             }
         }
         (new View("login"))->show(array("pseudo" => $username, "password" => $password, "errors" => $errors));
