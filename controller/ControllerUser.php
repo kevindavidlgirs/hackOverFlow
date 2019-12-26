@@ -13,16 +13,15 @@ class ControllerUser extends Controller {
         $username = '';
         $password = '';
         $errors = [];
-        if (isset($_POST['username']) && isset($_POST['password'])) { //note : pourraient contenir
-        //des chaînes vides
+        if (isset($_POST['username']) && isset($_POST['password'])) { 
             $username = $_POST['username'];
             $password = $_POST['password'];
-            $errors = Member::validate_login($username, $password);
+            $errors = User::validate_login($username, $password);
             if (empty($errors)) {
-                $this->log_user(Member::get_user_by_userNameOrFullName($username));
+                $this->log_user(User::get_user_by_userName($username));
             }
         }
-        (new View("login"))->show(array("pseudo" => $username, "password" => $password, "errors" => $errors));
+        (new View("login"))->show(array("username" => $username, "password" => $password, "errors" => $errors));
     }
 
     public function signup(){
@@ -40,13 +39,13 @@ class ControllerUser extends Controller {
             $password_confirm = $_POST['password_confirm'];
             $fullname = $_POST['fullname'];
             $email = $_POST['email'];
-            $member = new Member($username, Tools::my_hash($password), $fullname, $email);
-            $errors = Member::validate_unicity($username, $fullname, $email);
-            $errors = array_merge($errors, $member->validate());
-            $errors = array_merge($errors, Member::validate_passwords($password, $password_confirm));
+            $user = new User($username, Tools::my_hash($password), $fullname, $email);
+            $errors = User::validate_unicity($username, $fullname, $email);
+            $errors = array_merge($errors, $user->validate());
+            $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
 
             if (count($errors) == 0) { 
-                $member->update(); //sauve l'utilisateur
+                $user->update(); //sauve l'utilisateur
                // $this->log_user(Member::get_member_by_pseudo($pseudo));
             }
         }

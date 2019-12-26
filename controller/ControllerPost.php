@@ -8,11 +8,11 @@ class ControllerPost extends Controller{
 //si l'utilisateur est conecté, redirige vers son profil.
     //sinon, produit la vue d'accueil.
     public function index() {
-        //if ($this->user_logged()) {
-          //  $this->redirect("member", "profile");
-        //} else {
+        if ($this->user_logged()) {
+            $this->redirect("post", "index");
+        } else {
             (new View("index"))->show(array("posts"=> Post::get_posts()));
-        //}
+        }
     }
 }
 

@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fr">
   <head>
@@ -12,8 +11,12 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
 
     <!-- Bootstrap core CSS -->
-<link href="../css/bootstrap.min.css" rel="stylesheet">
-
+    
+    <!-- Propre? -->   
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/myStyle.css" rel="stylesheet">
+    <!-- Propre? -->
 
     <style>
       .bd-placeholder-img {
@@ -36,38 +39,41 @@
     <base href="<?= $web_root ?>" />
   </head>
   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-  <a class="navbar-brand" href="#">Hack OverFlow</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarCollapse">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="post/index">Question <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="user/login">login</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="user/signup">SignUp<span class="sr-only">(current)</span></a>
-      </li>
-    </ul>
-  </div>
-</nav>
-<!-- MAIN -->
-<main role="main" class="container">
-      <form action=main/login method="post">
-        <table>
-            <tr>
-              <td>userName : </td>  
-              <td><input name="username" type="text" size="16"/></td>
-            </tr>
-            <tr>
-              <td>Password : </td>
-              <td><input name="password" type="password" size="16"/></td>
-        </table>
-        <input type="submit"/>  
-      </form>
-</main>
+    <?php
+      include('header.html');
+    ?>
+    <!-- MAIN -->
+    <main role="main" class="container">
+      <div class="card col-md-4 offset-md-4">
+        <div class="card-header text-center header-color-white">
+          <h5>Sign in</h5>
+        </div>
+        <div class="card-body">
+          <form action="user/login" method="post">
+            <?php if(array_key_exists('user', $errors)):?>            
+              <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
+              <div class="invalid-feedback">
+                <?= $errors['user']; ?>
+              </div>  
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="text" class="form-control" name="username" placeholder="Username"/>
+              </div>
+            <?php endif ?>  
+            <?php if(array_key_exists('password', $errors)):?>            
+              <input type="password" name="password" class="form-control is-invalid" placeholder="Password" required>
+              <div class="invalid-feedback">
+                <?= $errors['password']; ?>
+              </div>  
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
+              </div>
+            <?php endif ?>
+            <button type="submit" class="btn btn-primary btn-dark btn-block">login</button>
+          </form>
+        </div>
+      </div>
+    </main>          
+  </body>
 </html>

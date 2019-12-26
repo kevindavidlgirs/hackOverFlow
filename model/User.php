@@ -9,14 +9,6 @@ class User extends Model {
     private $fullname;
     private $email;
 
-    public function getUserName(){
-        return $this->username;
-    }
-
-    public function getFullName(){
-        return $this->fullname;
-    }
-
     public function __construct($username, $hashed_password, $fullname, $email) {
         $this->username = $username;
         $this->hashed_password = $hashed_password;
@@ -24,9 +16,16 @@ class User extends Model {
         $this->email = $email;
     }
 
+    public function getUserName(){
+        return $this->username;
+    }
+
+    public function getFullName(){
+        return $this->fullname;
+    }
     
     public function update() {
-        if(self::get_user_by_userNameOrFullNameOrEmail($this->username, null, null)) 
+        if(self::get_user_by_userName($this->username)) 
             self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
                           array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
         else
@@ -35,15 +34,53 @@ class User extends Model {
         return $this;
     }
 
+    public static function validate_unicity($username, $fullname, $email){
+        $errors = [];
+        $user = self::get_user_by_userName($username);
+        if ($user) {
+            $errors['user'] = "This user already exists.";
+        }
+        $user = self::get_user_by_fullName($fullname);
+        if ($user) {
+            $errors['name'] = "This fullname already exists.";
+        } 
+        $user = self::get_user_by_email($email);
+        if ($user) {
+            $errors['email'] = "This email already exists.";
+        }
+        return $errors;
+    }
+
     //Recherche à voir si un utilisateur existe déjà dans BD sur base de son userName
-    //Fullname ou email.
-    public static function get_user_by_userNameOrFullNameOrEmail($username, $fullname, $email) {
-        $query = self::execute("SELECT * FROM user WHERE username = :username or fullname = :fullname or email = :email", array("username"=>$username, "fullname"=>$fullname, "email"=>$email));
+    public static function get_user_by_userName($username) {
+        $query = self::execute("SELECT * FROM user WHERE username = :username", array("username"=>$username));
         $data = $query->fetch(); // un seul résultat au maximum
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new Member($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+        }
+    }
+
+    //Recherche à voir si un utilisateur existe déjà dans BD sur base de son fullname
+    public static function get_user_by_fullName($fullname) {
+        $query = self::execute("SELECT * FROM user WHERE fullname = :fullname", array("fullname"=>$fullname));
+        $data = $query->fetch(); // un seul résultat au maximum
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+        }
+    }
+        
+    //Recherche à voir si un utilisateur existe déjà dans BD sur base de son email
+    public static function get_user_by_email($email) {
+        $query = self::execute("SELECT * FROM user WHERE email = :email", array("email"=>$email));
+        $data = $query->fetch(); // un seul résultat au maximum
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
         }
     }
 
@@ -55,72 +92,67 @@ class User extends Model {
         return $results;
     }
 
-    //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
-    public function validate(){
-        $errors = array();
-        if (!(isset($this->username) && is_string($this->username) && strlen($this->username) > 0)) {
-            $errors[] = "username is required.";
-        } if (!(isset($this->username) && is_string($this->username) && strlen($this->username) >= 3 && strlen($this->username) <= 16)) {
-            $errors[] = "username length must be between 3 and 16.";
-        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $this->username))) {
-            $errors[] = "username must start by a letter and must contain only letters and numbers.";
-        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) > 0)) {
-                $errors[] = "fullname is required.";
-        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 16)) {
-                $errors[] = "fullname length must be between 3 and 16.";
-        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z]*$/", $this->fullname))) {
-                $errors[] = "fullname contain only letters.";
-        } if(!(isset($this->email) && strlen($this->email) > 0)){
-            $errors[] = "email is required.";
-        } else if(!preg_match("@^[a-z0-9-._]+\@[a-z0-9-._]{2,}\.[a-z]{2,4}$@", $this->email)){
-            $errors[] = "invalid email.";
-        }
-        return $errors;
-    }
-    
     private static function validate_password($password){
         $errors = [];
         if (strlen($password) < 8 || strlen($password) > 16) {
-            $errors[] = "Password length must be between 8 and 16.";
+            $errors['password'] = "Password length must be between 8 and 16.";
         } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?\\-]/", $password))) {
-            $errors[] = "Password must contain one uppercase letter, one number and one punctuation mark.";
+            $errors['password'] = "Password must contain one uppercase letter, one number and one punctuation mark.";
         }
         return $errors;
     }
     
     public static function validate_passwords($password, $password_confirm){
-        $errors = Member::validate_password($password);
+        $errors = User::validate_password($password);
         if ($password != $password_confirm) {
-            $errors[] = "You have to enter twice the same password.";
+            $errors['password_confirm'] = "You have to enter twice the same password.";
         }
         return $errors;
     }
     
-    public static function validate_unicity($username, $fullname, $email){
-        $errors = [];
-        $member = self::get_user_by_userNameOrFullNameOrEmail($username, $fullname, $email);
-        if ($member) {
-            $errors[] = "This user already exists.";
-        } 
-        return $errors;
-    }
+    
 
     //indique si un mot de passe correspond à son hash
     private static function check_password($clear_password, $hash) {
         return $hash === Tools::my_hash($clear_password);
     }
 
+    //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
+    public function validate(){
+        $errors = array();
+        if (!(isset($this->username) && is_string($this->username) && strlen($this->username) > 0)) {
+            $errors['user'] = "username is required.";
+        } if (!(isset($this->username) && is_string($this->username) && strlen($this->username) >= 3 && strlen($this->username) <= 16)) {
+            $errors['user'] = "username length must be between 3 and 16.";
+        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $this->username))) {
+            $errors['user'] = "username must start by a letter and must contain only letters and numbers.";
+        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) > 0)) {
+                $errors['name'] = "fullname is required.";
+        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 16)) {
+                $errors['name'] = "fullname length must be between 3 and 16.";
+        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z]*$/", $this->fullname))) {
+                $errors['name'] = "fullname contain only letters.";
+        } if(!(isset($this->email) && strlen($this->email) > 0)){
+            $errors['email'] = "email is required.";
+        } else if(!preg_match("@^[a-z0-9-._]+\@[a-z0-9-._]{2,}\.[a-z]{2,4}$@", $this->email)){
+            $errors['email'] = "invalid email.";
+        }
+        return $errors;
+    }
+    
+    
+
     //renvoie un tableau d'erreur(s) 
     //le tableau est vide s'il n'y a pas d'erreur.
     public static function validate_login($username, $password) {
         $errors = [];
-        $member = Member::get_user_by_userNameOrFullNameOrEmail($username, null, null);
-        if ($member) {
-            if (!self::check_password($password, $member->hashed_password)) {
-                $errors[] = "Wrong password. Please try again.";
+        $user = User::get_user_by_userName($username);
+        if ($user) {
+            if (!self::check_password($password, $user->hashed_password)) {
+                $errors['password'] = "Wrong password. Please try again.";
             }
         } else {
-            $errors[] = "Can't find a member with the pseudo '$username'. Please sign up.";
+            $errors['user'] = "Can't find a member with the pseudo '$username'. Please sign up.";
         }
         return $errors;
     }
