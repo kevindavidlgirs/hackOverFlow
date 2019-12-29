@@ -9,7 +9,7 @@ class ControllerPost extends Controller{
     //sinon, produit la vue d'accueil.
     public function index() {
         if ($this->user_logged()) {
-            $this->redirect("post", "index");
+            (new View("index"))->show(array("posts"=> Post::get_posts()));
         } else {
             (new View("index"))->show(array("posts"=> Post::get_posts()));
         }

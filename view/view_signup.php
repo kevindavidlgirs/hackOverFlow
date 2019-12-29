@@ -40,7 +40,8 @@
   </head>
   <body>
     <?php
-      include('header.html');
+      $active = 'signup';
+      include('headerVisitor.html');
     ?>
     <!-- MAIN -->
     <main role="main" class="container">

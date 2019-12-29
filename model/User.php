@@ -130,7 +130,7 @@ class User extends Model {
                 $errors['name'] = "fullname is required.";
         } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 16)) {
                 $errors['name'] = "fullname length must be between 3 and 16.";
-        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z]*$/", $this->fullname))) {
+        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z ]*$/", $this->fullname))) {
                 $errors['name'] = "fullname contain only letters.";
         } if(!(isset($this->email) && strlen($this->email) > 0)){
             $errors['email'] = "email is required.";

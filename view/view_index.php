@@ -40,7 +40,13 @@
   </head>
   <body>
     <?php
-      include('header.html');
+    if(isset($_SESSION['user'])){
+      $active = 'question';
+      include('headerUser.html');   
+    }else{
+      $active = 'question';
+      include('headerVisitor.html');  
+    }
     ?>
     <!-- MAIN -->
     <main role="main" class="container">

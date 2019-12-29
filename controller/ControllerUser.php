@@ -46,7 +46,7 @@ class ControllerUser extends Controller {
 
             if (count($errors) == 0) { 
                 $user->update(); //sauve l'utilisateur
-               // $this->log_user(Member::get_member_by_pseudo($pseudo));
+                $this->log_user(User::get_user_by_userName($username));
             }
         }
         (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, "fullname" => $fullname, "email" => $email, "errors" => $errors));   
