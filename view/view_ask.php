@@ -39,12 +39,11 @@
   </head>
   <body>
     <?php
-      $active = 'profile';
+      $active = 'ask';
       include('headerUser.html');
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-	
 
     </main>          
   </body>

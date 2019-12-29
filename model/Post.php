@@ -58,7 +58,7 @@ class Post extends Model {
         foreach($data as $row){
             $getFullNameAuthor = User::get_user($row["AuthorId"]);
             $getSumVote = Vote::get_SumVote($row["PostId"]);
-            $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId= :PostID GROUP BY(ParentId)", array("PostID"=>$row["PostId"]));
+            $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$row["PostId"]));
             $nbAnswers = $query->fetch();
             $results[] = new Post($row["PostId"], $row["AuthorId"], $row["Title"], $row["Body"], $row["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'] );
         }

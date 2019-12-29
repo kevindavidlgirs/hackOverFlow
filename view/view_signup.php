@@ -58,7 +58,7 @@
               </div>  
           <?php else: ?>   
             <div class="form-group">
-              <input type="text" name="username" class="form-control" placeholder="Username"/>
+              <input type="text" name="username" class="form-control" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?>/>
             </div>
           <?php endif ?>
           
@@ -69,7 +69,7 @@
               </div>  
           <?php else: ?> 
             <div class="form-group">
-              <input type="text" name="fullname" class="form-control" placeholder="Full name"/>
+              <input type="text" name="fullname" class="form-control" <?php if($fullname != null){echo 'value="'.$fullname.'"';}else{echo 'placeholder="Full Name"';}?>/>
             </div>
           <?php endif ?>
 
@@ -82,7 +82,7 @@
             </div> 
           <?php else: ?> 
             <div class="form-group">
-              <input type="text" name="email" class="form-control" placeholder="name@example.com"/>
+              <input type="text" name="email" class="form-control" <?php if($email != null){echo 'value="'.$email.'"';}else{echo 'placeholder="name@example.com"';}?> />
             </div>
           <?php endif ?>
 

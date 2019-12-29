@@ -85,10 +85,8 @@ class ControllerUser extends Controller {
         (new View("edit_profile"))->show(array("member" => $member, "errors" => $errors, "success" => $success));
     }
 
-
-    //page d'accueil. 
-    public function index() {
-        $this->profile();
+    public function index(){
+        $this->redirect();
     }
 
     //profil de l'utilisateur connecté ou donné

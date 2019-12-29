@@ -58,7 +58,8 @@
               </div>  
             <?php else: ?> 
               <div class="form-group">
-                <input type="text" class="form-control" name="username" placeholder="Username"/>
+                <!--A modifier pour faire apparaître le nom de l'user qui est quand même existant si le code est mauvais -->
+                <input type="text" class="form-control" name="username" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?> />
               </div>
             <?php endif ?>  
             <?php if(array_key_exists('password', $errors)):?>            
