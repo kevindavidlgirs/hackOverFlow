@@ -40,7 +40,7 @@
   <body>
     <?php
       $active = 'ask';
-      include('headerUser.html');
+      include('header.html');  
     ?>
     <!-- MAIN -->
     <main role="main" class="container">

@@ -42,11 +42,8 @@
   </head>
   <body>
     <?php
-      if(isset($_SESSION['user'])){
-        include('headerUser.html');   
-      }else{
-        include('headerVisitor.html');  
-      }
+      $active = 'profile';
+      include('header.html');   
     ?>
     <!-- MAIN -->
     <main role="main" class="container">

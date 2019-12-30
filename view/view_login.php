@@ -41,7 +41,7 @@
   <body>
     <?php
       $active = 'login';
-      include('headerVisitor.html');
+      include('header.html');  
     ?>
     <!-- MAIN -->
     <main role="main" class="container">

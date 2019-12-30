@@ -41,7 +41,7 @@
   <body>
     <?php
       $active = 'signup';
-      include('headerVisitor.html');
+      include('header.html');  
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
