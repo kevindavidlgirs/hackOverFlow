@@ -28,7 +28,7 @@ class Post extends Model {
     public function getTimestamp(){
         return $this->Timestamp;
     }
-    public function getUser(){
+    public function getFullNameUser(){
         return $this->FullNameUser;
     }
     public function getTotalVote(){
@@ -56,13 +56,24 @@ class Post extends Model {
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $getFullNameAuthor = User::get_user($row["AuthorId"]);
+            $getFullNameAuthor = User::get_user_by_id($row["AuthorId"]);
             $getSumVote = Vote::get_SumVote($row["PostId"]);
             $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$row["PostId"]));
             $nbAnswers = $query->fetch();
             $results[] = new Post($row["PostId"], $row["AuthorId"], $row["Title"], $row["Body"], $row["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'] );
         }
         return $results;
+    }
+
+    public static function sum_of_questions_by_user($userId){
+        $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
+        $data = $query->fetch();
+        return $nbQuestion = $data['nbQuestions'];
+    }
+    public static function sum_of_answers_by_user($userId){
+        $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
+        $data = $query->fetch();
+        return $nbAnswers = $data['nbAnswers'];
     }
 
     

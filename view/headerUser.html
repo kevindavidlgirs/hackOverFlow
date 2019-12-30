@@ -7,13 +7,13 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-            <a class="nav-link <?php if($active == 'ask') echo 'active'; ?> " href="post/ask">Ask a question<span class="sr-only">(current)</span></a>
+            <a class="nav-link <?php if(isset($active) && $active == 'ask') echo 'active'; ?> " href="post/ask">Ask a question<span class="sr-only">(current)</span></a>
           </li>
         <li class="nav-item">
-          <a class="nav-link <?php if($active == 'question') echo 'active'; ?> " href="post/index">Questions<span class="sr-only">(current)</span></a>
+          <a class="nav-link <?php if(isset($active) && $active == 'question') echo 'active'; ?> " href="post/index">Questions<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?php if($active == 'profile') echo 'active'; ?> " href="user/profile"><?= $_SESSION['user']->getUserName(); ?></a>
+          <a class="nav-link <?php if(isset($active) && $active == 'profile') echo 'active'; ?> " href="user/profile"><?= $_SESSION['user']->getUserName(); ?></a>
         </li>
         <li class="nav-item ">
           <a class="nav-link" href="user/logout">Logout<span class="sr-only">(current)</span></a>

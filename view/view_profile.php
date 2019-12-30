@@ -14,7 +14,10 @@
     
     <!-- Propre? -->   
     <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/myStyle.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/myStyle.css" rel="stylesheet">
     <!-- Propre? -->
 
     <style>
@@ -39,13 +42,33 @@
   </head>
   <body>
     <?php
-      $active = 'profile';
-      include('headerUser.html');
+      if(isset($_SESSION['user'])){
+        include('headerUser.html');   
+      }else{
+        include('headerVisitor.html');  
+      }
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-	
-
+		  <div class="card text-white bg-dark mb-3 col-md-4 offset-md-4" style="max-width: 24rem;">
+        <div class="card-header text-center"><h4><?= $user->getFullName() ?></h4></div>
+          <div class="card-body">
+          <ul class="list-group ">
+            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+              <?= '<strong>Pseudo : </strong>'.$user->getUserName() ?>
+            </li>
+            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+              Nombre de questions :
+              <span class="badge badge-secondary badge-pill"><?= $user->get_sum_questions() ?></span>
+            </li>
+            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+              Nombre de réponses :
+              <span class="badge badge-secondary badge-pill"><?= $user->get_sum_answers() ?></span>
+            </li>
+          </ul>
+          </div>
+        </div>
+      </div>
     </main>          
   </body>
 </html>

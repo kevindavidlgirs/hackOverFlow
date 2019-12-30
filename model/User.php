@@ -1,15 +1,18 @@
 <?php
 
 require_once "framework/Model.php";
+require_once("model/Post.php");
 
 class User extends Model {
 
+    private $userId;
     private $username;
     private $hashed_password;
     private $fullname;
     private $email;
 
-    public function __construct($username, $hashed_password, $fullname, $email) {
+    public function __construct($userId, $username, $hashed_password, $fullname, $email) {
+        $this->userId = $userId;
         $this->username = $username;
         $this->hashed_password = $hashed_password;
         $this->fullname = $fullname;
@@ -23,34 +26,11 @@ class User extends Model {
     public function getFullName(){
         return $this->fullname;
     }
+
+    public function getEmail(){
+        return $this->email;
+    }
     
-    public function update() {
-        if(self::get_user_by_userName($this->username)) 
-            self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
-                          array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
-        else
-            self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
-                          array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
-        return $this;
-    }
-
-    public static function validate_unicity($username, $fullname, $email){
-        $errors = [];
-        $user = self::get_user_by_userName($username);
-        if ($user) {
-            $errors['user'] = "This user already exists.";
-        }
-        $user = self::get_user_by_fullName($fullname);
-        if ($user) {
-            $errors['name'] = "This fullname already exists.";
-        } 
-        $user = self::get_user_by_email($email);
-        if ($user) {
-            $errors['email'] = "This email already exists.";
-        }
-        return $errors;
-    }
-
     //Recherche à voir si un utilisateur existe déjà dans BD sur base de son userName
     public static function get_user_by_userName($username) {
         $query = self::execute("SELECT * FROM user WHERE username = :username", array("username"=>$username));
@@ -58,7 +38,7 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
         }
     }
 
@@ -69,7 +49,7 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
         }
     }
         
@@ -80,41 +60,36 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
         }
     }
 
     //Récupère un objet user à partir d'un authorId provenant d'un post.
-    public static function get_user($AutorId) {
-        $query = self::execute("SELECT * FROM user WHERE UserId =:AuthorId", array("AuthorId" => $AutorId));
+    public static function get_user_by_id($id) {
+        $query = self::execute("SELECT * FROM user WHERE UserId =:Id", array("Id" => $id));
         $data = $query->fetch();
-        $results = new User($data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
+        $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
         return $results;
     }
 
-    private static function validate_password($password){
-        $errors = [];
-        if (strlen($password) < 8 || strlen($password) > 16) {
-            $errors['password'] = "Password length must be between 8 and 16.";
-        } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?\\-]/", $password))) {
-            $errors['password'] = "Password must contain one uppercase letter, one number and one punctuation mark.";
-        }
-        return $errors;
+    public function get_sum_questions(){
+        $getSumVote = Post::sum_of_questions_by_user($this->userId);
+        return $getSumVote;    
     }
-    
-    public static function validate_passwords($password, $password_confirm){
-        $errors = User::validate_password($password);
-        if ($password != $password_confirm) {
-            $errors['password_confirm'] = "You have to enter twice the same password.";
-        }
-        return $errors;
-    }
-    
-    
 
-    //indique si un mot de passe correspond à son hash
-    private static function check_password($clear_password, $hash) {
-        return $hash === Tools::my_hash($clear_password);
+    public function get_sum_answers(){
+        $getSumVote = Post::sum_of_answers_by_user($this->userId);
+        return $getSumVote;    
+    }
+    //Devrais-je la nommer autrement ? Du genre : create profile ? (A voir ave l'evolution du projet)
+    public function update() {
+        //if(self::get_user_by_userName($this->username)) 
+            //self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
+              //            array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
+        //else
+            self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
+                          array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
+        return $this;
     }
 
     //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
@@ -139,8 +114,6 @@ class User extends Model {
         }
         return $errors;
     }
-    
-    
 
     //renvoie un tableau d'erreur(s) 
     //le tableau est vide s'il n'y a pas d'erreur.
@@ -157,6 +130,70 @@ class User extends Model {
         return $errors;
     }
 
+    public static function validate_unicity($username, $fullname, $email){
+        $errors = [];
+        $user = self::get_user_by_userName($username);
+        if ($user) {
+            $errors['user'] = "This user already exists.";
+        }
+        $user = self::get_user_by_fullName($fullname);
+        if ($user) {
+            $errors['name'] = "This fullname already exists.";
+        } 
+        $user = self::get_user_by_email($email);
+        if ($user) {
+            $errors['email'] = "This email already exists.";
+        }
+        return $errors;
+    }
+
+    private static function validate_password($password){
+        $errors = [];
+        if (strlen($password) < 8 || strlen($password) > 16) {
+            $errors['password'] = "Password length must be between 8 and 16.";
+        } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?\\-]/", $password))) {
+            $errors['password'] = "Password must contain one uppercase letter, one number and one punctuation mark.";
+        }
+        return $errors;
+    }
+    
+    public static function validate_passwords($password, $password_confirm){
+        $errors = User::validate_password($password);
+        if ($password != $password_confirm) {
+            $errors['password_confirm'] = "You have to enter twice the same password.";
+        }
+        return $errors;
+    }
+
+
+    //indique si un mot de passe correspond à son hash
+    private static function check_password($clear_password, $hash) {
+        return $hash === Tools::my_hash($clear_password);
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     //renvoie un tableau d'erreur(s) 
     //le tableau est vide s'il n'y a pas d'erreur.
     public static function validate_photo($file) {

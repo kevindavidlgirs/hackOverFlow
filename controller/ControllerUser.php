@@ -91,11 +91,27 @@ class ControllerUser extends Controller {
 
     //profil de l'utilisateur connecté ou donné
     public function profile() {
-        $member = $this->get_user_or_redirect();
-        if (isset($_GET["param1"]) && $_GET["param1"] !== "") {
-            $member = Member::get_member_by_pseudo($_GET["param1"]);
+        if($this->user_logged() && !isset($_GET["param1"])){
+            $user = $this->get_user_or_redirect();
+            (new View("profile"))->show(array("user" => $user));
+        }else if ($this->user_logged() && isset($_GET["param1"]) && $_GET["param1"] !== "") {
+            $user = User::get_user_by_id($_GET["param1"]);
+            if(strlen($user->getUserName())> 0) {
+                (new View("profile"))->show(array("user" => $user));    
+            }else{
+                $this->redirect();    
+            }
+        }else if (isset($_GET["param1"]) && $_GET["param1"] !== "") {
+            $user = User::get_user_by_id($_GET["param1"]);
+            if(strlen($user->getUserName())> 0){
+                (new View("profile"))->show(array("user" => $user));    
+            }else{
+                $this->redirect();
+            }
+        }else{
+            $this->redirect();
         }
-        (new View("profile"))->show(array("member" => $member));
+        
     }
     public function members(){
         $member = $this->get_user_or_redirect();

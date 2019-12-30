@@ -51,6 +51,8 @@
         </div>
         <div class="card-body">
           <form action="user/login" method="post">
+
+
             <?php if(array_key_exists('user', $errors)):?>            
               <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
               <div class="invalid-feedback">
@@ -61,7 +63,9 @@
                 <!--A modifier pour faire apparaître le nom de l'user qui est quand même existant si le code est mauvais -->
                 <input type="text" class="form-control" name="username" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?> />
               </div>
-            <?php endif ?>  
+            <?php endif ?> 
+
+
             <?php if(array_key_exists('password', $errors)):?>            
               <input type="password" name="password" class="form-control is-invalid" placeholder="Password" required>
               <div class="invalid-feedback">
@@ -72,6 +76,8 @@
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
               </div>
             <?php endif ?>
+
+            
             <button type="submit" class="btn btn-primary btn-dark btn-block">login</button>
           </form>
         </div>

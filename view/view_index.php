@@ -88,9 +88,9 @@
                           //Methode ou include?
 
                   if($interval->format('%d') > 0){
-                    echo "<small>Il y a ".$interval->format('%d jour(s)')." par ".$post->getUser()."</small>";
+                    echo "<small>Il y a ".$interval->format('%d jour(s)')." par <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
                   }else{
-                    echo "<small>Il y a ".$interval->format('%h heure(s)')." par ".$post->getUser()."</small>";
+                    echo "<small>Il y a ".$interval->format('%h heure(s)')." par <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
                   }
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){
