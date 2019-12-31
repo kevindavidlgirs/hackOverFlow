@@ -12,12 +12,24 @@ class ControllerPost extends Controller{
     }
 
     public function ask(){
-        if($this->user_logged()){
+        if($this->user_logged() && !isset($_POST['title']) or !isset($_POST['body'])){
             (new View("ask"))->show();
+        }else if($this->user_logged() && isset($_POST['title']) && isset($_POST['body'])){
+            $post = new Post(null, $_SESSION['user']->getUserId(), $_POST['title'], $_POST['body'], null, null, null, null);
+            $post->create_post();   
+            $this->redirect();
         }else{
             $this->redirect();
         }
          
+    }
+    
+    public function show(){
+        if(isset($_GET['param1'])){       
+            (new View("show"))->show(array("post"=> Post::get_post($_GET['param1'])));
+        }else{
+            $this->redirect();
+        }        
     }
 }
 

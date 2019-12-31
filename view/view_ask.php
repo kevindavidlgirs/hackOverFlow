@@ -44,7 +44,19 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-
+      <form action="post/ask" method="post">
+        <div class="form-group">
+          <label>Title</label><br>
+          <small>Be specific and imagine you're asking a question to another person</small>
+          <input class="form-control" type="text" name="title"><br>
+        </div>
+        <div class="form-group">
+          <label>Body</label><br>
+          <small>Include all the information someone would need to answer your question</small>
+          <textarea class="form-control" type="text" name="body" rows="6"></textarea>
+        </div>
+        <button type="submit" class="btn btn-dark mb-2">Publish your question</button>
+      </form>
     </main>          
   </body>
 </html>

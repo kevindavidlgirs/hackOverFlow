@@ -19,6 +19,10 @@ class User extends Model {
         $this->email = $email;
     }
 
+    public function getUserId(){
+        return $this->userId;
+    }
+
     public function getUserName(){
         return $this->username;
     }

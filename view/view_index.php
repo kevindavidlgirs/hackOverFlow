@@ -16,6 +16,8 @@
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/myStyle.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/myStyle.css" rel="stylesheet">
     <!-- Propre? -->
 
     <style>
@@ -49,7 +51,7 @@
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
-              <a class="nav-link active" href="post/index">Récents</a>
+              <a class="nav-link active" href="post/index">Newest</a>
             </li>
             <li class="nav-item">
               <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
@@ -72,7 +74,7 @@
             <?php foreach($posts as $post): ?>
               <li class="list-group-item">
                 <?php
-                  echo "<a href=post/index>".$post->getTitle()."</a><br>"; 
+                  echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBody()."<br>";
                   
                   //Se charge de déterminer et d'afficher les jours (ou heures) passés depuis la création d'un post. 
@@ -80,8 +82,6 @@
                   $datetime1 = new DateTime($post->getTimestamp());
                   $interval = $datetime->diff($datetime1);
                   
-                          //Methode ou include?
-
                   if($interval->format('%d') > 0){
                     echo "<small>Il y a ".$interval->format('%d jour(s)')." par <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
                   }else{
@@ -89,13 +89,16 @@
                   }
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){
-                    echo "<small> (0 vote(s), ". $post->getNbAnswers() ." réponse(s))</small>";
+                    echo "<small> (0 vote(s), ";
                   }else{
-                    echo "<small> (".$post->getTotalVote()." vote(s), ". $post->getNbAnswers() ." réponse(s))</small>";   
+                    echo "<small> (".$post->getTotalVote()." vote(s), ";   
                   }
-                          //Methode ou include?
-
-                ?>
+                  if($post->getNbAnswers() === null){
+                    echo "0 réponse(s))</small>";
+                  }else{
+                    echo $post->getNbAnswers() ." réponse(s))</small>";
+                  }
+                ?>    
               </li>
             <?php endforeach ?>
           </ul>

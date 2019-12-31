@@ -16,6 +16,8 @@
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/myStyle.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/myStyle.css" rel="stylesheet">
     <!-- Propre? -->
 
     <style>
@@ -73,7 +75,7 @@
               </div>  
             <?php else: ?> 
               <div class="form-group">
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
+                <input type="password" class="form-control" name="password" placeholder="Password"/>
               </div>
             <?php endif ?>
 
