@@ -46,10 +46,29 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-    <!-- test -->  
-    <?php
-        
-    ?>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <h5><?= $post->getTitle() ?></h5>
+          <?php 
+            $datetime = new DateTime("now");
+            $datetime1 = new DateTime($post->getTimestamp());
+            $interval = $datetime->diff($datetime1);
+                        
+            if($interval->format('%d') > 0){
+              echo "<small>Asked ".$interval->format('%d day(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
+            }else{
+              echo "<small>Asked ".$interval->format('%h hour(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
+            }
+          ?>
+        </li>
+        <li class="list-group-item">
+            <?= $post->getBody() ?><br>
+            <?= $post->getNbAnswers()?>
+        </li>
+        <li class="list-group-item">
+            
+        </li>
+      </ul>
     </main>          
   </body>
 </html>

@@ -39,7 +39,7 @@ class ControllerUser extends Controller {
             $password_confirm = $_POST['password_confirm'];
             $fullname = $_POST['fullname'];
             $email = $_POST['email'];
-            $user = new User($username, Tools::my_hash($password), $fullname, $email);
+            $user = new User(null, $username, Tools::my_hash($password), $fullname, $email);
             $errors = User::validate_unicity($username, $fullname, $email);
             $errors = array_merge($errors, $user->validate());
             $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
@@ -113,6 +113,11 @@ class ControllerUser extends Controller {
         }
         
     }
+
+
+
+
+    
     public function members(){
         $member = $this->get_user_or_redirect();
         $members = Member::get_members();

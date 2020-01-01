@@ -12,6 +12,7 @@ class Post extends Model {
     private $FullNameUser;
     private $TotalVote;
     private $nbAnswers;
+    private $Answers;
     
     public function getPostId(){
         return $this->PostId;
@@ -37,8 +38,11 @@ class Post extends Model {
     public function getNbAnswers(){
         return $this->nbAnswers;
     }
+    public function getAnswers(){
+        return $this->Answers;
+    }
 
-    public function __construct($PostId, $AuthorId, $Title, $Body, $Timestamp, $FullNameUser, $TotalVote, $nbAnswers){
+    public function __construct($PostId, $AuthorId, $Title, $Body, $Timestamp, $FullNameUser, $TotalVote, $nbAnswers, $Answers){
         $this->PostId = $PostId;
         $this->AuthorId = $AuthorId;
         $this->Title = $Title;
@@ -47,6 +51,7 @@ class Post extends Model {
         $this->FullNameUser = $FullNameUser;
         $this->TotalVote = $TotalVote;
         $this->nbAnswers = $nbAnswers;
+        $this->Answers = $Answers;
     }
 
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
@@ -60,7 +65,8 @@ class Post extends Model {
             $getSumVote = Vote::get_SumVote($row["PostId"]);
             $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$row["PostId"]));
             $nbAnswers = $query->fetch();
-            $results[] = new Post($row["PostId"], $row["AuthorId"], $row["Title"], $row["Body"], $row["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'] );
+            //null dans le constructeur à changer dans le futur
+            $results[] = new Post($row["PostId"], $row["AuthorId"], $row["Title"], $row["Body"], $row["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'], null );
         }
         return $results;
     }
@@ -70,11 +76,14 @@ class Post extends Model {
         $post = $query->fetch();
         $getFullNameAuthor = User::get_user_by_id($post["AuthorId"]);
         $getSumVote = Vote::get_SumVote($post["PostId"]);
+        $query = self::execute("SELECT * FROM post WHERE ParentId = :PostId", array("PostId"=>$postId));
+        $Answers = $query->fetchAll();
         $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$post["PostId"]));
         $nbAnswers = $query->fetch();
-        $result = new Post($post["PostId"], $post["AuthorId"], $post["Title"], $post["Body"], $post["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'] );
+        $result = new Post($post["PostId"], $post["AuthorId"], $post["Title"], $post["Body"], $post["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'], $Answers);
         return $result;
     }
+
 
     public static function sum_of_questions_by_user($userId){
         $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));

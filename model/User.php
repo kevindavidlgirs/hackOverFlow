@@ -72,18 +72,17 @@ class User extends Model {
     public static function get_user_by_id($id) {
         $query = self::execute("SELECT * FROM user WHERE UserId =:Id", array("Id" => $id));
         $data = $query->fetch();
-        $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
-        return $results;
+        return $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
+       
     }
 
     public function get_sum_questions(){
-        $getSumVote = Post::sum_of_questions_by_user($this->userId);
-        return $getSumVote;    
+        return $getSumVote = Post::sum_of_questions_by_user($this->userId);    
     }
 
     public function get_sum_answers(){
-        $getSumVote = Post::sum_of_answers_by_user($this->userId);
-        return $getSumVote;    
+        return $getSumVote  = Post::sum_of_answers_by_user($this->userId);
+           
     }
     //Devrais-je la nommer autrement ? Du genre : create profile ? (A voir ave l'evolution du projet)
     public function update() {

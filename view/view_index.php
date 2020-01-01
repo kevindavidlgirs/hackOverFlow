@@ -83,9 +83,9 @@
                   $interval = $datetime->diff($datetime1);
                   
                   if($interval->format('%d') > 0){
-                    echo "<small>Il y a ".$interval->format('%d jour(s)')." par <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
+                    echo "<small>Asked ".$interval->format('%d day(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
                   }else{
-                    echo "<small>Il y a ".$interval->format('%h heure(s)')." par <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
+                    echo "<small>Asked ".$interval->format('%h hour(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
                   }
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){
@@ -94,9 +94,9 @@
                     echo "<small> (".$post->getTotalVote()." vote(s), ";   
                   }
                   if($post->getNbAnswers() === null){
-                    echo "0 réponse(s))</small>";
+                    echo "0 answer(s))</small>";
                   }else{
-                    echo $post->getNbAnswers() ." réponse(s))</small>";
+                    echo $post->getNbAnswers() ." answer(s))</small>";
                   }
                 ?>    
               </li>
