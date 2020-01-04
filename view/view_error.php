@@ -10,7 +10,6 @@
 
 <body>
     <?php
-      $active = 'question';
       include('header.html');   
     ?>
     <div class="title">Error</div>

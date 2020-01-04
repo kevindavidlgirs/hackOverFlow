@@ -13,7 +13,7 @@
     <!-- Bootstrap core CSS -->
     
     <!-- Propre? -->   
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="../css/myStyle.css" rel="stylesheet">
     <!-- Propre? -->
 

@@ -1,7 +1,10 @@
 <?php
+require_once("lib/parsedown-1.7.3/Parsedown.php");
 require_once("framework/model.php");
 require_once("model/User.php");
 require_once("model/Vote.php");
+require_once("model/Answer.php");
+
 
 class Post extends Model {
     private $PostId;
@@ -12,8 +15,11 @@ class Post extends Model {
     private $FullNameUser;
     private $TotalVote;
     private $nbAnswers;
+    private $nbVote;
     private $Answers;
+    private $AcceptedAnswerId;
     
+    //Réduire le nombre de getters avec des function d'instance
     public function getPostId(){
         return $this->PostId;
     }
@@ -41,8 +47,11 @@ class Post extends Model {
     public function getAnswers(){
         return $this->Answers;
     }
+    public function getNbVote(){
+        return $this->nbVote;
+    }
 
-    public function __construct($PostId, $AuthorId, $Title, $Body, $Timestamp, $FullNameUser, $TotalVote, $nbAnswers, $Answers){
+    public function __construct($PostId, $AuthorId, $Title, $Body, $Timestamp, $FullNameUser, $TotalVote, $nbAnswers, $AcceptedAnswerId, $Answers, $nbVote){
         $this->PostId = $PostId;
         $this->AuthorId = $AuthorId;
         $this->Title = $Title;
@@ -51,7 +60,9 @@ class Post extends Model {
         $this->FullNameUser = $FullNameUser;
         $this->TotalVote = $TotalVote;
         $this->nbAnswers = $nbAnswers;
+        $this->AcceptedAnswerId = $AcceptedAnswerId;
         $this->Answers = $Answers;
+        $this->nbVote = $nbVote;
     }
 
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
@@ -61,12 +72,9 @@ class Post extends Model {
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $getFullNameAuthor = User::get_user_by_id($row["AuthorId"]);
-            $getSumVote = Vote::get_SumVote($row["PostId"]);
-            $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$row["PostId"]));
-            $nbAnswers = $query->fetch();
-            //null dans le constructeur à changer dans le futur
-            $results[] = new Post($row["PostId"], $row["AuthorId"], $row["Title"], $row["Body"], $row["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'], null );
+            $results[] = new Post($row["PostId"], $row["AuthorId"], self::remove_markdown($row["Title"]), self::remove_markdown($row["Body"]), 
+                                    $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
         }
         return $results;
     }
@@ -74,33 +82,41 @@ class Post extends Model {
     public static function get_post($postId){
         $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
         $post = $query->fetch();
-        $getFullNameAuthor = User::get_user_by_id($post["AuthorId"]);
-        $getSumVote = Vote::get_SumVote($post["PostId"]);
-        $query = self::execute("SELECT * FROM post WHERE ParentId = :PostId", array("PostId"=>$postId));
-        $Answers = $query->fetchAll();
-        $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$post["PostId"]));
-        $nbAnswers = $query->fetch();
-        $result = new Post($post["PostId"], $post["AuthorId"], $post["Title"], $post["Body"], $post["Timestamp"], $getFullNameAuthor->getFullName(), $getSumVote->getTotalVote(), $nbAnswers['nbAnswers'], $Answers);
-        return $result;
+        return $result = new Post($post["PostId"], $post["AuthorId"], self::markdown($post["Title"]), self::markdown($post["Body"]), $post["Timestamp"], 
+                                    User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
+                                        Answer::get_nbAnswers($postId)['nbAnswers'], null, Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
     }
 
+    
 
-    public static function sum_of_questions_by_user($userId){
+    public static function sum_of_questions_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
         return $nbQuestion = $data['nbQuestions'];
     }
-    public static function sum_of_answers_by_user($userId){
-        $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
-        $data = $query->fetch();
-        return $nbAnswers = $data['nbAnswers'];
-    }
+    
 
     public function create_post(){
         $query = self::execute("INSERT INTO post(AuthorId, Title, Body) values(:AuthorId, :Title, :Body)", 
                                 array('AuthorId'=>$this->AuthorId, 'Title'=>$this->Title, 'Body'=>$this->Body));    
     }
-    
+
+    public function get_upDown_vote($userId, $postId){
+        return $result = Vote::get_upDown($userId, $postId);    
+    }
+
+    private static function markdown($markedown){
+        $Parsedown = new Parsedown();
+        $Parsedown->setSafeMode(true); 
+        return $html = $Parsedown->text($markedown);  
+    }
+
+    private static function remove_markdown($value){
+        $Parsedown = new Parsedown();
+        $Parsedown->setSafeMode(true);
+	    $html = $Parsedown->text($value);
+        return strip_tags($html);
+    }
 
 }
 

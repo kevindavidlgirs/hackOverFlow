@@ -2,6 +2,8 @@
 
 require_once "framework/Model.php";
 require_once("model/Post.php");
+require_once("model/Answer.php");
+
 
 class User extends Model {
 
@@ -77,11 +79,11 @@ class User extends Model {
     }
 
     public function get_sum_questions(){
-        return $getSumVote = Post::sum_of_questions_by_user($this->userId);    
+        return $getSumVote = Post::sum_of_questions_by_userId($this->userId);    
     }
 
     public function get_sum_answers(){
-        return $getSumVote  = Post::sum_of_answers_by_user($this->userId);
+        return $getSumVote  = Answer::sum_of_answers_by_userId($this->userId);
            
     }
     //Devrais-je la nommer autrement ? Du genre : create profile ? (A voir ave l'evolution du projet)
