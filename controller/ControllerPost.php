@@ -61,6 +61,7 @@ class ControllerPost extends Controller{
         
     }
 
+    //Gère l'édition d'une post ou d'une réponse (function à découper)
     public function edit(){
         if($this->user_logged() && isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_POST['body'])){
             $postId = $_GET['param1'];
@@ -86,7 +87,7 @@ class ControllerPost extends Controller{
 
     }
 
-    
+    //Gère la suppression d'un post ou d'une question
     public function delete(){
         if($this->user_logged() && isset($_GET['param1']) && isset($_POST['cancel'])){
             $postId = $_GET['param1'];
@@ -117,6 +118,7 @@ class ControllerPost extends Controller{
         }
     }
 
+    //Ajoute une réponse à un post 
     public function answer(){
         if($this->user_logged() && isset($_GET['param1']) && isset($_POST['answer'])){
             $parentId = $_GET['param1'];
