@@ -21,6 +21,10 @@ class Answer extends model{
         $this->nbVote = $nbVote;
     }
 
+    public function getBodyMarkedown(){
+        return self::markdown($this->body);
+    }
+
     public function getBody(){
         return $this->body;
     }
@@ -49,35 +53,64 @@ class Answer extends model{
         return $this->nbVote;
     }
 
+
+    //Récupère toutes les réponses pour un post 
     public static function get_answers($postId){
         $query = self::execute("SELECT * FROM post WHERE ParentId = :PostId", array("PostId"=>$postId));
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $value){
-            $results[] = new Answer(self::markdown($value['Body']), $value['AuthorId'], $value['ParentId'], 
+            $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
                                     $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
                                         $value['PostId'], Vote::get_NbVote($value['PostId']));
         }
         return $results;
     }
 
+    //Récupère une seule réponse
+    public static function get_answer($answerId){
+        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$answerId));
+        $data = $query->fetch();
+        return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
+                                    $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
+                                        $data['PostId'], Vote::get_NbVote($data['PostId']));
+        
+        
+    }
+    
+    //Récupère le nombre de question pour un post
     public static function get_nbAnswers($postId){
-        $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostID GROUP BY(ParentId)", array("PostID"=>$postId));
+        $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostId GROUP BY(ParentId)", array("PostId"=>$postId));
         $data = $query->fetch();
         return $data;
     }
 
+    //Ajoute une réponse en bd pour un post donné
+    public static function add_answer($userId, $parentId, $answer){
+        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$userId, "Body"=>$answer, "ParentId"=>$parentId));
+        return true;
+    }
+
+    //Fait la somme des réponses pour le profile d'un utilisateur
     public static function sum_of_answers_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
         return $nbAnswers = $data['nbAnswers'];
     }
 
+    //Edite la réponse en bd
+    public static function edit_answer($postId, $body){
+        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$postId, "Body"=>$body));
+        return true;
+    }
+
+    //Conversion d'un text brut en markdown
     private static function markdown($markedown){
         $Parsedown = new Parsedown();
         $Parsedown->setSafeMode(true); 
         return $html = $Parsedown->text($markedown);  
     }
+
 
 }
 ?>

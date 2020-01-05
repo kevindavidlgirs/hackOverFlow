@@ -55,20 +55,16 @@
             $datetime = new DateTime("now");
             $datetime1 = new DateTime($post->getTimestamp());
             $interval = $datetime->diff($datetime1);           
-            if($interval->format('%y') > 0){
-              echo "<small>Asked ".$interval->format('%y year(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";  
-            }else if($interval->format('%m') > 0){
-              echo "<small>Asked ".$interval->format('%m month(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-            }else if($interval->format('%d') > 0){
-              echo "<small>Asked ".$interval->format('%d day(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-            }else if($interval->format('%h') > 0){
-              echo "<small>Asked ".$interval->format('%h hour(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-            }else if($interval->format('%i') > 0){
-              echo "<small>Asked ".$interval->format('%i minute(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-            }else if($interval->format('%s') > 10){
-              echo "<small>Asked ".$interval->format('%s seconde(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-            }else{
-              echo "<small>Asked now by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";  
+            include("time.html");
+            if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameUser()){
+              echo "<form action='post/edit/".$post->getPostId()."' method='post' style='display: inline-block'>";
+              echo "<button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>";
+              echo "</form>";
+              if($post->getNbAnswers() < 1){
+                echo "<form action='post/delete/".$post->getPostId()."' method='post' style='display: inline-block'>";
+                echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
+                echo "</form>";
+              }
             }
           ?>
         </li>
@@ -117,10 +113,17 @@
             </div>
             <!-- affiche le body du post sélectionné -->
             <div class="col">
-              <?= $post->getBody() ?><br><br>
+              <?= $post->getBodyMarkedown() ?>
             </div>  
           </div>
-          <?= $post->getNbAnswers().' Answer(s)';?>     
+          
+          <?php
+            if($post->getNbAnswers() > 0){
+              echo $post->getNbAnswers().' Answer(s)';
+            }else{
+              echo '0 Answer(s)';
+            }
+          ?>     
         </li>
 
         <!--Affiche les réponses-->
@@ -157,6 +160,7 @@
                               
                   
                 <?php else: ?>  
+
                   <!-- Getion des boutons like et dislike si l'utilisateur est un visiteur -->  
                   <a class="btn" href="user/signup">
                     <i class="far fa-heart fa-7px"></i>
@@ -170,25 +174,19 @@
                 <?php endif ?>
               </div>
               <div class="col">
-                <?= $answer->getBody(); ?><br>
+                <?= $answer->getBodyMarkedown(); ?><br>
                 <?php 
                   $datetime = new DateTime("now");
                   $datetime1 = new DateTime($answer->getTimestamp());
                   $interval = $datetime->diff($datetime1);
-                  if($interval->format('%y') > 0){
-                    echo "<small>Asked ".$interval->format('%y year(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";  
-                  }else if($interval->format('%m') > 0){
-                    echo "<small>Asked ".$interval->format('%m month(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%d') > 0){
-                    echo "<small>Asked ".$interval->format('%d day(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%h') > 0){
-                    echo "<small>Asked ".$interval->format('%h hour(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%i') > 0){
-                    echo "<small>Asked ".$interval->format('%i minute(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%s') > 10){
-                    echo "<small>Asked ".$interval->format('%s seconde(s)')." ago by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";
-                  }else{
-                    echo "<small>Asked now by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameUser()."</a></small>";  
+                  include("time.html");
+                  if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $answer->getFullNameUser()){
+                    echo "<form action='post/edit/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
+                    echo "<button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>";
+                    echo "</form>";
+                    echo "<form action='post/delete/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
+                    echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
+                    echo "</form>";
                   }
                 ?>
               </div>
@@ -199,11 +197,13 @@
 
       </ul><br>
       <!-- Formulaire pour ajouter une réponse -->
-      <div class="form-group">
-        <small>Your answer</small>
-        <textarea class="form-control rounded-0" name="answer" rows="10"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary btn-dark">Post your answer</button>
+      <form action="post/answer/<?= $post->getPostId() ?>" method="post">
+        <div class="form-group">
+          <small>Your answer</small>
+          <textarea class="form-control rounded-0" name="answer" rows="10"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-dark">Post your answer</button>
+      </form>
     </main>          
   </body>
 </html>

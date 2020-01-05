@@ -114,7 +114,7 @@
             </div>
           <?php endif ?>
           
-            <input type="submit" class="btn btn-primary btn-dark btn-block" value="Sign up"/>
+            <button type="submit" class="btn btn-primary btn-dark btn-block">Sign up</button>
           </form>
         </div>
       </div>

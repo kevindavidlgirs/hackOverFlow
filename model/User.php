@@ -88,12 +88,8 @@ class User extends Model {
     }
     //Devrais-je la nommer autrement ? Du genre : create profile ? (A voir ave l'evolution du projet)
     public function update() {
-        //if(self::get_user_by_userName($this->username)) 
-            //self::execute("UPDATE Members SET password=:password, picture_path=:picture, profile=:profile WHERE pseudo=:pseudo ", 
-              //            array("picture"=>$this->picture_path, "profile"=>$this->profile, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password));
-        //else
-            self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
-                          array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
+        self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
+            array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
         return $this;
     }
 

@@ -75,7 +75,7 @@
               <li class="list-group-item">
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
-                  echo $post->getBody()."<br>";
+                  echo $post->getBodyMarkedownRemoved()."<br>";
                   
                   //Se charge de déterminer et d'afficher les jours (ou heures) passés depuis la création d'un post. 
                   $datetime = new DateTime("now");

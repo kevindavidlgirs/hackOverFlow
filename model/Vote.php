@@ -61,11 +61,15 @@ class Vote extends Model{
     }
 
     public static function get_upDown($userId, $postId){
-        $query = self::execute("SELECT UpDown FROM vote WHERE PostId = :PostId and UserId= :UserId", array("UserId"=>$userId, "PostId"=>$postId));
+        $query = self::execute("SELECT UpDown FROM vote WHERE UserId= :UserId and PostId = :PostId", array("UserId"=>$userId, "PostId"=>$postId));
         $data = $query->fetch();
         return $data['UpDown'];
     }
 
+    public static function delete($postId){
+        $query = self::execute("DELETE FROM vote WHERE PostId = :PostId", array("PostId"=>$postId));
+        return true;    
+    }
 }
 
 

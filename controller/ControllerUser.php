@@ -118,9 +118,9 @@ class ControllerUser extends Controller {
 
 
     
-    public function members(){
-        $member = $this->get_user_or_redirect();
-        $members = Member::get_members();
-        (new View("members"))->show(array("members"=> $members));
-    }
+    //public function members(){
+        //$member = $this->get_user_or_redirect();
+        //$members = Member::get_members();
+        //(new View("members"))->show(array("members"=> $members));
+    //}
 }

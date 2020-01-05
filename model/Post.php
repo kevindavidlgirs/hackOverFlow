@@ -29,6 +29,12 @@ class Post extends Model {
     public function getTitle(){
         return $this->Title;
     }
+    public function getBodyMarkedown(){
+        return self::markdown($this->Body);
+    }
+    public function getBodyMarkedownRemoved(){
+        return self::remove_markdown($this->Body);    
+    }
     public function getBody(){
         return $this->Body;
     }
@@ -72,35 +78,36 @@ class Post extends Model {
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $results[] = new Post($row["PostId"], $row["AuthorId"], self::remove_markdown($row["Title"]), self::remove_markdown($row["Body"]), 
+            $results[] = new Post($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
         }
         return $results;
     }
 
+    //Récupère un post grace à son id
     public static function get_post($postId){
         $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
         $post = $query->fetch();
-        return $result = new Post($post["PostId"], $post["AuthorId"], self::markdown($post["Title"]), self::markdown($post["Body"]), $post["Timestamp"], 
+        return $result = new Post($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($postId)['nbAnswers'], null, Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
     }
 
-    
-
+    //Fait la somme des questions pour le profile de l'utilisateur
     public static function sum_of_questions_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
         return $nbQuestion = $data['nbQuestions'];
     }
     
-
+    //Crée un post en bd. Attention méthode à utiliser
     public function create_post(){
         $query = self::execute("INSERT INTO post(AuthorId, Title, Body) values(:AuthorId, :Title, :Body)", 
                                 array('AuthorId'=>$this->AuthorId, 'Title'=>$this->Title, 'Body'=>$this->Body));    
     }
 
+    
     public function get_upDown_vote($userId, $postId){
         return $result = Vote::get_upDown($userId, $postId);    
     }
@@ -116,6 +123,19 @@ class Post extends Model {
         $Parsedown->setSafeMode(true);
 	    $html = $Parsedown->text($value);
         return strip_tags($html);
+    }
+
+    public static function edit_post($postId, $body){
+        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$postId, "Body"=>$body));
+        return true;
+    }
+
+    public static function delete($postId){
+        if(Vote::delete($postId)){
+            self::execute("DELETE FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
+            return true;
+        }
+        
     }
 
 }
