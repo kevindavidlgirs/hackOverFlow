@@ -56,6 +56,9 @@ class Post extends Model {
     public function getNbVote(){
         return $this->nbVote;
     }
+    public function getAcceptedAnswerId(){
+        return $this->AcceptedAnswerId;
+    }
 
     public function __construct($PostId, $AuthorId, $Title, $Body, $Timestamp, $FullNameUser, $TotalVote, $nbAnswers, $AcceptedAnswerId, $Answers, $nbVote){
         $this->PostId = $PostId;
@@ -91,7 +94,7 @@ class Post extends Model {
         $post = $query->fetch();
         return $result = new Post($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($postId)['nbAnswers'], null, Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
+                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
     }
 
     //Fait la somme des questions pour le profile de l'utilisateur
@@ -136,6 +139,10 @@ class Post extends Model {
             return true;
         }
         
+    }
+    public static function accept_question($postId, $answerId){
+        self::execute("UPDATE post SET AcceptedAnswerId = :AcceptedAnswerId  WHERE PostId = :PostId", array("PostId"=>$postId,"AcceptedAnswerId"=> $answerId));
+        return true;
     }
 
 }

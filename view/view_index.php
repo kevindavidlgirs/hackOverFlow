@@ -81,22 +81,7 @@
                   $datetime = new DateTime("now");
                   $datetime1 = new DateTime($post->getTimestamp());
                   $interval = $datetime->diff($datetime1);
-                  
-                  if($interval->format('%y') > 0){
-                    echo "<small>Asked ".$interval->format('%y year(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";  
-                  }else if($interval->format('%m') > 0){
-                    echo "<small>Asked ".$interval->format('%m month(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%d') > 0){
-                    echo "<small>Asked ".$interval->format('%d day(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%h') > 0){
-                    echo "<small>Asked ".$interval->format('%h hour(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%i') > 0){
-                    echo "<small>Asked ".$interval->format('%i minute(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-                  }else if($interval->format('%s') > 10){
-                    echo "<small>Asked ".$interval->format('%s seconde(s)')." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";
-                  }else{
-                    echo "<small>Asked now by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameUser()."</a></small>";  
-                  }
+                  include('time.html');
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){
                     echo "<small> (0 vote(s), ";

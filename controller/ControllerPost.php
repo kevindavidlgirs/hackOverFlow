@@ -131,6 +131,18 @@ class ControllerPost extends Controller{
             $this->redirect();
         }    
     }
+
+    public function accept_question(){
+        if($this->user_logged() && isset($_GET['param1']) && isset($_GET['param2'])){
+            $postId = $_GET['param1'];
+            $answerId = $_GET['param2'];
+            if(Post::accept_question($postId, $answerId)){
+                $this->redirect("post", "show", $postId);    
+            }
+        }   
+    }
+
+    
 }
 
 ?>

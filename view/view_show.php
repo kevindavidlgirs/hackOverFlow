@@ -3,15 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
-
-    <!-- Bootstrap core CSS + fontawesome -->
-    
+    <!-- Bootstrap core CSS + fontawesome -->    
     <!-- Propre? -->   
     <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -51,10 +47,7 @@
         <!-- Affiche la question ainsi que le temps depuis la création de celle-ci et le créateur -->
         <li class="list-group-item">
           <h5><?= $post->getTitle() ?></h5>
-          <?php 
-            $datetime = new DateTime("now");
-            $datetime1 = new DateTime($post->getTimestamp());
-            $interval = $datetime->diff($datetime1);           
+          <?php            
             include("time.html");
             if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameUser()){
               echo "<form action='post/edit/".$post->getPostId()."' method='post' style='display: inline-block'>";
@@ -173,20 +166,25 @@
 
                 <?php endif ?>
               </div>
+              <!-- Gestion boutons edit et delete -->
               <div class="col">
                 <?= $answer->getBodyMarkedown(); ?><br>
                 <?php 
-                  $datetime = new DateTime("now");
-                  $datetime1 = new DateTime($answer->getTimestamp());
-                  $interval = $datetime->diff($datetime1);
                   include("time.html");
-                  if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $answer->getFullNameUser()){
-                    echo "<form action='post/edit/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
-                    echo "<button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>";
-                    echo "</form>";
-                    echo "<form action='post/delete/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
-                    echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
-                    echo "</form>";
+                  if(isset($_SESSION['user'])){
+                    if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()){
+                      echo "<form action='post/accept_question/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
+                      echo "<button type='submit' class='btn btn-outline-*' class='accept'><i class='far fa-check-circle'></i></button>";
+                      echo "</form>"; 
+                    }
+                    if($_SESSION['user']->getFullName() === $answer->getFullNameUser()){
+                      echo "<form action='post/edit/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
+                      echo "<button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>";
+                      echo "</form>";
+                      echo "<form action='post/delete/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
+                      echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
+                      echo "</form>";  
+                    }
                   }
                 ?>
               </div>

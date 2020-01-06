@@ -4,6 +4,9 @@ $postAnswer = $post;
 if(isset($answer)){
     $postAnswer = $answer;
 }
+$datetime = new DateTime("now");
+$datetime1 = new DateTime($postAnswer->getTimestamp());
+$interval = $datetime->diff($datetime1);
 if($interval->format('%y') > 0){
     echo "<small>Asked ".$interval->format('%y year(s)')." ago by <a href='user/profile/".$postAnswer->getAuthorId()."'>".$postAnswer->getFullNameUser()."</a></small>";  
 }else if($interval->format('%m') > 0){
