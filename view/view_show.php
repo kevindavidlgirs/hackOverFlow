@@ -149,9 +149,15 @@
                     <a class="btn" href="post/like/-1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
                       <i class="far fa-frown" ></i>
                     </a>
+                  <?php endif ?>    
+                  <!-- Gestion des button lorsqu'une question a été acceptée -->         
+                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                    <i class="fas fa-check greeniconcolor"></i>
+                    <form action="post/delete_accepted_question/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
+                      <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
+                    </form>
                   <?php endif ?>
-                              
-                  
+
                 <?php else: ?>  
 
                   <!-- Getion des boutons like et dislike si l'utilisateur est un visiteur -->  
@@ -166,17 +172,20 @@
 
                 <?php endif ?>
               </div>
-              <!-- Gestion boutons edit et delete -->
+              
+              <!-- utiliser une autre forme d'expression pour les conditions -->
               <div class="col">
                 <?= $answer->getBodyMarkedown(); ?><br>
                 <?php 
                   include("time.html");
                   if(isset($_SESSION['user'])){
+                    // Gestion des boutons d'acceptance
                     if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()){
                       echo "<form action='post/accept_question/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
                       echo "<button type='submit' class='btn btn-outline-*' class='accept'><i class='far fa-check-circle'></i></button>";
                       echo "</form>"; 
                     }
+                    // Gestion boutons edit et delete
                     if($_SESSION['user']->getFullName() === $answer->getFullNameUser()){
                       echo "<form action='post/edit/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
                       echo "<button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>";

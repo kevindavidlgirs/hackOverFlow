@@ -144,6 +144,10 @@ class Post extends Model {
         self::execute("UPDATE post SET AcceptedAnswerId = :AcceptedAnswerId  WHERE PostId = :PostId", array("PostId"=>$postId,"AcceptedAnswerId"=> $answerId));
         return true;
     }
+    public static function delete_accepted_question($postId){
+        self::execute("UPDATE post SET AcceptedAnswerId = NULL WHERE PostId = :PostId", array("PostId"=>$postId));  
+        return true;  
+    }
 
 }
 

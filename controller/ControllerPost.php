@@ -87,7 +87,7 @@ class ControllerPost extends Controller{
 
     }
 
-    //Gère la suppression d'un post ou d'une question
+    //Gère la suppression d'un post ou d'une question (pas juste)
     public function delete(){
         if($this->user_logged() && isset($_GET['param1']) && isset($_POST['cancel'])){
             $postId = $_GET['param1'];
@@ -118,7 +118,7 @@ class ControllerPost extends Controller{
         }
     }
 
-    //Ajoute une réponse à un post 
+    //Ajoute une réponse à un post pas juste !
     public function answer(){
         if($this->user_logged() && isset($_GET['param1']) && isset($_POST['answer'])){
             $parentId = $_GET['param1'];
@@ -132,6 +132,7 @@ class ControllerPost extends Controller{
         }    
     }
 
+    //pas juste !
     public function accept_question(){
         if($this->user_logged() && isset($_GET['param1']) && isset($_GET['param2'])){
             $postId = $_GET['param1'];
@@ -139,6 +140,20 @@ class ControllerPost extends Controller{
             if(Post::accept_question($postId, $answerId)){
                 $this->redirect("post", "show", $postId);    
             }
+        }   
+    }
+
+    // +/- mais pas juste !
+    public function delete_accepted_question(){
+        if(isset($_GET['param1']) && isset($_POST['delete_acceptation'])){
+            $postId = $_GET['param1'];
+            if($this->get_user_or_false()->getUserId() === Post::get_post($postId)->getAuthorId()){
+                if(Post::delete_accepted_question($postId)){
+                    $this->redirect("post", "show", $postId);
+                }
+            }
+        }else{
+            $this->redirect();
         }   
     }
 
