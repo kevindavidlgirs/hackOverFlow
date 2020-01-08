@@ -55,8 +55,10 @@ class Answer extends model{
 
 
     //Récupère toutes les réponses pour un post 
-    public static function get_answers($postId){
-        $query = self::execute("SELECT * FROM post WHERE ParentId = :PostId", array("PostId"=>$postId));
+    public static function get_answers($parentId){
+        $query = self::execute("SELECT * FROM post WHERE ParentId = :ParentId AND postid = (SELECT AcceptedAnswerId FROM post WHERE PostId = :PostId )
+                                UNION 
+                                SELECT * FROM post WHERE ParentId = :ParentId", array("ParentId"=>$parentId,"PostId"=>$parentId)); 
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $value){
@@ -104,6 +106,13 @@ class Answer extends model{
         return true;
     }
 
+    public static function delete($postId, $answerId){
+        if(Vote::delete($answerId) && Post::delete_accepted_question($postId)){
+            self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$answerId));
+            return true;
+        }
+        
+    }
     //Conversion d'un text brut en markdown
     private static function markdown($markedown){
         $Parsedown = new Parsedown();

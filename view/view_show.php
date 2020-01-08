@@ -44,22 +44,22 @@
     <!-- MAIN -->
     <main role="main" class="container">
       <ul class="list-group list-group-flush">
-        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci et le créateur -->
+        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci ainsi que le créateur -->
         <li class="list-group-item">
-          <h5><?= $post->getTitle() ?></h5>
-          <?php            
-            include("time.html");
-            if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameUser()){
-              echo "<form action='post/edit/".$post->getPostId()."' method='post' style='display: inline-block'>";
-              echo "<button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>";
-              echo "</form>";
-              if($post->getNbAnswers() < 1){
-                echo "<form action='post/delete/".$post->getPostId()."' method='post' style='display: inline-block'>";
-                echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
-                echo "</form>";
-              }
-            }
-          ?>
+          <h5><?= $post->getTitle() ?></h5>          
+          <?php include("time.html"); ?>
+
+          <?php if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameUser()): ?>
+            <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
+              <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
+            </form>
+          <?php endif ?>
+          <?php if($post->getNbAnswers() < 1): ?>{
+            <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
+              <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
+            </form>
+          <?php endif ?> 
+
         </li>
         <li class="list-group-item">
           <div class="row">
@@ -125,9 +125,9 @@
           <li class="list-group-item">
             <div class="row">
               <div class="col col-lg-1">
-                <!-- Getion des boutons like si l'utilisateur est connecté -->
                 <?php if(isset($_SESSION['user'])):?>
 
+                  <!-- Gestion des boutons like si l'utilisateur est connecté -->
                   <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $answer->getPostId()) == 1): ?>
                     <a class="btn" href="post/like/1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
                       <i class="fas fa-heart fa-7px"></i>
@@ -137,10 +137,10 @@
                       <i class="far fa-heart fa-7px"></i>
                     </a><br>
                   <?php endif ?>
-                  <!-- Affiche le nombre de vote entre le button like et dislike -->
+                  <!-- Affiche le nombre de vote entre le butons like et dislike -->
                   <?= $answer->getNbVote() ?>
                   <small>Votes</small>
-                  <!-- Getion des boutons dislike si l'utilisateur est connecté -->
+                  <!-- Gestion des boutons dislike si l'utilisateur est connecté -->
                   <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $answer->getPostId()) == -1): ?>
                     <a class="btn" href="post/like/-1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
                       <i class="fas fa-frown"></i>
@@ -150,13 +150,15 @@
                       <i class="far fa-frown" ></i>
                     </a>
                   <?php endif ?>    
-                  <!-- Gestion des button lorsqu'une question a été acceptée -->         
-                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                  <!-- Gestion des boutons lorsqu'une question a été acceptée -->         
+                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
-                    <form action="post/delete_accepted_question/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
-                      <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
-                    </form>
-                  <?php endif ?>
+                    <?php if  ($_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                      <form action="post/delete_accepted_question/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
+                        <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
+                      </form>
+                    <?php endif ?>
+                  <?php endif ?>  
 
                 <?php else: ?>  
 
@@ -169,33 +171,33 @@
                   <a class="btn" href="user/signup">
                     <i class="far fa-frown"></i>
                   </a>
-
+                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
+                    <i class="fas fa-check greeniconcolor"></i>
+                  <?php endif ?>  
                 <?php endif ?>
               </div>
               
-              <!-- utiliser une autre forme d'expression pour les conditions -->
               <div class="col">
+                <!-- Affiche le corps de la réponse -->
                 <?= $answer->getBodyMarkedown(); ?><br>
-                <?php 
-                  include("time.html");
-                  if(isset($_SESSION['user'])){
-                    // Gestion des boutons d'acceptance
-                    if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()){
-                      echo "<form action='post/accept_question/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
-                      echo "<button type='submit' class='btn btn-outline-*' class='accept'><i class='far fa-check-circle'></i></button>";
-                      echo "</form>"; 
-                    }
-                    // Gestion boutons edit et delete
-                    if($_SESSION['user']->getFullName() === $answer->getFullNameUser()){
-                      echo "<form action='post/edit/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
-                      echo "<button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>";
-                      echo "</form>";
-                      echo "<form action='post/delete/".$post->getPostId()."/".$answer->getPostId()."' method='post' style='display: inline-block'>";
-                      echo "<button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>";
-                      echo "</form>";  
-                    }
-                  }
-                ?>
+                <?php include("time.html"); ?>
+                <?php if(isset($_SESSION['user'])): ?>
+                  <!-- Gestion des boutons d'acceptance -->
+                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                    <form action='post/accept_question/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
+                      <button type='submit' class='btn btn-outline-*' class='accept'><i class='far fa-check-circle'></i></button>
+                    </form>
+                  <?php endif ?>
+                  <!-- Gestion boutons edit et delete -->
+                  <?php if($_SESSION['user']->getFullName() === $answer->getFullNameUser()): ?>
+                    <form action='post/edit/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
+                      <button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>
+                    </form>
+                    <form action='post/delete/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
+                      <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
+                    </form>  
+                  <?php endif ?>
+                <?php endif ?>
               </div>
             </div>  
           </li>

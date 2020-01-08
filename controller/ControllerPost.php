@@ -112,9 +112,11 @@ class ControllerPost extends Controller{
         }else if($this->user_logged() && isset($_GET['param1']) && isset($_GET['param2']) && isset($_POST['delete_confirmation'])){
             $postId = $_GET['param1'];
             $answerId = $_GET['param2'];
-            if(Post::delete($answerId)){
+            if(Answer::delete($postId, $answerId)){
                 $this->redirect("post", "show", $postId);    
             }
+        }else{
+            $this->redirect();
         }
     }
 

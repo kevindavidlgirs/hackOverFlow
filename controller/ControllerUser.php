@@ -89,7 +89,7 @@ class ControllerUser extends Controller {
         $this->redirect();
     }
 
-    //profil de l'utilisateur connecté ou donné
+    //profil de l'utilisateur connecté ou donné 'faux'
     public function profile() {
         if($this->user_logged() && !isset($_GET["param1"])){
             $user = $this->get_user_or_redirect();
@@ -99,7 +99,7 @@ class ControllerUser extends Controller {
             if(strlen($user->getUserName())> 0) {
                 (new View("profile"))->show(array("user" => $user));    
             }else{
-                $this->redirect();    
+                $this->redirect();
             }
         }else if (isset($_GET["param1"]) && $_GET["param1"] !== "") {
             $user = User::get_user_by_id($_GET["param1"]);

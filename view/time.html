@@ -20,5 +20,5 @@ if($interval->format('%y') > 0){
 }else if($interval->format('%s') > 10){
     echo "<small>Asked ".$interval->format('%s seconde(s)')." ago by <a href='user/profile/".$postAnswer->getAuthorId()."'>".$postAnswer->getFullNameUser()."</a></small>";
 }else{
-    echo "<small>Asked now by <a href='user/profile/".$postAnswer->getPostId()."'>".$postAnswer->getFullNameUser()." </a></small>";  
+    echo "<small>Asked now by <a href='user/profile/".$postAnswer->getAuthorId()."'>".$postAnswer->getFullNameUser()." </a></small>";  
 }
