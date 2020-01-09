@@ -92,9 +92,14 @@ class Post extends Model {
     public static function get_post($postId){
         $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
         $post = $query->fetch();
-        return $result = new Post($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
+        if($post){
+            return $result = new Post($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
+        }else{
+            return $result = 'post_not_valid';
+        }
+        
     }
 
     //Fait la somme des questions pour le profile de l'utilisateur
@@ -127,6 +132,18 @@ class Post extends Model {
 	    $html = $Parsedown->text($value);
         return strip_tags($html);
     }
+
+    public static function valide_post($post){
+        $errors = [];
+        if(strlen($post->getTitle()) < 10){
+            $errors['title'] = "The length of the title must be greater than or equal to 10 characters"; 
+        }
+        if(strlen($post->getBody()) < 30){
+            $errors['body'] = "The length of the body must be greater than or equal to 30 characters"; 
+        }
+        return $errors;
+    }
+
 
     public static function edit_post($postId, $body){
         self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$postId, "Body"=>$body));

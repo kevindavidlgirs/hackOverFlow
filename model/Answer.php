@@ -56,16 +56,30 @@ class Answer extends model{
 
     //Récupère toutes les réponses pour un post 
     public static function get_answers($parentId){
-        $query = self::execute("SELECT * FROM post WHERE ParentId = :ParentId AND postid = (SELECT AcceptedAnswerId FROM post WHERE PostId = :PostId )
-                                UNION 
-                                SELECT * FROM post WHERE ParentId = :ParentId", array("ParentId"=>$parentId,"PostId"=>$parentId)); 
-        $data = $query->fetchAll();
         $results = [];
-        foreach($data as $value){
+        $query = self::execute("SELECT * FROM post WHERE ParentId = :ParentId AND postid = (SELECT AcceptedAnswerId FROM post WHERE PostId = :PostId )", array("ParentId"=>$parentId,"PostId"=>$parentId));
+        $value = $query->fetch(); 
+        if($query->rowCount() !== 0){
+            $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
+                                $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
+                                $value['PostId'], Vote::get_NbVote($value['PostId'])); 
+        } 
+
+        $query = self::execute("SELECT post.*, max_score FROM post, ( SELECT postId, max(score) max_score FROM ( SELECT post.postid, ifnull(sum(vote.updown), 0) score FROM 
+        post LEFT JOIN vote ON vote.postid = post.postid WHERE post.ParentId = :ParentId 
+        and post.PostId != ifnull((select AcceptedAnswerId from post where 
+        post.PostId = :ParentId ), 0) GROUP BY post.postid 
+                                        ) AS tbl1 
+                                        GROUP by postId 
+                                    ) AS q1 WHERE post.postid = q1.postId ORDER BY q1.max_score DESC, timestamp DESC", array("ParentId"=>$parentId)); 
+        
+        $data1 = $query->fetchAll();
+        foreach($data1 as $value){
             $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
                                     $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
                                         $value['PostId'], Vote::get_NbVote($value['PostId']));
         }
+
         return $results;
     }
 

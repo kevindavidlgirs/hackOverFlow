@@ -104,7 +104,7 @@ class User extends Model {
             $errors['user'] = "username must start by a letter and must contain only letters and numbers.";
         } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) > 0)) {
                 $errors['name'] = "fullname is required.";
-        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 16)) {
+        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 30)) {
                 $errors['name'] = "fullname length must be between 3 and 16.";
         } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z ]*$/", $this->fullname))) {
                 $errors['name'] = "fullname contain only letters.";
@@ -150,9 +150,9 @@ class User extends Model {
 
     private static function validate_password($password){
         $errors = [];
-        if (strlen($password) < 8 || strlen($password) > 16) {
-            $errors['password'] = "Password length must be between 8 and 16.";
-        } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?\\-]/", $password))) {
+        if (strlen($password) < 8 || strlen($password) > 30) {
+            $errors['password'] = "Password length must be between 8 and 30.";
+        } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";!:,.=+%£µ$)}{\/?\\-]/", $password))) {
             $errors['password'] = "Password must contain one uppercase letter, one number and one punctuation mark.";
         }
         return $errors;

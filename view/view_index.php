@@ -76,11 +76,6 @@
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  
-                  //Se charge de déterminer et d'afficher les jours (ou heures) passés depuis la création d'un post. 
-                  $datetime = new DateTime("now");
-                  $datetime1 = new DateTime($post->getTimestamp());
-                  $interval = $datetime->diff($datetime1);
                   include('time.html');
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){

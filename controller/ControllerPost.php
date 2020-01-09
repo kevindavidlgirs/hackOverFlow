@@ -16,22 +16,31 @@ class ControllerPost extends Controller{
     }
 
     public function ask(){
-        if($this->user_logged() && !isset($_POST['title']) && !isset($_POST['body'])){
-            (new View("ask"))->show();
-        }else if($this->user_logged() && isset($_POST['title']) && isset($_POST['body'])){
-            $post = new Post(null, $_SESSION['user']->getUserId(), $_POST['title'], $_POST['body'], null, null, null, null, null, null, null);
-            $post->create_post();   
-            $this->redirect();
-        }else{
-            $this->redirect();
+        $title = '';
+        $body = '';
+        $errors = [];
+        if ($this->user_logged() && isset($_POST['title']) && isset($_POST['body'])){
+            $title = $_POST['title'];
+            $body = $_POST['body'];
+            $post = new Post(null, $_SESSION['user']->getUserId(), $title , $body, null, null, null, null, null, null, null);
+            $errors = Post::valide_post($post);
+            if(count($errors) == 0){
+                $post->create_post();   
+                $this->redirect();
+            }
         }
-         
+        (new View("ask"))->show(array("title"=>$title, "body"=> $body, "errors" => $errors)); 
     }
 
     //sert à afficher la view_show (attention peut encore afficher un show inexistant !)
     public function show(){
         if(isset($_GET['param1'])){       
-            (new View("show"))->show(array("post"=> Post::get_post($_GET['param1'])));
+            $result = Post::get_post($_GET['param1']);
+            if($result != 'post_not_valid'){
+                (new View("show"))->show(array("post"=> $result));
+            }else{
+                $this->redirect();
+            }
         }else{
             $this->redirect();
         }        

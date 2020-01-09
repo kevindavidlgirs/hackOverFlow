@@ -45,17 +45,34 @@
     <!-- MAIN -->
     <main role="main" class="container">
       <form action="post/ask" method="post">
+        
         <div class="form-group">
           <label>Title</label><br>
           <small>Be specific and imagine you're asking a question to another person</small>
-          <input class="form-control" type="text" name="title"><br>
+          <?php if(array_key_exists('title', $errors)):?>
+            <input class="form-control is-invalid" type="text" name="title" value="<?= $title ?>">
+            <div class="invalid-feedback">
+              <?= $errors['title']; ?><br>
+            </div>
+          <?php else: ?>
+            <input class="form-control" type="text" name="title" value="<?= $title ?>"><br>
+          <?php endif ?>
         </div>
+        
         <div class="form-group">
           <label>Body</label><br>
           <small>Include all the information someone would need to answer your question</small>
-          <textarea class="form-control" type="text" name="body" rows="6"></textarea>
+          <?php if(array_key_exists('body', $errors)):?>
+            <textarea class="form-control is-invalid" type="text" name="body" rows="6"><?= $body ?></textarea>
+            <div class="invalid-feedback">
+              <?= $errors['body']; ?>
+            </div>
+          <?php else: ?>
+            <textarea class="form-control" type="text" name="body" rows="6"><?= $body ?></textarea>
+          <?php endif ?>
         </div>
         <button type="submit" class="btn btn-dark mb-2">Publish your question</button>
+
       </form>
     </main>          
   </body>

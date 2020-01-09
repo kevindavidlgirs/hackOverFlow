@@ -54,7 +54,6 @@
         <div class="card-body">
           <form action="user/login" method="post">
 
-
             <?php if(array_key_exists('user', $errors)):?>            
               <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
               <div class="invalid-feedback">
@@ -67,7 +66,6 @@
               </div>
             <?php endif ?> 
 
-
             <?php if(array_key_exists('password', $errors)):?>            
               <input type="password" name="password" class="form-control is-invalid" placeholder="Password" required>
               <div class="invalid-feedback">
@@ -78,7 +76,6 @@
                 <input type="password" class="form-control" name="password" placeholder="Password"/>
               </div>
             <?php endif ?>
-
             
             <button type="submit" class="btn btn-primary btn-dark btn-block">login</button>
           </form>

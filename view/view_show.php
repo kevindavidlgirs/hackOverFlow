@@ -54,7 +54,7 @@
               <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
             </form>
           <?php endif ?>
-          <?php if($post->getNbAnswers() < 1): ?>{
+          <?php if($post->getNbAnswers() < 1): ?>
             <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
             </form>
