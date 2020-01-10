@@ -49,7 +49,7 @@
           <h5><?= $post->getTitle() ?></h5>          
           <?php include("time.html"); ?>
 
-          <?php if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameUser()): ?>
+          <?php if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameAuthor()): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
             </form>
@@ -154,7 +154,7 @@
                   <?php if ($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
                     <?php if  ($_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
-                      <form action="post/delete_accepted_question/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
+                      <form action="post/delete_accepted_answer/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
                         <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
                       </form>
                     <?php endif ?>
@@ -184,14 +184,14 @@
                 <?php if(isset($_SESSION['user'])): ?>
                   <!-- Gestion des boutons d'acceptance -->
                   <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
-                    <form action='post/accept_question/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
-                      <button type='submit' class='btn btn-outline-*' class='accept'><i class='far fa-check-circle'></i></button>
+                    <form action='post/accept_answer/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
+                      <button type='submit' class='btn btn-outline-*' name='accept'><i class='far fa-check-circle'></i></button>
                     </form>
                   <?php endif ?>
                   <!-- Gestion boutons edit et delete -->
-                  <?php if($_SESSION['user']->getFullName() === $answer->getFullNameUser()): ?>
+                  <?php if($_SESSION['user']->getFullName() === $answer->getFullNameAuthor()): ?>
                     <form action='post/edit/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
-                      <button type='submit' class='btn btn-outline-*' class='edit'><i class='fas fa-edit'></i></button>
+                      <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
                     </form>
                     <form action='post/delete/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>

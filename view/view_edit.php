@@ -55,7 +55,14 @@
         <div class="form-group">
           <h5>Body</h5>
           <small>Include all information someone would need to answer your question</small>
-          <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+          <?php if(array_key_exists('body', $error)):?>
+            <textarea class="form-control is-invalid" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+            <div class="invalid-feedback">
+              <?= $errors['body']; ?>
+            </div>
+          <?php else: ?>
+            <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+          <?php endif ?>
         </div>
         <button type="submit" class="btn btn-dark mb-2">Edit your post</button>
       </form>

@@ -42,7 +42,7 @@ class Vote extends Model{
         return $data['nbVote'];
     }
 
-    public static function update_vote($userId, $postId,  $value){
+    public function update_vote($userId, $postId,  $value){
         $query = self::execute("SELECT * FROM vote WHERE PostId = :PostId and UserId= :UserId", array("PostId"=>$postId, "UserId"=>$userId));
         $data = $query->fetch();
         if($query->rowCount() == 0){
@@ -66,7 +66,7 @@ class Vote extends Model{
         return $data['UpDown'];
     }
 
-    public static function delete($postId){
+    public function delete($postId){
         $query = self::execute("DELETE FROM vote WHERE PostId = :PostId", array("PostId"=>$postId));
         return true;    
     }

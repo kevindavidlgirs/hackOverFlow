@@ -1,7 +1,7 @@
 <?php
 
 require_once "framework/Model.php";
-require_once("model/Post.php");
+require_once("model/Question.php");
 require_once("model/Answer.php");
 
 
@@ -71,15 +71,15 @@ class User extends Model {
     }
 
     //Récupère un objet user à partir d'un authorId provenant d'un post.
-    public static function get_user_by_id($id) {
-        $query = self::execute("SELECT * FROM user WHERE UserId =:Id", array("Id" => $id));
+    public static function get_user_by_id($userId) {
+        $query = self::execute("SELECT * FROM user WHERE UserId =:Id", array("Id" => $userId));
         $data = $query->fetch();
         return $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
        
     }
 
     public function get_sum_questions(){
-        return $getSumVote = Post::sum_of_questions_by_userId($this->userId);    
+        return $getSumVote = Question::sum_of_questions_by_userId($this->userId);    
     }
 
     public function get_sum_answers(){
@@ -165,7 +165,6 @@ class User extends Model {
         }
         return $errors;
     }
-
 
     //indique si un mot de passe correspond à son hash
     private static function check_password($clear_password, $hash) {
