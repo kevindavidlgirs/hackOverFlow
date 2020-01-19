@@ -7,39 +7,30 @@ require_once("model/Answer.php");
 
 
 class Question extends Post {
-    private $postId;
-    private $authorId;
     private $title;
-    private $body;
     private $timestamp;
-    private $fullNameAuthor;
     private $totalVote;
     private $nbAnswers;
     private $nbVote;
     private $answers;
     private $acceptedAnswerId;
     
-    //Réduire le nombre de getters avec des function d'instance
-    public function getPostId(){
-        return $this->postId;
+    public function __construct($postId, $authorId, $title, $body, $timestamp, $fullNameAuthor, $totalVote, $nbAnswers, $acceptedAnswerId, $answers, $nbVote){
+        $this->postId = $postId;
+        $this->body = $body;
+        $this->authorId = $authorId;
+        $this->fullNameAuthor = $fullNameAuthor;
+        $this->title = $title;
+        $this->timestamp = $timestamp;
+        $this->totalVote = $totalVote;
+        $this->nbAnswers = $nbAnswers;
+        $this->acceptedAnswerId = $acceptedAnswerId;
+        $this->answers = $answers;
+        $this->nbVote = $nbVote;
     }
-    public function getAuthorId(){
-        return $this->authorId;
-    }
-    public function getFullNameAuthor(){
-        return $this->fullNameAuthor;
-    }
-    public function getBody(){
-        return $this->body;
-    }
+
     public function getTimestamp(){
         return $this->timestamp;
-    }
-    public function getBodyMarkedown(){
-        return self::markdown($this->body);
-    }
-    public function getBodyMarkedownRemoved(){
-        return self::remove_markdown($this->body);    
     }
     public function getTitle(){
         return $this->title;
@@ -60,24 +51,10 @@ class Question extends Post {
         return $this->acceptedAnswerId;
     }
 
-    public function __construct($postId, $authorId, $title, $body, $timestamp, $fullNameAuthor, $totalVote, $nbAnswers, $acceptedAnswerId, $answers, $nbVote){
-        $this->postId = $postId;
-        $this->authorId = $authorId;
-        $this->title = $title;
-        $this->body = $body;
-        $this->timestamp = $timestamp;
-        $this->fullNameAuthor = $fullNameAuthor;
-        $this->totalVote = $totalVote;
-        $this->nbAnswers = $nbAnswers;
-        $this->acceptedAnswerId = $acceptedAnswerId;
-        $this->answers = $answers;
-        $this->nbVote = $nbVote;
-    }
-
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
     //et le nombre de réponse de chaque post.
     public static function get_questions(){
-        $query = self::execute(" SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC ", array());
+        $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC ", array());
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
@@ -167,7 +144,6 @@ class Question extends Post {
         self::execute("UPDATE post SET AcceptedAnswerId = NULL WHERE PostId = :PostId", array("PostId"=>$postId));  
         return true;  
     }
-    
 
 }
 

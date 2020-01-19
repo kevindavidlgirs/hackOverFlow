@@ -6,7 +6,6 @@ require_once("model/Answer.php");
 
 
 class User extends Model {
-
     private $userId;
     private $username;
     private $hashed_password;

@@ -3,50 +3,26 @@ require_once("lib/parsedown-1.7.3/Parsedown.php");
 require_once("model/Post.php");
 
 class Answer extends Post{
-    private $body; 
-    private $authorId;
     private $parentId;
     private $timestamp;
-    private $fullNameAuthor;
-    private $answerId;
     private $nbVote;
 
     public function __construct($body, $authorId, $parentId, $timestamp, $fullNameAuthor, $postId, $nbVote){
+        $this->postId = $postId;
         $this->body = $body;
         $this->authorId = $authorId;
+        $this->fullNameAuthor = $fullNameAuthor;
         $this->parentId = $parentId;
         $this->timestamp = $timestamp;
-        $this->fullNameAuthor = $fullNameAuthor;
-        $this->postId = $postId;
         $this->nbVote = $nbVote;
-    }
-
-    public function getPostId(){
-        return $this->postId;
-    }
-
-    public function getAuthorId(){
-        return $this->authorId;
     }
 
     public function getFullNameAuthor(){
         return $this->fullNameAuthor;
     }
 
-    public function getBody(){
-        return $this->body;
-    }
-
     public function getTimestamp(){
         return $this->timestamp;
-    }
-
-    public function getBodyMarkedown(){
-        return self::markdown($this->body);
-    }
-
-    public function getBodyMarkedownRemoved(){
-        return self::remove_markdown($this->body);    
     }
 
     public function getParentId(){

@@ -3,6 +3,34 @@ require_once("lib/parsedown-1.7.3/Parsedown.php");
 require_once("framework/Model.php");
 
 abstract class Post extends Model {
+    protected $postId;
+    protected $body;
+    protected $authorId;
+    protected $fullNameAuthor;
+
+    public function getBodyMarkedown(){
+        return self::markdown($this->body);
+    }
+
+    public function getBodyMarkedownRemoved(){
+        return self::remove_markdown($this->body);    
+    }
+    
+    public function getPostId(){
+        return $this->postId;
+    }
+
+    public function getFullNameAuthor(){
+        return $this->fullNameAuthor;
+    }
+
+    public function getBody(){
+        return $this->body;
+    }
+
+    public function getAuthorId(){
+        return $this->authorId;
+    }
 
     //Ajouter les méthodes valide, delete et autres.
     protected static function markdown($markedown){
