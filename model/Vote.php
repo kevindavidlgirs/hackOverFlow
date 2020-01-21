@@ -48,7 +48,7 @@ class Vote extends Model{
         if($query->rowCount() == 0){
             self::execute("INSERT INTO vote(UserId, PostId, UpDown) VALUES(:UserId, :PostId, :UpDown)", array("UserId"=>$userId, "PostId"=>$postId, "UpDown"=>$value));    
         }else{
-            if($data['UpDown'] === $value){
+            if($data['UpDown'] === $value || $data['UpDown'] !== $value){
                 self::execute("DELETE FROM vote WHERE UserId=:UserId AND PostId=:PostId", array("PostId"=>$postId, "UserId"=>$userId));
             }else{
                 self::execute("UPDATE vote SET UpDown = :UpDown WHERE UserId=:UserId AND PostId=:PostId", array("UserId"=>$userId, "PostId"=>$postId, "UpDown"=>$value));
