@@ -6,16 +6,11 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
-
+    <base href="<?= $web_root ?>" />
     <!-- Bootstrap core CSS + fontawesome -->    
-    <!-- Propre? -->   
-    <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/myStyle.css" rel="stylesheet">
-    <link href="../../css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="../../css/myStyle.css" rel="stylesheet">
-    <link href="../../css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <!-- Propre? -->
+    <link href="css/myStyle.css" rel="stylesheet">
+    <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -35,10 +30,10 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
-    <base href="<?= $web_root ?>" />
   </head>
   <body>
     <?php
+      $active = 'question';
       include('header.html');  
     ?>
     <!-- MAIN -->
@@ -53,12 +48,13 @@
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
             </form>
-          <?php endif ?>
-          <?php if($post->getNbAnswers() < 1): ?>
+            <?php if($post->getNbAnswers() < 1): ?>
             <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
             </form>
-          <?php endif ?> 
+            <?php endif ?>
+          <?php endif ?>
+
 
         </li>
         <li class="list-group-item">

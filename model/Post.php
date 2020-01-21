@@ -32,6 +32,11 @@ abstract class Post extends Model {
         return $this->authorId;
     }
 
+    public function set_post(){
+        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
+        return true;
+    }
+
     //Ajouter les méthodes valide, delete et autres.
     protected static function markdown($markedown){
         $Parsedown = new Parsedown();
@@ -45,6 +50,5 @@ abstract class Post extends Model {
 	    $html = $parsedown->text($value);
         return strip_tags($html);
     }
-
 }
 ?>

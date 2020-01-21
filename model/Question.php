@@ -105,7 +105,7 @@ class Question extends Post {
         return $error;
     }
     
-    public static function valid_question($question){
+    public static function validate($question){
         $errors = [];
         if(strlen($question->getTitle()) < 10){
             $errors['title'] = "The length of the title must be greater than or equal to 10 characters"; 
@@ -116,19 +116,6 @@ class Question extends Post {
         return $errors;
     }
 
-    public static function valid_edition($body){
-        $error = [];
-        if(strlen($body) < 30){
-            $error['body'] = "The length of the body must be greater than or equal to 30 characters";
-        }
-        return $error;
-    }
-
-    public function edit_post(){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
-        return true;
-    }
-
     public function delete($postId){
         if(Vote::delete($postId)){
             self::execute("DELETE FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
@@ -136,10 +123,12 @@ class Question extends Post {
         }
         
     }
+
     public function accept_answer($postId, $answerId){
         self::execute("UPDATE post SET AcceptedAnswerId = :AcceptedAnswerId  WHERE PostId = :PostId", array("PostId"=>$postId,"AcceptedAnswerId"=> $answerId));
         return true;
     }
+    
     public function delete_accepted_answer($postId){
         self::execute("UPDATE post SET AcceptedAnswerId = NULL WHERE PostId = :PostId", array("PostId"=>$postId));  
         return true;  

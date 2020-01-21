@@ -110,6 +110,14 @@ class Answer extends Post{
         
     }
     
+    public static function validate($answer){
+        $error = [];
+        if(strlen($answer->getBody()) < 30){
+            $error['body'] = "The length of the body must be greater than or equal to 30 characters"; 
+        }
+        return $error;
+    }
+    
 }
 ?>
 

@@ -35,8 +35,7 @@ class ControllerUser extends Controller {
     public function signup(){
         if($this->user_logged()){
             $this->redirect();
-        }    
-        else{
+        }else{
             $username = '';
             $password = '';
             $password_confirm = ''; 
@@ -61,7 +60,7 @@ class ControllerUser extends Controller {
                 }
             }
             (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, "fullname" => $fullname, "email" => $email, "errors" => $errors));   
-        
+
             }  
     }
 

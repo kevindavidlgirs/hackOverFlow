@@ -9,19 +9,12 @@
     <title>Hack overFlow</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
+    <base href="<?= $web_root ?>" />
+    <!-- Bootstrap core CSS + fontawesome -->    
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="css/myStyle.css" rel="stylesheet">
+    <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
 
-    <!-- Bootstrap core CSS -->
-    
-    <!-- Propre? -->   
-    <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/myStyle.css" rel="stylesheet">
-    <link href="../../css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="../../css/myStyle.css" rel="stylesheet">
-    <link href="../../../css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="../../../css/myStyle.css" rel="stylesheet">
-    <link href="../../css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="../../../css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <!-- Propre? -->
 
     <style>
       .bd-placeholder-img {
@@ -41,11 +34,10 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
-    <base href="<?= $web_root ?>" />
   </head>
   <body>
     <?php
-      $active = 'login';
+      $active = 'question';
       include('header.html');  
     ?>
     <!-- MAIN -->

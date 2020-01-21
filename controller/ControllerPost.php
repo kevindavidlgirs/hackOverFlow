@@ -23,7 +23,7 @@ class ControllerPost extends Controller{
             $title = $_POST['title'];
             $body = $_POST['body'];
             $question = new Question(null, $_SESSION['user']->getUserId(), $title , $body, null, null, null, null, null, null, null);
-            $errors = Question::valid_question($question);
+            $errors = Question::validate($question);
             if(count($errors) == 0){
                 $question->create_question();   
                 $this->redirect();
@@ -75,20 +75,35 @@ class ControllerPost extends Controller{
         $questionId = '';
         $answerId = '';
         $error = [];
-        if(isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_POST['body'])){
+        if(!isset($_POST['body']) && isset($_GET['param1']) && !isset($_GET['param2'])){
             $questionId = $_GET['param1']; 
-            $this->view_edition_question($questionId, $answerId, $error);
-        }else if(isset($_GET['param1']) && isset($_GET['param2']) && !isset($_POST['body'])){
+            $this->view_question_edition($questionId, $answerId, $error);
+        }else if(!isset($_POST['body']) && isset($_GET['param1']) && isset($_GET['param2'])){
             $questionId = $_GET['param1'];
             $answerId = $_GET['param2'];
-            $this->view_edition_answer($questionId, $answerId, $error);
+            $this->view_answer_edition($questionId, $answerId, $error);
         }else{
             $this->edition_post();
         }
     }
 
+    //Affiche la vue pour l'edition d'une question
+    private function view_question_edition($questionId, $answerId, $errors){
+        if(!is_numeric($questionId)){
+            $this->redirect();
+        }
+        if (Question::get_question($questionId)){
+            if(!($this->get_user_or_false()->getUserId() === Question::get_question($questionId)->getAuthorId())){
+                $this->redirect();     
+            }
+        }else{
+            $this->redirect();
+        }
+        (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, "post" => Question::get_question($questionId), "error" => $errors));         
+    }
+
     //Affiche la vue pour l'édition d'une réponse
-    private function view_edition_answer($questionId, $answerId, $error){
+    private function view_answer_edition($questionId, $answerId, $error){
         if (Question::get_question($questionId) &&  Answer::get_answer($answerId)){
             if(!is_numeric($questionId) || !is_numeric($answerId) 
                                         || !($this->get_user_or_false()->getUserId() === Answer::get_answer($answerId)->getAuthorId())
@@ -101,37 +116,34 @@ class ControllerPost extends Controller{
         (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, "post" => Answer::get_answer($answerId), 'error' => $error));         
     }
 
-    //Affiche la vue pour l'edition d'une question
-    private function view_edition_question($questionId, $answerId, $error){
-        if(!is_numeric($questionId)){
-            $this->redirect();
-        }
-        if (Question::get_question($questionId)){
-            if(!($this->get_user_or_false()->getUserId() === Question::get_question($questionId)->getAuthorId())){
-                $this->redirect();     
-            }
-        }else{
-            $this->redirect();
-        }
-        (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, "post" => Question::get_question($questionId), 'error' => $error));         
-    }
+    
 
     //Sert à ajouter la modification du corps d'une réponse ou d'une question (à modifier).
     private function edition_post(){
         if ($this->user_logged() && isset($_GET['param1']) && !isset($_GET['param2']) && isset($_POST['body'])){
             $questionId = $_GET['param1'];
             $body = $_POST['body'];
-            $post = new Question($questionId, null, null, $body, null, null, null, null, null, null, null);
-            $error = Question::valid_edition($body);
-            if(count($error) == 0){
-                $post->edit_post();
+            $answerId = '';
+            $title = Question::get_question($questionId)->getTitle();
+            $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null);
+            $errors = Question::validate($question);
+            if(count($errors) == 0){
+                $question->set_post();
                 $this->redirect("post", "show", $questionId);       
+            }else{
+                $this->view_question_edition($questionId, $answerId, $errors);
             }
         }else if($this->user_logged() && isset($_GET['param1']) && isset($_GET['param2']) && isset($_POST['body'])){
-            $questionId = $_GET['param1'];
+            $parentId = $_GET['param1'];
             $answerId = $_GET['param2'];
-            if(Answer::edit_answer($answerId, $_POST['body'])){
-                $this->redirect("post", "show", $questionId);       
+            $body = $_POST['body'];
+            $answer = new Answer($body, null, $parentId, null, null, $answerId, null);
+            $error = Answer::validate($answer);
+            if(count($error) == 0){
+                $answer->set_post();
+                $this->redirect("post", "show", $parentId);       
+            }else{
+                $this->view_answer_edition($parentId, $answerId, $error);
             }
         }else{
             $this->redirect();
