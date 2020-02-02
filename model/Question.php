@@ -9,7 +9,7 @@ require_once("model/Answer.php");
 class Question extends Post {
     private $title;
     private $timestamp;
-    private $totalVote;
+    private $totalVote;//Total VOTE?
     private $nbAnswers;
     private $nbVote;
     private $answers;
@@ -51,6 +51,20 @@ class Question extends Post {
         return $this->acceptedAnswerId;
     }
 
+    //Récupère un post grace à son id
+    public static function get_question($postId){
+        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId and title != \"\" ", array("PostId"=>$postId));
+        $post = $query->fetch();
+        if($query->rowCount() == 0){
+            return false;
+        }else{
+            return $result = new Question($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
+                                    User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
+                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
+        }
+            
+    }
+
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
     //et le nombre de réponse de chaque post.
     public static function get_questions(){
@@ -63,20 +77,6 @@ class Question extends Post {
                                         Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
         }
         return $results;
-    }
-
-    //Récupère un post grace à son id
-    public static function get_question($postId){
-        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
-        $post = $query->fetch();
-        if($query->rowCount() == 0){
-            return false;
-        }else{
-            return $result = new Question($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
-                                    User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
-        }
-            
     }
 
     //Fait la somme des questions pour le profile de l'utilisateur
@@ -97,14 +97,6 @@ class Question extends Post {
         return $result = Vote::get_upDown($userId, $postId);    
     }
 
-    public static function valide_existence($question){
-        $error = [];
-        if($question === 'null'){
-            $error = 'la question n\'existe pas ';
-        } 
-        return $error;
-    }
-    
     public static function validate($question){
         $errors = [];
         if(strlen($question->getTitle()) < 10){
@@ -114,6 +106,14 @@ class Question extends Post {
             $errors['body'] = "The length of the body must be greater than or equal to 30 characters"; 
         }
         return $errors;
+    }
+
+    public static function valide_existence($question){
+        $error = [];
+        if($question === 'null'){
+            $error = 'la question n\'existe pas ';
+        } 
+        return $error;
     }
 
     public function delete($postId){

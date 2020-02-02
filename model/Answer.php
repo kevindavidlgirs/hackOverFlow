@@ -82,8 +82,8 @@ class Answer extends Post{
     }
 
     //Ajoute une réponse en bd pour un post donné
-    public function add_answer($userId, $parentId, $answer){
-        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$userId, "Body"=>$answer, "ParentId"=>$parentId));
+    public function add_answer(){
+        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$this->authorId, "Body"=>$this->body, "ParentId"=>$this->parentId));
         return true;
     }
 

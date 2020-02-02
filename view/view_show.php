@@ -202,10 +202,18 @@
 
       </ul><br>
       <!-- Formulaire pour ajouter une réponse -->
+      
       <form action="post/answer/<?= $post->getPostId() ?>" method="post">
         <div class="form-group">
           <small>Your answer</small>
-          <textarea class="form-control rounded-0" name="answer" rows="10"></textarea>
+            <?php if(array_key_exists('body', $error)): ?>
+              <textarea class="form-control is-invalid" type="text" name="body" rows="10"></textarea>
+              <div class="invalid-feedback">
+                <?= $error['body']; ?>
+              </div>
+            <?php else: ?>
+              <textarea class="form-control rounded-0" name="body" rows="10"></textarea>
+            <?php endif ?>
         </div>
         <button type="submit" class="btn btn-primary btn-dark">Post your answer</button>
       </form>
