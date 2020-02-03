@@ -1,5 +1,5 @@
 <!-- Header utilisé lorsqu'un utilisateur est connecté -->
-<?php if(isset($_SESSION['user'])): ?>
+<?php if($user !== null && $user !== false): ?>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
   <a class="navbar-brand" href="post/index">Hack OverFlow</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -9,17 +9,17 @@
     <!-- "ml-auto" sert à ranger les 4 liens ci-dessous vers la droite -->
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
-        <a class="nav-link <?php if(isset($active) && $active == 'ask') echo 'active'; ?> " href="post/ask">Ask a question<span class="sr-only">(current)</span></a>
+        <a class="nav-link <?php if(isset($active) && $active == 'ask') echo 'active'; ?> " href="post/ask">Ask a question</a>
       </li>
       <li class="nav-item">
-       <a class="nav-link <?php if(isset($active) && $active == 'question') echo 'active'; ?> " href="post/index">Questions<span class="sr-only">(current)</span></a>
+       <a class="nav-link <?php if(isset($active) && $active == 'question') echo 'active'; ?> " href="post/index">Questions</a>
       </li>
       <li class="nav-item">
         <!-- A CHANGER !!!!! $_SESSION['user']-->
-        <a class="nav-link <?php if(isset($active) && $active == 'profile') echo 'active'; ?> " href="user/profile"><i class="fas fa-user"></i> <?= $_SESSION['user']->getUserName(); ?></a>
+        <a class="nav-link <?php if(isset($active) && $active == 'profile') echo 'active'; ?> " href="user/profile"><i class="fas fa-user"></i> <?= $user->getUserName(); ?></a>
       </li>
       <li class="nav-item ">
-        <a class="nav-link" href="user/logout"><i class="fas fa-sign-out-alt"></i><span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="user/logout"><i class="fas fa-sign-out-alt"></i></a>
       </li>
     </ul>
   </div>
@@ -35,13 +35,13 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link <?php if(isset($active) && $active == 'question'){echo 'active';} ?>" href="post/index">Questions<span class="sr-only">(current)</span></a>
+          <a class="nav-link <?php if(isset($active) && $active == 'question'){echo 'active';} ?>" href="post/index">Questions</a>
         </li>
         <li class="nav-item">
           <a class="nav-link <?php if(isset($active) && $active == 'login'){echo 'active';}  ?>" href="user/login"><i class="fas fa-sign-in-alt"></i></a>
         </li>
         <li class="nav-item ">
-          <a class="nav-link <?php if(isset($active) && $active == 'signup'){echo 'active';} ?>" href="user/signup"><i class="fas fa-user-plus"></i><span class="sr-only">(current)</span></a>
+          <a class="nav-link <?php if(isset($active) && $active == 'signup'){echo 'active';} ?>" href="user/signup"><i class="fas fa-user-plus"></i></a>
         </li>
       </ul>
     </div>

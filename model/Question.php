@@ -79,6 +79,33 @@ class Question extends Post {
         return $results;
     }
 
+    public static function get_questions_unanswered(){
+        $query = self::execute("SELECT * FROM post WHERE title !='' and AcceptedAnswerId IS NULL ORDER BY timestamp DESC ", array());
+        $data = $query->fetchAll();
+        $results = [];
+        foreach($data as $row){
+            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
+                                    $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
+        }
+        return $results;
+            
+    }
+
+    public static function get_questions_by_votes(){
+        $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
+                                FROM post p LEFT JOIN vote v ON p.PostId = v.PostId WHERE title !='' 
+                                GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());
+        $data = $query->fetchAll();
+        $results = [];
+        foreach($data as $row){
+            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
+                                    $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
+        }
+        return $results;    
+    }
+
     //Fait la somme des questions pour le profile de l'utilisateur
     public static function sum_of_questions_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));

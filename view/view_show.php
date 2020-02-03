@@ -44,7 +44,7 @@
           <h5><?= $post->getTitle() ?></h5>          
           <?php include("time.html"); ?>
 
-          <?php if(isset($_SESSION['user']) && $_SESSION['user']->getFullName() === $post->getFullNameAuthor()): ?>
+          <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
             </form>
@@ -61,9 +61,9 @@
           <div class="row">
             <div class="col col-lg-1">
               <!-- Getion des boutons like si l'utilisateur est connecté -->
-              <?php if(isset($_SESSION['user'])):?>
+              <?php if($user !== null):?>
 
-                <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $post->getPostId()) == 1): ?>
+                <?php if($post->get_upDown_vote($user->getUserId(), $post->getPostId()) == 1): ?>
                   <a class="btn" href="post/like/1/<?= $post->getPostId()?>">
                     <i class="fas fa-heart fa-7px"></i>
                   </a><br>
@@ -76,7 +76,7 @@
                 <?= $post->getNbVote() ?>
                 <small>Votes</small>
                 <!-- Getion des boutons dislike si l'utilisateur est connecté -->
-                <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $post->getPostId()) == -1): ?>
+                <?php if($post->get_upDown_vote($user->getUserId(), $post->getPostId()) == -1): ?>
                   <a class="btn" href="post/like/-1/<?= $post->getPostId()?>">
                   <i class="fas fa-frown"></i>
                   </a>
@@ -121,10 +121,10 @@
           <li class="list-group-item">
             <div class="row">
               <div class="col col-lg-1">
-                <?php if(isset($_SESSION['user'])):?>
+                <?php if($user !== null):?>
 
                   <!-- Gestion des boutons like si l'utilisateur est connecté -->
-                  <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $answer->getPostId()) == 1): ?>
+                  <?php if($post->get_upDown_vote($user->getUserId(), $answer->getPostId()) == 1): ?>
                     <a class="btn" href="post/like/1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
                       <i class="fas fa-heart fa-7px"></i>
                     </a><br>
@@ -137,7 +137,7 @@
                   <?= $answer->getNbVote() ?>
                   <small>Votes</small>
                   <!-- Gestion des boutons dislike si l'utilisateur est connecté -->
-                  <?php if($post->get_upDown_vote($_SESSION['user']->getUserId(), $answer->getPostId()) == -1): ?>
+                  <?php if($post->get_upDown_vote($user->getUserId(), $answer->getPostId()) == -1): ?>
                     <a class="btn" href="post/like/-1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
                       <i class="fas fa-frown"></i>
                     </a>
@@ -147,9 +147,9 @@
                     </a>
                   <?php endif ?>    
                   <!-- Gestion des boutons lorsqu'une question a été acceptée -->         
-                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
+                  <?php if($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
-                    <?php if  ($_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                    <?php if($user->getUserId() === $post->getAuthorId()): ?>
                       <form action="post/delete_accepted_answer/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
                         <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
                       </form>
@@ -167,7 +167,7 @@
                   <a class="btn" href="user/signup">
                     <i class="far fa-frown"></i>
                   </a>
-                  <?php if ($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
+                  <?php if($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
                   <?php endif ?>  
                 <?php endif ?>
@@ -177,15 +177,15 @@
                 <!-- Affiche le corps de la réponse -->
                 <?= $answer->getBodyMarkedown(); ?><br>
                 <?php include("time.html"); ?>
-                <?php if(isset($_SESSION['user'])): ?>
+                <?php if($user !== null): ?>
                   <!-- Gestion des boutons d'acceptance -->
-                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $_SESSION['user']->getUserId() === $post->getAuthorId()): ?>
+                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $user->getUserId() === $post->getAuthorId()): ?>
                     <form action='post/accept_answer/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='accept'><i class='far fa-check-circle'></i></button>
                     </form>
                   <?php endif ?>
                   <!-- Gestion boutons edit et delete -->
-                  <?php if($_SESSION['user']->getFullName() === $answer->getFullNameAuthor()): ?>
+                  <?php if($user->getFullName() === $answer->getFullNameAuthor()): ?>
                     <form action='post/edit/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
                     </form>

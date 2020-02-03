@@ -17,6 +17,7 @@ class ControllerUser extends Controller {
         if($this->user_logged()){
             $this->redirect();
         }else{
+            $user = null;
             $username = '';
             $password = '';
             $errors = [];
@@ -26,9 +27,10 @@ class ControllerUser extends Controller {
                 $errors = User::validate_login($username, $password);
                 if (empty($errors)) {
                     $this->log_user(User::get_user_by_userName($username));
+                    $user = get_user_or_redirect();
                 }
             }
-            (new View("login"))->show(array("username" => $username, "password" => $password, "errors" => $errors));
+            (new View("login"))->show(array("username" => $username, "password" => $password, "user" => $user, "errors" => $errors));
         }
     }
 
@@ -36,13 +38,13 @@ class ControllerUser extends Controller {
         if($this->user_logged()){
             $this->redirect();
         }else{
+            $user = null;
             $username = '';
             $password = '';
             $password_confirm = ''; 
             $fullname = '';
             $email = '';
             $errors = [];
-
             if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['password_confirm']) && isset($_POST['fullname']) && isset($_POST['email'])){
                 $username = trim($_POST['username']);
                 $password = $_POST['password'];
@@ -59,7 +61,8 @@ class ControllerUser extends Controller {
                     $this->log_user(User::get_user_by_userName($username));
                 }
             }
-            (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, "fullname" => $fullname, "email" => $email, "errors" => $errors));   
+            (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, 
+                                             "fullname" => $fullname, "email" => $email,"user" => $user, "errors" => $errors));   
 
             }  
     }

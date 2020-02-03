@@ -47,13 +47,13 @@
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
-              <a class="nav-link active" href="post/index">Newest</a>
+              <a class="nav-link" href="post/index">Newest</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="post/unanswered">Unanswered</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="post/votes">Votes</a>
+              <a class="nav-link active" href="post/votes">Votes</a>
             </li>
           </ul>
         </div>
