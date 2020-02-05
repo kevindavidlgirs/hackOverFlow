@@ -7,6 +7,8 @@ abstract class Post extends Model {
     protected $body;
     protected $authorId;
     protected $fullNameAuthor;
+    protected $totalVote;
+
 
     public function getBodyMarkedown(){
         return self::markdown($this->body);
@@ -16,6 +18,10 @@ abstract class Post extends Model {
         return self::remove_markdown($this->body);    
     }
     
+    public function getTotalVote(){
+        return $this->totalVote;
+    }
+
     public function getPostId(){
         return $this->postId;
     }

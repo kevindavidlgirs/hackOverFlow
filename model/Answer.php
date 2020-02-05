@@ -7,14 +7,14 @@ class Answer extends Post{
     private $timestamp;
     private $nbVote;
 
-    public function __construct($body, $authorId, $parentId, $timestamp, $fullNameAuthor, $postId, $nbVote){
+    public function __construct($body, $authorId, $parentId, $timestamp, $fullNameAuthor, $postId, $totalVote){
         $this->postId = $postId;
         $this->body = $body;
         $this->authorId = $authorId;
         $this->fullNameAuthor = $fullNameAuthor;
         $this->parentId = $parentId;
         $this->timestamp = $timestamp;
-        $this->nbVote = $nbVote;
+        $this->totalVote = $totalVote;
     }
 
     public function getFullNameAuthor(){
@@ -28,9 +28,7 @@ class Answer extends Post{
     public function getParentId(){
         return $this->parentId;
     }
-    public function getNbVote(){
-        return $this->nbVote;
-    }
+
 
     //Récupère toutes les réponses pour une question
     public static function get_answers($parentId){
@@ -40,7 +38,7 @@ class Answer extends Post{
         if($query->rowCount() !== 0){
             $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
                                 $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
-                                $value['PostId'], Vote::get_NbVote($value['PostId'])); 
+                                $value['PostId'], Vote::get_SumVote($value['PostId'])->getTotalVote()); 
         } 
         $query = self::execute("SELECT post.*, max_score FROM post, 
                                     ( 
@@ -57,7 +55,7 @@ class Answer extends Post{
         foreach($data1 as $value){
             $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
                                     $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
-                                        $value['PostId'], Vote::get_NbVote($value['PostId']));
+                                        $value['PostId'], Vote::get_SumVote($value['PostId'])->getTotalVote());
         }
         return $results;
     }
@@ -69,7 +67,7 @@ class Answer extends Post{
         if($query->rowCount() !== 0){
             return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
                                     $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
-                                        $data['PostId'], Vote::get_NbVote($data['PostId']));  
+                                        $data['PostId'], Vote::get_SumVote($data['PostId']));  
         }
         return false;
     }

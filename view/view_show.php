@@ -72,9 +72,9 @@
                     <i class="far fa-heart fa-7px"></i>
                   </a><br>
                 <?php endif ?>
-                <!-- Affiche le nombre de vote entre le button like et dislike -->
-                <?= $post->getNbVote() ?>
-                <small>Votes</small>
+                <!-- Affiche la somme des votes entre le button like et dislike -->
+                <?= $post->getTotalVote() ?>
+                <small>vts.</small>
                 <!-- Getion des boutons dislike si l'utilisateur est connecté -->
                 <?php if($post->get_upDown_vote($user->getUserId(), $post->getPostId()) == -1): ?>
                   <a class="btn" href="post/like/-1/<?= $post->getPostId()?>">
@@ -88,12 +88,13 @@
                           
               
               <?php else: ?>  
+
                 <!-- Getion des boutons like et dislike si l'utilisateur est un visiteur -->  
                 <a class="btn" href="user/signup">
                   <i class="far fa-heart fa-7px"></i>
                 </a><br>
-                <?= $post->getNbVote() ?>
-                <small>Votes</small>
+                <?= $post->getTotalVote() ?>
+                <small>vts.</small>
                 <a class="btn" href="user/signup">
                   <i class="far fa-frown"></i>
                 </a>
@@ -134,8 +135,8 @@
                     </a><br>
                   <?php endif ?>
                   <!-- Affiche le nombre de vote entre le butons like et dislike -->
-                  <?= $answer->getNbVote() ?>
-                  <small>Votes</small>
+                  <?= $answer->getTotalVote() ?>
+                  <small>vts.</small>
                   <!-- Gestion des boutons dislike si l'utilisateur est connecté -->
                   <?php if($post->get_upDown_vote($user->getUserId(), $answer->getPostId()) == -1): ?>
                     <a class="btn" href="post/like/-1/<?= $post->getPostId()?>/<?= $answer->getPostId()?>">
@@ -162,8 +163,8 @@
                   <a class="btn" href="user/signup">
                     <i class="far fa-heart fa-7px"></i>
                   </a><br>
-                  <?= $answer->getNbVote() ?>
-                  <small>Votes</small>
+                  <?= $answer->getTotalVote() ?>
+                  <small>vts.</small>
                   <a class="btn" href="user/signup">
                     <i class="far fa-frown"></i>
                   </a>

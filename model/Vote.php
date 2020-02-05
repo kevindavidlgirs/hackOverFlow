@@ -33,14 +33,12 @@ class Vote extends Model{
     public static function get_SumVote($PostId){
         $query = self::execute("SELECT SUM(UpDown) as sumVote FROM vote WHERE PostId = :PostId GROUP BY(PostId)", array("PostId" => $PostId));
         $data = $query->fetch();
+        if($query->rowcount()== 0){
+            $data['sumVote'] = 0;     
+        }
         return $results = new Vote(null, null, null, $data['sumVote']);
     }
 
-    public static function get_nbVote($PostId){
-        $query = self::execute("SELECT count(*) as nbVote FROM vote WHERE PostId = :PostId", array("PostId" => $PostId));
-        $data = $query->fetch();
-        return $data['nbVote'];
-    }
 
     public function update_vote($userId, $postId,  $value){
         $query = self::execute("SELECT * FROM vote WHERE PostId = :PostId and UserId= :UserId", array("PostId"=>$postId, "UserId"=>$userId));

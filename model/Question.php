@@ -9,13 +9,11 @@ require_once("model/Answer.php");
 class Question extends Post {
     private $title;
     private $timestamp;
-    private $totalVote;//Total VOTE?
     private $nbAnswers;
-    private $nbVote;
     private $answers;
     private $acceptedAnswerId;
     
-    public function __construct($postId, $authorId, $title, $body, $timestamp, $fullNameAuthor, $totalVote, $nbAnswers, $acceptedAnswerId, $answers, $nbVote){
+    public function __construct($postId, $authorId, $title, $body, $timestamp, $fullNameAuthor, $totalVote, $nbAnswers, $acceptedAnswerId, $answers){
         $this->postId = $postId;
         $this->body = $body;
         $this->authorId = $authorId;
@@ -26,27 +24,24 @@ class Question extends Post {
         $this->nbAnswers = $nbAnswers;
         $this->acceptedAnswerId = $acceptedAnswerId;
         $this->answers = $answers;
-        $this->nbVote = $nbVote;
     }
 
     public function getTimestamp(){
         return $this->timestamp;
     }
+    
     public function getTitle(){
         return $this->title;
     }
-    public function getTotalVote(){
-        return $this->totalVote;
-    }
+
     public function getNbAnswers(){
         return $this->nbAnswers;
     }
+
     public function getAnswers(){
         return $this->answers;
     }
-    public function getNbVote(){
-        return $this->nbVote;
-    }
+
     public function getAcceptedAnswerId(){
         return $this->acceptedAnswerId;
     }
@@ -60,7 +55,7 @@ class Question extends Post {
         }else{
             return $result = new Question($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Vote::get_nbVote($post["PostId"]));
+                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId));
         }
             
     }
@@ -86,7 +81,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null);
         }
         return $results;
             
@@ -101,7 +96,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, null);
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null);
         }
         return $results;    
     }
