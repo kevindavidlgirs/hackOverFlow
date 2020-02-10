@@ -170,103 +170,33 @@ class User extends Model {
         return $hash === Tools::my_hash($clear_password);
     }
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    //renvoie un tableau d'erreur(s) 
-    //le tableau est vide s'il n'y a pas d'erreur.
-    public static function validate_photo($file) {
-        $errors = [];
-        if (isset($file['name']) && $file['name'] != '') {
-            if ($file['error'] == 0) {
-                $valid_types = array("image/gif", "image/jpeg", "image/png");
-                if (!in_array($_FILES['image']['type'], $valid_types)) {
-                    $errors[] = "Unsupported image format : gif, jpg/jpeg or png.";
-                }
-            } else {
-                $errors[] = "Error while uploading file.";
-            }
+    //indique si un l'utilisateur est connecté
+    public function user_logged()
+    {
+        if (!isset($_SESSION['user'])) {
+            return false;
+        } else {
+            return true;
         }
-        return $errors;
     }
-
-    //pre : validate_photo($file) returns true
-    public function generate_photo_name($file) {
-        //note : time() est utilisé pour que la nouvelle image n'aie pas
-        //       le meme nom afin d'éviter que le navigateur affiche
-        //       une ancienne image présente dans le cache
-        if ($_FILES['image']['type'] == "image/gif") {
-            $saveTo = $this->pseudo . time() . ".gif";
-        } else if ($_FILES['image']['type'] == "image/jpeg") {
-            $saveTo = $this->pseudo . time() . ".jpg";
-        } else if ($_FILES['image']['type'] == "image/png") {
-            $saveTo = $this->pseudo . time() . ".png";
-        }
-        return $saveTo;
-    }
-    public function write_message($message) {
-        return $message->update();
-    }
-
-    public function delete_message($message) {
-        return $message->delete($this);
-    }
-
-    public function get_messages() {
-        return Message::get_messages($this);
-    }
-
-    public function get_other_members_and_relationships() {
-        $query = self::execute("SELECT pseudo,
-                     (SELECT count(*) 
-                      FROM Follows 
-                      WHERE follower=:user and followee=Members.pseudo) as follower,
-                     (SELECT count(*) 
-                      FROM Follows 
-                      WHERE followee=:user and follower=Members.pseudo) as followee
-              FROM Members 
-              WHERE pseudo <> :user 
-              ORDER BY pseudo ASC", array("user" => $this->pseudo));
-        return $query->fetchAll();
-    }
-
-    public function follow($followee) {
-        self::add_follower($this->pseudo, $followee->pseudo);
-    }
-
-    public function unfollow($followee) {
-        self::delete_follower($this->pseudo, $followee->pseudo);
-    }
-
-    private static function add_follower($user, $followee) {
-        self::execute("INSERT INTO Follows VALUES (:user,:other)", array("user"=>$user, "other"=>$followee));
-        return true;
-    }
-
-    private static function delete_follower($user, $followee) {
-        self::execute("DELETE FROM Follows WHERE follower = :user AND followee = :other", array("user"=>$user, "other"=>$followee));
-        return true;
-    }
-
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,30 +3,57 @@
 require_once 'model/Question.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
+require_once 'framework/Utils.php';
+
 
 //A voir s'il ne faut pas ajouter un controller Answer
 class ControllerPost extends Controller{
 
     public function index() {
         $user = null;
+        $decode = null;
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
-        (new View("index"))->show(array("posts"=> Question::get_questions(), "user" => $user));
+        if (isset($_POST['search'])) {
+            $encode = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "index", $encode);
+        }
+        if(isset($_GET['param1'])){
+            $decode = Utils::url_safe_decode($_GET['param1']);
+        }
+        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user));
     }
 
     public function unanswered() {
         $user = null;
+        $decode = null;
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
-        (new View("unanswered"))->show(array("posts"=> Question::get_questions_unanswered(), "user" => $user));
+        if (isset($_POST['search'])) {
+            $encode = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "unanswered", $encode);
+        }
+        if(isset($_GET['param1'])){
+            $decode = Utils::url_safe_decode($_GET['param1']);
+        }
+        (new View("unanswered"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user));
     }
 
     public function votes(){
         $user = null;
+        $decode = null;
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
-        (new View("votes"))->show(array("posts"=> Question::get_questions_by_votes(), "user" => $user));    
+        if (isset($_POST['search'])) {
+            $encode = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "votes", $encode);
+        }
+        if(isset($_GET['param1'])){
+            $decode = Utils::url_safe_decode($_GET['param1']);
+        }
+        (new View("votes"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user));    
     }
+
 
     //sert à afficher la view_show
     public function show(){

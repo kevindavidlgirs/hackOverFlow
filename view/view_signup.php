@@ -8,7 +8,6 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
     <base href="<?= $web_root ?>" />
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -47,71 +46,71 @@
         </div>
         <div class="card-body">
           <form action="user/signup" method="post">
-          <?php if(array_key_exists('user', $errors)):?>            
-            <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
-              <div class="invalid-feedback">
-                <?= $errors['user']; ?>
-              </div>  
-          <?php else: ?>   
-            <div class="form-group">
-              <input type="text" name="username" class="form-control" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?>/>
-            </div>
-          <?php endif ?>
-          
-          <?php if(array_key_exists('name', $errors)):?>            
-            <input type="text" name="fullname" class="form-control is-invalid" placeholder="<?= $fullname ?>" required>
-              <div class="invalid-feedback">
-                <?= $errors['name']; ?>
-              </div>  
-          <?php else: ?> 
-            <div class="form-group">
-              <input type="text" name="fullname" class="form-control" <?php if($fullname != null){echo 'value="'.$fullname.'"';}else{echo 'placeholder="Full Name"';}?>/>
-            </div>
-          <?php endif ?>
-
-          <?php if(array_key_exists('email', $errors)):?>            
-            <div class="form-group">
-              <input type="text" name="email" class="form-control is-invalid" placeholder="<?= $email ?>" required>
-              <div class="invalid-feedback">
-                <?= $errors['email']; ?>
-              </div>  
-            </div> 
-          <?php else: ?> 
-            <div class="form-group">
-              <input type="text" name="email" class="form-control" <?php if($email != null){echo 'value="'.$email.'"';}else{echo 'placeholder="name@example.com"';}?> />
-            </div>
-          <?php endif ?>
-
-          <?php if(array_key_exists('password', $errors)):?>  
-            <div class="form-group">          
-              <input type="password" name="password" class="form-control is-invalid" placeholder="Password" required>
+            <?php if(array_key_exists('user', $errors)):?>            
+              <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>">
                 <div class="invalid-feedback">
-                  <?= $errors['password']; ?>
+                  <?= $errors['user']; ?>
                 </div>  
-            </div>
-          <?php else: ?> 
-            <div class="form-group">
-              <input type="password" name="password" class="form-control" placeholder="Password"/>
-            </div>
-          <?php endif ?>
-
-          <?php if(array_key_exists('password_confirm', $errors)):?> 
-            <div class="form-group">           
-              <input type="password" name="password_confirm" class="form-control is-invalid" placeholder="Confirm your password" required>
+            <?php else: ?>   
+              <div class="form-group">
+                <input type="text" name="username" class="form-control" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?>/>
+              </div>
+            <?php endif ?>
+            
+            <?php if(array_key_exists('name', $errors)):?>            
+              <input type="text" name="fullname" class="form-control is-invalid" placeholder="<?= $fullname ?>">
                 <div class="invalid-feedback">
-                  <?= $errors['password_confirm']; ?>
-                </div> 
-            <div class="form-group"> 
-          <?php else: ?> 
-            <div class="form-group">
-              <input type="password" name="password_confirm" class="form-control" placeholder="Confirm your password"/>
-            </div>
-          <?php endif ?>
-          
+                  <?= $errors['name']; ?>
+                </div>  
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="text" name="fullname" class="form-control" <?php if($fullname != null){echo 'value="'.$fullname.'"';}else{echo 'placeholder="Full Name"';}?>/>
+              </div>
+            <?php endif ?>
+
+            <?php if(array_key_exists('email', $errors)):?>            
+              <div class="form-group">
+                <input type="text" name="email" class="form-control is-invalid" placeholder="<?= $email ?>">
+                <div class="invalid-feedback">
+                  <?= $errors['email']; ?>
+                </div>  
+              </div> 
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="text" name="email" class="form-control" <?php if($email != null){echo 'value="'.$email.'"';}else{echo 'placeholder="name@example.com"';}?> />
+              </div>
+            <?php endif ?>
+
+            <?php if(array_key_exists('password', $errors)):?>  
+              <div class="form-group">          
+                <input type="password" name="password" class="form-control is-invalid" placeholder="Password">
+                  <div class="invalid-feedback">
+                    <?= $errors['password']; ?>
+                  </div>  
+              </div>
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="password" name="password" class="form-control" placeholder="Password"/>
+              </div>
+            <?php endif ?>
+
+            <?php if(array_key_exists('password_confirm', $errors)):?> 
+              <div class="form-group">           
+                <input type="password" name="password_confirm" class="form-control is-invalid" placeholder="Confirm your password">
+                  <div class="invalid-feedback">
+                    <?= $errors['password_confirm']; ?>
+                  </div> 
+              <div class="form-group"> 
+            <?php else: ?> 
+              <div class="form-group">
+                <input type="password" name="password_confirm" class="form-control" placeholder="Confirm your password"/>
+              </div>
+            <?php endif ?>
+            
             <button type="submit" class="btn btn-primary btn-dark btn-block">Sign up</button>
           </form>
         </div>
       </div>
     </main>
-  </boby>
+  </body>
 </html>

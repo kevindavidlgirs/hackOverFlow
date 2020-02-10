@@ -45,7 +45,7 @@
     <main role="main" class="container">
       <div class="card">
         <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs">
+          <ul class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
               <a class="nav-link active" href="post/index">Newest</a>
             </li>
@@ -55,13 +55,13 @@
             <li class="nav-item">
               <a class="nav-link" href="post/votes">Votes</a>
             </li>
+            <li class="nav-item">
+              <form action="post/index" method="post">
+                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+              </form>
+            </li>
           </ul>
         </div>
-        
-        <!-- A gérer
-        <input class="form-control mr-sm-2  ml-auto" type="search" placeholder="Search" aria-label="Search">
-        -->
-
         <div class="card-body">
           <ul class="list-group list-group-flush"> 
             <?php foreach($posts as $post): ?>

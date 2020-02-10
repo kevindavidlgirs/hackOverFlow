@@ -62,8 +62,15 @@ class Question extends Post {
 
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
     //et le nombre de réponse de chaque post.
-    public static function get_questions(){
-        $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC ", array());
+    public static function get_questions($decode){
+        if($decode === null){
+            $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC ", array());
+        }else{
+            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post, user 
+                                        WHERE UserId=authorid  and ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                                or postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                                and Title = '')) and Title !='' ORDER BY timestamp DESC ", array());     
+        }
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
@@ -74,12 +81,19 @@ class Question extends Post {
         return $results;
     }
 
-    public static function get_questions_unanswered(){
-        $query = self::execute("SELECT * FROM post WHERE title !='' and AcceptedAnswerId IS NULL ORDER BY timestamp DESC ", array());
+    public static function get_questions_unanswered($decode){
+        if($decode === null){
+            $query = self::execute("SELECT * FROM post WHERE title !='' and AcceptedAnswerId IS NULL ORDER BY timestamp DESC ", array());
+        }else{
+            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post, user WHERE UserId=authorid 
+                                        and AcceptedAnswerId IS NULL and ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                            or postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                                and Title = '')) and Title != '' ORDER BY timestamp DESC", array());    
+        }
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
+            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), Tools::sanitize(self::remove_markdown($row["Body"])), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null);
         }
@@ -87,13 +101,20 @@ class Question extends Post {
             
     }
 
-    public static function get_questions_by_votes(){
-        $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
-                                FROM post p LEFT JOIN vote v ON p.PostId = v.PostId WHERE title !='' 
-                                GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());
+    public static function get_questions_by_votes($decode){
+        if($decode === null){
+            $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
+                                    FROM post p LEFT JOIN vote v ON p.PostId = v.PostId WHERE title !='' 
+                                    GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());
+        }else{
+            $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
+                                    FROM post p LEFT JOIN vote v ON p.PostId = v.PostId LEFT JOIN user u on  u.UserId=p.authorid WHERE ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                    or p.postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+                                    and Title = '')) and title !='' GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());    
+        }
         $data = $query->fetchAll();
         $results = [];
-        foreach($data as $row){
+        foreach($data as $row){                                         //Sanitization?
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null);
