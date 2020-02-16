@@ -6,7 +6,6 @@ require_once 'framework/Controller.php';
 require_once 'framework/Utils.php';
 
 
-//A voir s'il ne faut pas ajouter un controller Answer
 class ControllerPost extends Controller{
 
     public function index() {
@@ -55,7 +54,6 @@ class ControllerPost extends Controller{
     }
 
 
-    //sert à afficher la view_show
     public function show(){
         $user = null;
         if(self::get_user_or_false())

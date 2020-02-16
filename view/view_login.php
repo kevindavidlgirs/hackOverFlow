@@ -8,7 +8,6 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
     <base href="<?= $web_root ?>" />
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -55,7 +54,6 @@
               </div>  
             <?php else: ?> 
               <div class="form-group">
-                <!--A modifier pour faire apparaître le nom de l'user qui est quand même existant si le code est mauvais -->
                 <input type="text" class="form-control" name="username" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?> />
               </div>
             <?php endif ?> 

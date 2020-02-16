@@ -8,7 +8,6 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
     <base href="<?= $web_root ?>" />
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">

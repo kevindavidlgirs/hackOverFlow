@@ -8,8 +8,6 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/navbar-static/">
-
     <!-- Bootstrap core CSS -->
     <base href="<?= $web_root ?>" />
     <!-- Bootstrap core CSS + fontawesome -->    
@@ -55,7 +53,7 @@
             <li class="nav-item">
               <a class="nav-link" href="post/votes">Votes</a>
             </li>
-            <li class="nav-item">
+            <li> 
               <form action="post/unanswered" method="post">
                 <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
               </form>

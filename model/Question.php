@@ -114,7 +114,7 @@ class Question extends Post {
         }
         $data = $query->fetchAll();
         $results = [];
-        foreach($data as $row){                                         //Sanitization?
+        foreach($data as $row){                                     
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null);

@@ -3,12 +3,13 @@ require_once("lib/parsedown-1.7.3/Parsedown.php");
 require_once("framework/Model.php");
 
 abstract class Post extends Model {
+    //"protected" mauvaise pratique ? (impossible d'utiliser "private" dans ce cas...)
     protected $postId;
     protected $body;
     protected $authorId;
     protected $fullNameAuthor;
     protected $totalVote;
-
+    //"protected" mauvaise pratique ? (impossible d'utiliser "private" dans ce cas...)
 
     public function getBodyMarkedown(){
         return self::markdown($this->body);
