@@ -51,7 +51,7 @@ class Vote extends Model{
             }else{
                 self::execute("UPDATE vote SET UpDown = :UpDown WHERE UserId=:UserId AND PostId=:PostId", array("UserId"=>$userId, "PostId"=>$postId, "UpDown"=>$value));
                 
-                //Pourquoi ces query ne fonctionne pas ?
+                //Pourquoi ces query ne fonctionnent pas ?
                 //self::execute("DELETE FROM vote WHERE UserId=:UserId AND PostId=:PostId", array("PostId"=>$postId, "UserId"=>$userId));
                 //self::execute("INSERT INTO vote(UserId, PostId, UpDown) VALUES(UserId=:UserId, PostId=:PostId, UpDown=:UpDown)", array("UserId"=>$userId, "PostId"=>$postId, "UpDown"=>$value));    
             }

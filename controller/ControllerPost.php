@@ -8,6 +8,8 @@ require_once 'framework/Utils.php';
 
 class ControllerPost extends Controller{
 
+
+    //Méthode posts pour les affichage ainsi que Tag
     public function index() {
         $user = null;
         $decode = null;
@@ -57,7 +59,7 @@ class ControllerPost extends Controller{
     public function show(){
         $user = null;
         if(self::get_user_or_false())
-            $user = self::get_user_or_redirect();
+            $user = self::get_user_or_false();
         if(isset($_GET['param1'])){       
             $postId = $_GET['param1'];
             $result = Question::get_question($postId);
