@@ -22,7 +22,7 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user));
+        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user,  "onglet" => 0));
     }
 
     public function unanswered() {
@@ -37,7 +37,7 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("unanswered"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user));
+        (new View("index"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user, "onglet" => 1));
     }
 
     public function votes(){
@@ -52,7 +52,7 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("votes"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user));    
+        (new View("index"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user,  "onglet" => 2));    
     }
 
 
@@ -116,15 +116,15 @@ class ControllerPost extends Controller{
     public function edit(){
         $questionId = '';
         $answerId = '';
-        $error = [];
+        $errors = [];
         $user = self::get_user_or_redirect();
         if(!isset($_POST['body']) && isset($_GET['param1'])){
             $questionId = $_GET['param1'];
             if(isset($_GET['param2'])){
                 $answerId = $_GET['param2'];
-                self::view_answer_edition($questionId, $answerId, $user, $error);
+                self::view_answer_edition($questionId, $answerId, $user, $errors);
             }else{
-                self::view_question_edition($questionId, $answerId, $user, $error);
+                self::view_question_edition($questionId, $answerId, $user, $errors);
             }
         }else{
             self::edition_post($user);
@@ -132,7 +132,7 @@ class ControllerPost extends Controller{
     }
 
     //Affiche la vue pour l'édition d'une réponse
-    private function view_answer_edition($questionId, $answerId, $user, $error){   
+    private function view_answer_edition($questionId, $answerId, $user, $errors){   
         if (Question::get_question($questionId) &&  Answer::get_answer($answerId)){
             if(!is_numeric($questionId) || !is_numeric($answerId) 
                                         || !($user->getUserId() === Answer::get_answer($answerId)->getAuthorId())){
@@ -142,7 +142,7 @@ class ControllerPost extends Controller{
             self::redirect();
         }
         (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, 
-                                       "post" => Answer::get_answer($answerId),"user" => $user, "error" => $error));         
+                                       "post" => Answer::get_answer($answerId),"user" => $user, "errors" => $errors));         
     }
 
     //Affiche la vue pour l'edition d'une question
@@ -158,7 +158,7 @@ class ControllerPost extends Controller{
             self::redirect();
         }
         (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, 
-                                       "post" => Question::get_question($questionId), "user" => $user, "error" => $errors));         
+                                       "post" => Question::get_question($questionId), "user" => $user, "errors" => $errors));         
     }
     
     //Sert à ajouter la modification du corps d'une réponse ou d'une question (à modifier).
@@ -170,8 +170,9 @@ class ControllerPost extends Controller{
             if(isset($_GET['param2'])){
                 $answerId = $_GET['param2'];
                 self::answer_edition($questionId, $answerId, $user, $body);
-            }else{
-                self::question_edition($questionId, $answerId, $user, $body);
+            }else if (isset($_POST['title'])){
+                $title = $_POST['title'];
+                self::question_edition($questionId, $answerId, $user, $title, $body);
             }                                    
         }else{
             self::redirect();
@@ -191,9 +192,8 @@ class ControllerPost extends Controller{
         }   
     }
 
-    private function question_edition($questionId,  $answerId, $user, $body){
+    private function question_edition($questionId, $answerId, $user, $title, $body){
         if($user->getUserId() === Question::get_question($questionId)->getAuthorId()){
-            $title = Question::get_question($questionId)->getTitle();
             $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null);
             $errors = Question::validate($question);
             if(count($errors) == 0){
@@ -203,7 +203,6 @@ class ControllerPost extends Controller{
                 self::view_question_edition($questionId, $answerId, $user, $errors);
             }
         }
- 
     }
 
     //Gère la suppression d'un post ou d'une question (pas juste)
@@ -229,11 +228,6 @@ class ControllerPost extends Controller{
         }else{
             self::redirect();
         }
-    }
-
-    private function cancel_delete($postId){
-        $postId = $_GET['param1'];
-        self::redirect("post", "show", $postId);      
     }
 
     private function show_delete_questionOrAnswer($questionId, $answerId, $user){

@@ -39,10 +39,7 @@ abstract class Post extends Model {
         return $this->authorId;
     }
 
-    public function set_post(){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
-        return true;
-    }
+    abstract public function set_post();
 
     //Ajouter les méthodes valide, delete et autres.
     protected static function markdown($markedown){

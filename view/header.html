@@ -1,4 +1,6 @@
   <!-- Header utilisé lorsqu'un utilisateur est connecté -->
+  <?php echo var_dump($user); ?>
+
   <?php if(isset($user) && $user !== null && $user->user_logged()): ?>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
     <a class="navbar-brand" href="post/index">Hack OverFlow</a>
@@ -12,10 +14,10 @@
           <a class="nav-link <?php if(isset($active) && $active == 'ask') echo 'active'; ?> " href="post/ask">Ask a question</a>
         </li>
         <li class="nav-item">
-        <a class="nav-link <?php if(isset($active) && $active == 'question') echo 'active'; ?> " href="post/index">Questions</a>
+        <a class="nav-link <?php if(isset($active) && $active == 'question') echo 'active'; ?> " href="post">Questions</a>
         </li>
         <li class="nav-item ">
-          <a class="nav-link <?php if(isset($active) && $active == 'tag'){echo 'active';} ?>" href="tag">Tags</a>
+          <a class="nav-link <?php if(isset($active) && $active == 'tag') echo 'active'; ?>" href="tag">Tags</a>
         </li>
         <li class="nav-item">
           <a class="nav-link <?php if(isset($active) && $active == 'profile') echo 'active'; ?> " href="user/profile"><i class="fas fa-user"></i> <?= $user->getUserName(); ?></a>

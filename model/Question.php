@@ -85,9 +85,9 @@ class Question extends Post {
         if($decode === null){
             $query = self::execute("SELECT * FROM post WHERE title !='' and AcceptedAnswerId IS NULL ORDER BY timestamp DESC ", array());
         }else{
-            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post, user WHERE UserId=authorid 
-                                        and AcceptedAnswerId IS NULL and ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
-                                            or postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post WHERE AcceptedAnswerId IS NULL 
+                                        and ((Title like '%$decode%' or Body like '%$decode%') 
+                                            or postid in (select ParentId from post where (Title like '%$decode%' or Body like '%$decode%') 
                                                 and Title = '')) and Title != '' ORDER BY timestamp DESC", array());    
         }
         $data = $query->fetchAll();
@@ -103,14 +103,31 @@ class Question extends Post {
 
     public static function get_questions_by_votes($decode){
         if($decode === null){
-            $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
-                                    FROM post p LEFT JOIN vote v ON p.PostId = v.PostId WHERE title !='' 
-                                    GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());
+            $query = self::execute("SELECT post.*, max_score
+                                    FROM post, (
+                                        SELECT parentid, max(score) max_score
+                                        FROM (
+                                            SELECT post.postid, ifnull(post.parentid, post.postid) parentid, ifnull(sum(vote.updown), 0) score
+                                            FROM post LEFT JOIN vote ON vote.postid = post.postid 
+                                            GROUP BY post.postid
+                                        ) AS tbl1
+                                        GROUP by parentid
+                                    ) AS q1
+                                    WHERE post.postid = q1.parentid
+                                    ORDER BY q1.max_score DESC, timestamp DESC", array());
         }else{
-            $query = self::execute("SELECT p.PostId, p.AuthorId, p.Title, p.Body, p.Timestamp
-                                    FROM post p LEFT JOIN vote v ON p.PostId = v.PostId LEFT JOIN user u on  u.UserId=p.authorid WHERE ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
-                                    or p.postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
-                                    and Title = '')) and title !='' GROUP BY (p.postId) ORDER BY ifnull(SUM(upDown), 0) DESC", array());    
+            $query = self::execute("SELECT post.*, max_score
+                                    FROM post, (
+                                        SELECT parentid, max(score) max_score
+                                        FROM (
+                                            SELECT post.postid, ifnull(post.parentid, post.postid) parentid, ifnull(sum(vote.updown), 0) score
+                                            FROM post LEFT JOIN vote ON vote.postid = post.postid WHERE (Title like \"%$decode%\" or Body like \"%$decode%\")
+                                            GROUP BY post.postid
+                                        ) AS tbl1
+                                        GROUP by parentid
+                                    ) AS q1
+                                    WHERE post.postid = q1.parentid
+                                    ORDER BY q1.max_score DESC, timestamp DESC", array());    
         }
         $data = $query->fetchAll();
         $results = [];
@@ -177,6 +194,10 @@ class Question extends Post {
         return true;  
     }
 
+    public function set_post(){
+        self::execute("UPDATE post SET Title = :Title, Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
+        return true;
+    }
 }
 
 ?>

@@ -29,8 +29,19 @@ class Answer extends Post{
         return $this->parentId;
     }
 
+    //Récupère une seule réponse
+    public static function get_answer($answerId){
+        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$answerId));
+        $data = $query->fetch();
+        if($query->rowCount() !== 0){
+            return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
+                                    $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
+                                        $data['PostId'], Vote::get_SumVote($data['PostId']));  
+        }
+        return false;
+    }
 
-    //Récupère toutes les réponses pour une question
+    //Récupère en premier lieu la réponse acceptée puis les réponses sur base du score des votes
     public static function get_answers($parentId){
         $results = [];
         $query = self::execute("SELECT * FROM post WHERE ParentId = :ParentId AND postid = (SELECT AcceptedAnswerId FROM post WHERE PostId = :PostId )", array("ParentId"=>$parentId,"PostId"=>$parentId));
@@ -59,19 +70,7 @@ class Answer extends Post{
         }
         return $results;
     }
-
-    //Récupère une seule réponse
-    public static function get_answer($answerId){
-        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$answerId));
-        $data = $query->fetch();
-        if($query->rowCount() !== 0){
-            return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
-                                    $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
-                                        $data['PostId'], Vote::get_SumVote($data['PostId']));  
-        }
-        return false;
-    }
-    
+   
     //Récupère le nombre de question pour un post
     public static function get_nbAnswers($questionId){
         $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostId GROUP BY(ParentId)", array("PostId"=>$questionId));
@@ -116,6 +115,10 @@ class Answer extends Post{
         return $error;
     }
     
+    public function set_post(){
+        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
+        return true;
+    }
 }
 ?>
 

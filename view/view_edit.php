@@ -46,12 +46,24 @@
       <form action="post/edit/<?= $post->getPostId() ?>" method="post">
     <?php endif ?>
         <div class="form-group">
+          <?php if(method_exists($post,'getTitle')):?>
+            <h5>Title</h5>
+            <small>Be specific and imagine you're asking a question to another person</small>
+            <?php if(array_key_exists('title', $errors)):?>
+              <input class="form-control is-invalid" type="text" name="title" value="<?= $post->getTitle() ?>">
+              <div class="invalid-feedback">
+                <?= $errors['title']; ?><br>
+              </div>
+            <?php else: ?>
+              <input class="form-control" type="text" name="title" value="<?= $post->getTitle() ?>"><br>
+            <?php endif ?>
+          <?php endif ?>
           <h5>Body</h5>
           <small>Include all information someone would need to answer your question</small>
-          <?php if(array_key_exists('body', $error)):?>
+          <?php if(array_key_exists('body', $errors)):?>
             <textarea class="form-control is-invalid" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
             <div class="invalid-feedback">
-              <?= $error['body']; ?>
+              <?= $errors['body']; ?>
             </div>
           <?php else: ?>
             <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>

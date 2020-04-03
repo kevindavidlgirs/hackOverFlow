@@ -57,7 +57,7 @@ class ControllerUser extends Controller {
                 $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
 
                 if (count($errors) == 0) { 
-                    $user->update(); //sauve l'utilisateur
+                    $user->update(); //sauve l'utilisateur (à changer)
                     $this->log_user(User::get_user_by_userName($username));
                 }
             }
@@ -67,7 +67,7 @@ class ControllerUser extends Controller {
             }  
     }
 
-    //profil de l'utilisateur connecté ou donné 'faux'
+    //profil de l'utilisateur connecté 
     public function profile() {
         if($this->user_logged() && !isset($_GET["param1"])){
             $user = $this->get_user_or_redirect();

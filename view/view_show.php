@@ -42,7 +42,7 @@
         <!-- Affiche la question ainsi que le temps depuis la création de celle-ci ainsi que le créateur -->
         <li class="list-group-item">
           <h5><?= $post->getTitle() ?></h5>          
-          <?php include("time.html"); ?>
+          <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
 
           <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>

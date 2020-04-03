@@ -45,13 +45,13 @@
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
-              <a class="nav-link active" href="post/index">Newest</a>
+              <a class="nav-link <?php if($onglet == 0)echo 'active'?>" href="post/index">Newest</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="post/unanswered">Unanswered</a>
+              <a class="nav-link  <?php if($onglet == 1)echo 'active'?>" href="post/unanswered">Unanswered</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="post/votes">Votes</a>
+              <a class="nav-link  <?php if($onglet == 2)echo 'active'?>" href="post/votes">Votes</a>
             </li>
             <li class="nav-item">
               <form action="post/index" method="post">
@@ -67,7 +67,7 @@
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  include('time.html');
+                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
                   //Se charge d'afficher le nombre de réponses
                   if($post->getTotalVote() === null){
                     echo "<small> (0 vote(s), ";
