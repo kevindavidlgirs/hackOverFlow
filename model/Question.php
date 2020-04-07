@@ -66,9 +66,9 @@ class Question extends Post {
         if($decode === null){
             $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC ", array());
         }else{
-            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post, user 
-                                        WHERE UserId=authorid  and ((UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
-                                                or postid in (select ParentId from post where (UserName like '%$decode%' or FullName like '%$decode%' or Email like '%$decode%' or Title like '%$decode%' or Body like '%$decode%') 
+            $query = self::execute("SELECT distinct PostId, AuthorId, Title, Body, Timestamp FROM post 
+                                        WHERE ((Title like '%$decode%' or Body like '%$decode%') 
+                                                or postid in (select ParentId from post where (Title like '%$decode%' or Body like '%$decode%') 
                                                 and Title = '')) and Title !='' ORDER BY timestamp DESC ", array());     
         }
         $data = $query->fetchAll();
@@ -145,14 +145,7 @@ class Question extends Post {
         $data = $query->fetch();
         return $nbQuestion = $data['nbQuestions'];
     }
-    
-    //Crée un post en bd. Attention méthode à utiliser
-    public function create_question(){
-        $query = self::execute("INSERT INTO post(AuthorId, Title, Body) values(:AuthorId, :Title, :Body)", 
-                                array('AuthorId'=>$this->authorId, 'Title'=>$this->title, 'Body'=>$this->body));    
-    }
-
-    
+       
     public static function get_upDown_vote($userId, $postId){
         return $result = Vote::get_upDown($userId, $postId);    
     }
@@ -176,21 +169,28 @@ class Question extends Post {
         return $error;
     }
 
-    public function delete($postId){
-        if(Vote::delete($postId)){
-            self::execute("DELETE FROM post WHERE PostId = :PostId", array("PostId"=>$postId));
+    //Crée un post en bd. Attention méthode à utiliser
+    public function create_question(){
+        $query = self::execute("INSERT INTO post(AuthorId, Title, Body) values(:AuthorId, :Title, :Body)", 
+                                array('AuthorId'=>$this->authorId, 'Title'=>$this->title, 'Body'=>$this->body));    
+    }
+
+    public function delete(){
+        $vote = new Vote(null, $this->postId, null, null);
+        if($vote->delete()){
+            self::execute("DELETE FROM post WHERE PostId = :PostId", array("PostId"=>$this->postId));
             return true;
         }
         
     }
 
-    public function accept_answer($postId, $answerId){
-        self::execute("UPDATE post SET AcceptedAnswerId = :AcceptedAnswerId  WHERE PostId = :PostId", array("PostId"=>$postId,"AcceptedAnswerId"=> $answerId));
+    public function accept_answer($answerId){
+        self::execute("UPDATE post SET AcceptedAnswerId = :AcceptedAnswerId  WHERE PostId = :PostId", array("PostId"=>$this->postId, "AcceptedAnswerId"=> $answerId));
         return true;
     }
     
-    public function delete_accepted_answer($postId){
-        self::execute("UPDATE post SET AcceptedAnswerId = NULL WHERE PostId = :PostId", array("PostId"=>$postId));  
+    public function delete_accepted_answer(){
+        self::execute("UPDATE post SET AcceptedAnswerId = NULL WHERE PostId = :PostId", array("PostId"=>$this->postId));  
         return true;  
     }
 

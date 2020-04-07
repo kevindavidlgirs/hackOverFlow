@@ -177,7 +177,7 @@
               <div class="col">
                 <!-- Affiche le corps de la réponse -->
                 <?= $answer->getBodyMarkedown(); ?><br>
-                <?php include("time.html"); ?>
+                <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
                 <?php if($user !== null): ?>
                   <!-- Gestion des boutons d'acceptance -->
                   <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $user->getUserId() === $post->getAuthorId()): ?>

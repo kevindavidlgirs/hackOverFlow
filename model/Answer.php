@@ -78,35 +78,12 @@ class Answer extends Post{
         return $data;
     }
 
-    //Ajoute une réponse en bd pour un post donné
-    public function add_answer(){
-        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$this->authorId, "Body"=>$this->body, "ParentId"=>$this->parentId));
-        return true;
-    }
-
-    //Fait la somme des réponses pour le profile d'un utilisateur
     public static function sum_of_answers_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
         return $nbAnswers = $data['nbAnswers'];
     }
 
-    //Edite la réponse en bd
-    public function edit_answer($answerId, $body){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$answerId, "Body"=>$body));
-        return true;
-    }
-
-    public function delete($questionId, $answerId){
-        $vote = new Vote(null, $answerId, null, null);
-        $post = new Question($questionId, null, null, null, null, null, null, null, null, null, null);
-        if($vote->delete($answerId) && $post->delete_accepted_answer($questionId)){
-            self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$answerId));
-            return true;
-        }
-        
-    }
-    
     public static function validate($answer){
         $error = [];
         if(strlen($answer->getBody()) < 30){
@@ -114,7 +91,24 @@ class Answer extends Post{
         }
         return $error;
     }
-    
+
+    //Ajoute une réponse en bd pour un post donné
+    public function add_answer(){
+        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$this->authorId, "Body"=>$this->body, "ParentId"=>$this->parentId));
+        return true;
+    }
+
+    //Fait la somme des réponses pour le profile d'un utilisateur
+    public function delete(){
+        $vote = new Vote(null, $this->postId, null, null);
+        $post = new Question($this->parentId, null, null, null, null, null, null, null, null, null, null);
+        if($vote->delete() && $post->delete_accepted_answer()){
+            self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$this->postId));
+            return true;
+        }
+        
+    }
+        
     public function set_post(){
         self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
         return true;

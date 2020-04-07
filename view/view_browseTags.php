@@ -45,30 +45,75 @@
         <thead>
           <tr>
             <th scope="col">TagName</th>
-            <th scope="col">Action</th>
+            <?php if(isset($user) && $user->isAdmin()): ?>
+              <th scope="col">Action</th>
+            <?php endif ?>
           </tr>
         </thead>
         <tbody>
           <?php foreach($tags as $tag): ?>
-              <tr>
-                <td>
-                    <?= $tag->getTagName()."  (<a href=/>".$tag->getNbQuestionsAssociees()." posts</a>)" ?>
-                </td>
-                <td>
-                  <?php if(isset($user) && $user->getUserName() == 'admin'): ?> <!-- plutôt le rôle ! -->
-                    <form action="post/unanswered" method="post">
-                      <input class="form-control" size="5" placeholder="<?= $tag->getTagName() ?>" >
-                      <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
-                      <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
-                    </form>
-                  <?php endif ?>  
-                </td>
-              </tr>
+            <tr>
+              <td>
+                <?= $tag->getTagName()."  (<a href=/>".$tag->getNbAssociatedQuestions()." posts</a>)" ?>
+              </td>
+              <td>
+                <?php if(isset($user) && $user->isAdmin()): ?>
+                  
+                  <form action="tag/edit/<?= $tag->getTagId() ?>" method="post" class="form-inline" style='display: inline-block'>
+                    
+                    <?php if(array_key_exists('unicity', $error) && $error['tagId'] === $tag->getTagId()):?>
+                      <input class="form-control is-invalid" type="text" name="tagName" value=<?= $error['tagName'] ?> >
+                      <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
+                      <div class="invalid-feedback">
+                        <?= $error['unicity']; ?><br>
+                      </div>   
+                    
+                    <?php elseif(array_key_exists('tagName', $error) && $error['tagId'] === $tag->getTagId()): ?>
+                      <input class="form-control is-invalid" type="text" name="tagName" placeholder="<?= $tag->getTagName() ?>" >
+                      <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
+                      <div class="invalid-feedback">
+                        <?= $error['tagName']; ?><br>
+                      </div> 
+                    
+                    <?php else: ?>
+                      <input placeholder="<?= $tag->getTagName() ?>" type="text" name="tagName" class="form-control" >
+                      <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
+                    <?php endif ?>  
+
+                  </form>
+
+                  <form action="tag/delete/<?= $tag->getTagId() ?>" method="post" style='display: inline-block'>
+                    <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'style="color:white"></i></button>
+                  </form>
+
+                <?php endif ?>  
+              </td>
+            </tr>
           <?php endforeach?>
-            <!-- <tr>
-              <td></td>
-              <td></td>
-            </tr> -->
+          <tr>
+            <td>
+              <?php if(isset($user) && $user->isAdmin()): ?>
+                <form action="tag/create" method="post" style='display: inline-block'>
+                  <?php if(array_key_exists('unicity', $error) && $error['tagId'] === null): ?>
+                    <input class="form-control is-invalid" type="text" name="newTag">
+                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
+                    <div class="invalid-feedback">
+                      <?= $error['unicity']; ?><br>
+                    </div> 
+                  <?php elseif(array_key_exists('tagName', $error) && $error['tagId'] === null): ?>
+                    <input class="form-control is-invalid" type="text" name="newTag">
+                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
+                    <div class="invalid-feedback">
+                      <?= $error['tagName']; ?><br>
+                    </div> 
+                  <?php else: ?>
+                    <input class="form-control" type="text" name="newTag">
+                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
+                  <?php endif ?>
+                </form>
+              <?php endif ?>
+            </td>
+          </tr> 
         </tbody>
       </table>
     </main>          

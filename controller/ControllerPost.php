@@ -102,10 +102,12 @@ class ControllerPost extends Controller{
             $postId = $_GET['param2'];
             $userId = self::get_user_or_redirect()->getUserId();
             if(isset($_GET['param3'])){
-                $AnswerId = $_GET['param3'];
-                Vote::update_vote($userId, $AnswerId, $value); 
+                $answerId = $_GET['param3'];
+                $vote = new Vote($userId, $answerId, null, null);
+                $vote->update_vote($value);
             }else{
-                Vote::update_vote($userId, $postId, $value); 
+                $vote = new Vote($userId, $postId, null, null);
+                $vote->update_vote($value);
             }
             self::redirect("post", "show", $postId);   
         }
@@ -223,7 +225,7 @@ class ControllerPost extends Controller{
             }else if(isset($_POST['delete_confirmation'])){
                 self::delete_questionOrAnswer($questionId, $answerId, $user);   
             }else{
-                self::redirect();
+                self::redirect("post", "show", $questionId);
             } 
         }else{
             self::redirect();
@@ -261,14 +263,14 @@ class ControllerPost extends Controller{
     
     private function delete_question($questionId, $user){
         $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null);
-        if($user->getUserId() === Question::get_question($questionId)->getAuthorId() && $question->delete($questionId)){
+        if($user->getUserId() === Question::get_question($questionId)->getAuthorId() && $question->delete()){
             self::redirect();    
         }
     }
 
     private function delete_answer($questionId, $answerId, $user){
-        $answer = new Answer($answerId, null, $questionId, null, null, null, null);
-        if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId() && $answer->delete($questionId, $answerId)){
+        $answer = new Answer(null, null, $questionId, null, null, $answerId, null);
+        if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId() && $answer->delete()){
             self::redirect("post", "show", $questionId);    
         }
     }
@@ -297,8 +299,9 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1']) && isset($_GET['param2'])){
             $postId = $_GET['param1'];
             $answerId = $_GET['param2'];
-            if($user->getUserId() === Question::get_question($postId)->getAuthorId()){
-                if(Question::accept_answer($postId, $answerId)){
+            $question = Question::get_question($postId);
+            if($user->getUserId() === $question->getAuthorId()){
+                if($question->accept_answer($answerId)){
                     self::redirect("post", "show", $postId);    
                 }
             }
@@ -311,8 +314,9 @@ class ControllerPost extends Controller{
         $user = self::get_user_or_redirect();
         if(isset($_GET['param1']) && isset($_POST['delete_acceptation'])){
             $postId = $_GET['param1'];
-            if($user->getUserId() === Question::get_question($postId)->getAuthorId()){
-                if(Question::delete_accepted_answer($postId)){
+            $question = Question::get_question($postId);
+            if($user->getUserId() === $question->getAuthorId()){
+                if($question->delete_accepted_answer()){
                     self::redirect("post", "show", $postId);
                 }
             }

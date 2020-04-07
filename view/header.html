@@ -1,9 +1,7 @@
   <!-- Header utilisé lorsqu'un utilisateur est connecté -->
-  <?php echo var_dump($user); ?>
-
-  <?php if(isset($user) && $user !== null && $user->user_logged()): ?>
+  <?php if(isset($user) && $user !== null): ?>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-    <a class="navbar-brand" href="post/index">Hack OverFlow</a>
+    <a class="navbar-brand" href="post">Hack OverFlow</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>

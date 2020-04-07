@@ -57,8 +57,10 @@ class ControllerUser extends Controller {
                 $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
 
                 if (count($errors) == 0) { 
-                    $user->update(); //sauve l'utilisateur (à changer)
+                    $user->save(); 
                     $this->log_user(User::get_user_by_userName($username));
+                }else{
+                    $user = null;
                 }
             }
             (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, 
