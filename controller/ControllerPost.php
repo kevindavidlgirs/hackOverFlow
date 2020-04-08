@@ -22,7 +22,7 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user,  "onglet" => 0));
+        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user, "ongletSelected" => 0));
     }
 
     public function unanswered() {
@@ -37,7 +37,7 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("index"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user, "onglet" => 1));
+        (new View("index"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user, "ongletSelected" => 1));
     }
 
     public function votes(){
@@ -52,7 +52,29 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){
             $decode = Utils::url_safe_decode($_GET['param1']);
         }
-        (new View("index"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user,  "onglet" => 2));    
+        (new View("index"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user,  "ongletSelected" => 2));    
+    }
+
+    public function tags(){
+        $user = null;
+        $decode = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_redirect();
+        if(isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_POST['search'])){
+            $tagName = $_GET['param1'];
+            (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagName ,$decode), "user" => $user, "tagName" => $tagName, "ongletSelected" => 3));    
+        }else{
+            if (isset($_GET['param1']) && isset($_POST['search'])) {
+                $tagName = $_GET['param1'];
+                $encode = Utils::url_safe_encode($_POST['search']);
+                self::redirect("post", "tags", $tagName, $encode);
+            }
+            if(isset($_GET['param1']) && isset($_GET['param2'])){
+                $tagName = $_GET['param1'];
+                $decode = Utils::url_safe_decode($_GET['param2']);
+            }    
+            (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagName ,$decode), "user" => $user, "tagName" => $tagName, "ongletSelected" => 3));    
+        }
     }
 
 
@@ -63,9 +85,10 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){       
             $postId = $_GET['param1'];
             $result = Question::get_question($postId);
+            $allTags = Tag::getAllTags();
             $error = [];
             if($result){
-                (new View("show"))->show(array("post"=> $result, "error" => $error, "user" => $user));
+                (new View("show"))->show(array("post"=> $result, "error" => $error, "user" => $user, "allTags" => $allTags));
             }else{
                 self::redirect();
             }

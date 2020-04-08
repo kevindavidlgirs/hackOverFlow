@@ -9,29 +9,11 @@
     <title>Hack overFlow</title>
 
     <base href="<?= $web_root ?>" />
+    
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
@@ -54,7 +36,7 @@
           <?php foreach($tags as $tag): ?>
             <tr>
               <td>
-                <?= $tag->getTagName()."  (<a href=/>".$tag->getNbAssociatedQuestions()." posts</a>)" ?>
+                <?= $tag->getTagName()."  (<a href=post/tags/".$tag->getTagName().">".$tag->getNbAssociatedQuestions()." posts</a>)" ?>
               </td>
               <td>
                 <?php if(isset($user) && $user->isAdmin()): ?>
@@ -90,9 +72,9 @@
               </td>
             </tr>
           <?php endforeach?>
-          <tr>
-            <td>
-              <?php if(isset($user) && $user->isAdmin()): ?>
+          <?php if(isset($user) && $user->isAdmin()): ?>
+            <tr>
+              <td>
                 <form action="tag/create" method="post" style='display: inline-block'>
                   <?php if(array_key_exists('unicity', $error) && $error['tagId'] === null): ?>
                     <input class="form-control is-invalid" type="text" name="newTag">
@@ -111,9 +93,9 @@
                     <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
                   <?php endif ?>
                 </form>
-              <?php endif ?>
-            </td>
-          </tr> 
+              </td>
+            </tr> 
+          <?php endif ?>
         </tbody>
       </table>
     </main>          

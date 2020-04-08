@@ -38,7 +38,6 @@ class User extends Model {
         return $this->email;
     }
 
-    //Préférence à "getRole".
     public function isAdmin(){
         return $this->role == "admin";
     }

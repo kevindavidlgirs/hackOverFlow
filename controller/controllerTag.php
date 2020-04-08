@@ -9,7 +9,6 @@ require_once 'framework/Controller.php';
 class ControllerTag extends Controller{  
     
     public function index(){
-        
         $user = null;
         $error = [];
         if(self::get_user_or_false()){
@@ -18,7 +17,6 @@ class ControllerTag extends Controller{
         (new View("browseTags"))->show(array("tags" => Tag::getAllTags(), "user" => $user, "error" => $error));    
     }
 
-    //ATTENTION MANQUE DE SENSE
     public function edit(){
         if(self::get_user_or_false()){
             $user = self::get_user_or_redirect();

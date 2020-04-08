@@ -37,11 +37,22 @@ class Tag extends Model{
         return $result;
     }
 
+    public static function get_tag_by_postId($postId){
+        $query = self::execute("SELECT * FROM posttag p, tag t WHERE t.TagId = p.TagId AND p.PostId = :PostId", array("PostId" => $postId));
+        $data = $query->fetchAll();
+        $results = [];
+        foreach($data as $row){
+            $results[] = $row['TagName'];
+        }
+        return $results;
+    }
+    //Retourne un tableau de tag
     public static function get_tag_by_name($tagName){
         $query = self::execute("SELECT * FROM tag WHERE tagName = :tagName", array("tagName" => $tagName));
         return $data = $query->fetch();
     }
 
+    //Retourne un objet tag
     public static function get_tag_by_id($id){
         $query = self::execute("SELECT * FROM tag WHERE tagId = :tagId", array("tagId" => $id));
         $data = $query->fetch();

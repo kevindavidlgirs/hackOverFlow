@@ -8,30 +8,12 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <!-- Bootstrap core CSS -->
     <base href="<?= $web_root ?>" />
+    
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
@@ -45,17 +27,22 @@
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
-              <a class="nav-link <?php if($onglet == 0)echo 'active'?>" href="post/index">Newest</a>
+              <a class="nav-link <?php if($ongletSelected == 0)echo 'active'?>" href="post">Newest</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link  <?php if($onglet == 1)echo 'active'?>" href="post/unanswered">Unanswered</a>
+              <a class="nav-link  <?php if($ongletSelected == 1)echo 'active'?>" href="post/unanswered">Unanswered</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link  <?php if($onglet == 2)echo 'active'?>" href="post/votes">Votes</a>
+              <a class="nav-link  <?php if($ongletSelected == 2)echo 'active'?>" href="post/votes">Votes</a>
             </li>
+            <?php if($ongletSelected == 3):?>
+              <li class="nav-item">
+                <a class="nav-link  <?php if($ongletSelected == 3)echo 'active'?>">Question tagged [<?=$tagName?>]</a>
+              </li>
+            <?php endif ?>
             <li class="nav-item">
-              <form action="post/index" method="post">
-                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+              <form action="post/<?php if($ongletSelected == 0){echo 'index';}elseif($ongletSelected == 1){echo 'unanswered';}elseif($ongletSelected == 2){echo 'votes';}elseif($ongletSelected == 3){echo 'tags/'.$tagName;}  ?>" method="post">
+                <input class="form-control" type="search" name="search" placeholder="Search..." aria-label="Search">
               </form>
             </li>
           </ul>
@@ -68,7 +55,8 @@
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
                   echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
-                  //Se charge d'afficher le nombre de réponses
+                  
+                  //Se charge d'afficher le nombre de votes et réponses
                   if($post->getTotalVote() === null){
                     echo "<small> (0 vote(s), ";
                   }else{
@@ -78,6 +66,9 @@
                     echo "0 answer(s))</small>";
                   }else{
                     echo $post->getNbAnswers() ." answer(s))</small>";
+                  }
+                  foreach($post->getTags() as $tag){
+                    echo '<a type="button" class="btn button" href="post/tags/'.$tag.'">'.$tag.'</a>';
                   }
                 ?>    
               </li>

@@ -3,32 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
+
     <base href="<?= $web_root ?>" />
+    
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
@@ -39,11 +24,38 @@
     <!-- MAIN -->
     <main role="main" class="container">
       <ul class="list-group list-group-flush">
-        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci ainsi que le créateur -->
+        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci et que le créateur -->
         <li class="list-group-item">
           <h5><?= $post->getTitle() ?></h5>          
-          <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
+          <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small><br>"; ?>
+          
+          <!-- Gestion des tags "start"-->
+          <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
 
+            <?php foreach($post->getTags() as $tag): ?>
+              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag ?>"><?= $tag ?></a><a class="btn pad" href="post/like/1/'.$post->getPostId().'"><i class="far fa-times-circle fa-2px"></i></a></span>
+            <?php endforeach ?>
+            <form action="tag/add/<?= $post->getPostId() ?>" method="post" class="form-inline" style='display: inline-block'>
+              <select name="page" style="font-size: .8em">
+                <?php foreach($allTags as $tag): ?>
+                  <?php if(array_search($tag->getTagName(), $post->getTags(), true) === false): ?>
+                    <option name="tag"><?=$tag->getTagName()?></option>
+                  <?php endif ?>
+                <?php endforeach ?>
+              </select> 
+              <button type="submit" value="Submit" class='btn pad'><i class="fas fa-plus"></i></button>
+            </form>  
+
+          <?php else: ?>
+            
+            <?php foreach($post->getTags() as $tag): ?>
+                <a type="button" class="btn button" href="post/tags/<?= $tag ?>"><?= $tag ?></a>
+            <?php endforeach ?>  
+            
+          <?php endif ?>  
+          <!-- Gestion des tags "end"-->
+              
+          <!-- Gestion des boutons de supression et d'édition "start" -->
           <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
@@ -54,7 +66,7 @@
             </form>
             <?php endif ?>
           <?php endif ?>
-
+          <!-- Gestion des boutons de supression et d'édition "end" -->
 
         </li>
         <li class="list-group-item">
