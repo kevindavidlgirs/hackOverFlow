@@ -39,7 +39,7 @@ abstract class Post extends Model {
         return $this->authorId;
     }
 
-    abstract public function set_post();
+    abstract public function setPost();
 
     //Ajouter les méthodes valide, delete et autres.
     protected static function markdown($markedown){

@@ -15,9 +15,11 @@ class Question extends Post {
     private $answers;
     private $acceptedAnswerId;
     private $tags;
+    private $nbTags;
+
     
     public function __construct($postId, $authorId, $title, $body, $timestamp, $fullNameAuthor, 
-                                $totalVote, $nbAnswers, $acceptedAnswerId, $answers, $tags){
+                                $totalVote, $nbAnswers, $acceptedAnswerId, $answers, $tags, $nbTags){
         $this->postId = $postId;
         $this->body = $body;
         $this->authorId = $authorId;
@@ -29,6 +31,7 @@ class Question extends Post {
         $this->acceptedAnswerId = $acceptedAnswerId;
         $this->answers = $answers;
         $this->tags = $tags;
+        $this->nbTags = $nbTags;
     }
 
     public function getTimestamp(){
@@ -55,6 +58,10 @@ class Question extends Post {
         return $this->tags;
     }
 
+    public function getNbTags(){
+        return $this->nbTags;
+    }
+
     //Récupère un post grace à son id
     public static function get_question($postId){
         $query = self::execute("SELECT * FROM post WHERE PostId = :PostId and title != \"\" ", array("PostId"=>$postId));
@@ -64,7 +71,7 @@ class Question extends Post {
         }else{
             return $result = new Question($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Tag::get_tag_by_postId($post["PostId"]));
+                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Tag::get_tag_by_postId($post["PostId"]), Tag::getNbTags($post["PostId"]));
         }
             
     }
@@ -85,7 +92,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]));
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
     }
@@ -104,7 +111,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), Tools::sanitize(self::remove_markdown($row["Body"])), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]));
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
             
@@ -143,7 +150,7 @@ class Question extends Post {
         foreach($data as $row){                                     
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]));
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;    
     }
@@ -162,19 +169,17 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]));
+                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
     }
 
-
-    //Fait la somme des questions pour le profile de l'utilisateur
-    public static function sum_of_questions_by_userId($userId){
+    public static function nbQuestions_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbQuestions from post where title !='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
-        return $nbQuestion = $data['nbQuestions'];
+        return $result = $data['nbQuestions'];
     }
-       
+
     public static function get_upDown_vote($userId, $postId){
         return $result = Vote::get_upDown($userId, $postId);    
     }
@@ -207,6 +212,7 @@ class Question extends Post {
     public function delete(){
         $vote = new Vote(null, $this->postId, null, null);
         if($vote->delete()){
+            self::execute("DELETE FROM posttag WHERE PostId = :PostId", array("PostId"=>$this->postId));
             self::execute("DELETE FROM post WHERE PostId = :PostId", array("PostId"=>$this->postId));
             return true;
         }
@@ -223,8 +229,18 @@ class Question extends Post {
         return true;  
     }
 
-    public function set_post(){
+    public function setPost(){
         self::execute("UPDATE post SET Title = :Title, Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
+        return true;
+    }
+
+    public function addTag($tagId){
+        self::execute("INSERT INTO posttag(postId, tagId) values(:PostId, :TagId)", array("PostId"=>$this->postId, "TagId"=>$tagId));
+        return true;
+    }
+
+    public function removeTag($tagId){
+        self::execute("DELETE FROM posttag WHERE PostId = :PostId and TagId = :TagId", array("PostId"=>$this->postId, "TagId"=>$tagId));    
         return true;
     }
 }

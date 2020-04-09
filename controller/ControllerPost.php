@@ -85,10 +85,9 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1'])){       
             $postId = $_GET['param1'];
             $result = Question::get_question($postId);
-            $allTags = Tag::getAllTags();
             $error = [];
             if($result){
-                (new View("show"))->show(array("post"=> $result, "error" => $error, "user" => $user, "allTags" => $allTags));
+                (new View("show"))->show(array("post"=> $result, "error" => $error, "user" => $user, "allTags" => Tag::getAllTags(), "max_tags" => Configuration::get("max_tags")));
             }else{
                 self::redirect();
             }
@@ -105,14 +104,14 @@ class ControllerPost extends Controller{
         if (isset($_POST['title']) && isset($_POST['body'])){
             $title = $_POST['title'];
             $body = $_POST['body'];
-            $question = new Question(null, $user->getUserId(), $title , $body, null, null, null, null, null, null, null);
+            $question = new Question(null, $user->getUserId(), $title , $body, null, null, null, null, null, null, null, null);
             $errors = Question::validate($question);
             if(count($errors) == 0){
                 $question->create_question();   
                 self::redirect();
             }
         }
-        (new View("ask"))->show(array("title"=>$title, "body"=> $body, "errors" => $errors, "user" => $user)); 
+        (new View("ask"))->show(array("title"=>$title, "body"=> $body, "errors" => $errors, "user" => $user, "allTags" => Tag::getAllTags(), "max_tags" => Configuration::get("max_tags"))); 
     }
 
     /*
@@ -209,7 +208,7 @@ class ControllerPost extends Controller{
             $answer = new Answer($body, null, $parentId, null, null, $answerId, null);
             $error = Answer::validate($answer);
             if(count($error) == 0){
-                $answer->set_post();
+                $answer->setPost();
                 self::redirect("post", "show", $parentId);       
             }else{
                 self::view_answer_edition($parentId, $answerId, $user, $error);
@@ -219,10 +218,10 @@ class ControllerPost extends Controller{
 
     private function question_edition($questionId, $answerId, $user, $title, $body){
         if($user->getUserId() === Question::get_question($questionId)->getAuthorId()){
-            $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null);
+            $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null, null);
             $errors = Question::validate($question);
             if(count($errors) == 0){
-                $question->set_post();
+                $question->setPost();
                 self::redirect("post", "show", $questionId);       
             }else{
                 self::view_question_edition($questionId, $answerId, $user, $errors);
@@ -235,7 +234,7 @@ class ControllerPost extends Controller{
         $questionId = '';
         $answerId = '';
         $user = self::get_user_or_redirect();
-        if(self::get_user_or_redirect() && isset($_GET['param1'])){
+        if(isset($_GET['param1'])){
             $questionId = $_GET['param1'];
             if(isset($_POST['cancel'])){
                 self::redirect("post", "show", $questionId);
@@ -285,7 +284,7 @@ class ControllerPost extends Controller{
     }
     
     private function delete_question($questionId, $user){
-        $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null);
+        $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null, null);
         if($user->getUserId() === Question::get_question($questionId)->getAuthorId() && $question->delete()){
             self::redirect();    
         }
@@ -310,7 +309,7 @@ class ControllerPost extends Controller{
                 $answer->add_answer();
                 self::redirect("post", "show", $parentId);
             }else{
-                (new View("show"))->show(array("post"=> Question::get_question($parentId), "user"=> $user, "error" => $error)); 
+                (new View("show"))->show(array("post"=> Question::get_question($parentId), "user"=> $user, "error" => $error, "max_tags" => Configuration::get("max_tags"))); 
             }           
         }else{
             self::redirect();
@@ -346,6 +345,48 @@ class ControllerPost extends Controller{
         }else{
             self::redirect();
         }   
+    }
+
+    public function addTag(){
+        $user = self::get_user_or_redirect();
+        if(isset($_GET['param1']) && isset($_POST['tag'])){
+            $postId = $_GET['param1'];
+            $tagName = $_POST['tag'];
+            //Devrais-je laisser le test sur le tag reçu en $_POST sachant qu'un utilisateur pourrait 
+            //envoyer de données erronées...
+            $max_tags = Configuration::get("max_tags");
+            $question = Question::get_question($postId);
+            if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) 
+                                && (int)$question->getNbTags() < (int)$max_tags && Tag::tagExist($tagName)){
+                $tag = Tag::get_tag_by_name($tagName);
+                if($question->addTag($tag->getTagId())){
+                    self::redirect("post", "show", $postId);    
+                }
+            }else{
+                self::redirect("post", "show", $postId);    
+            }
+        }else{
+            $this->redirect();
+        }
+    }
+
+    public function removeTag(){
+        $user = self::get_user_or_redirect();
+        if(isset($_GET['param1']) && isset($_GET['param2'])){
+            $postId = $_GET['param1'];
+            $tagName = $_GET['param2'];
+            $question = Question::get_question($postId);
+            if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) && Tag::tagExist($tagName)){
+                $tag = Tag::get_tag_by_name($tagName);
+                if($question->removeTag($tag->getTagId())){
+                    self::redirect("post", "show", $postId);    
+                }
+            }else{
+                self::redirect("post", "show", $postId);    
+            }
+        }else{
+            $this->redirect();
+        }
     }
 }
 

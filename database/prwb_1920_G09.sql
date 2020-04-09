@@ -19,11 +19,11 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données :  `prwb_1920_g90`
+-- Base de données :  `prwb_1920_G09`
 --
-DROP DATABASE IF EXISTS `prwb_1920_g09`;
-CREATE DATABASE IF NOT EXISTS `prwb_1920_g09` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `prwb_1920_g09`;
+DROP DATABASE IF EXISTS `prwb_1920_G09`;
+CREATE DATABASE IF NOT EXISTS `prwb_1920_G09` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `prwb_1920_G09`;
 
 -- --------------------------------------------------------
 

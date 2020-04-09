@@ -70,7 +70,7 @@ class ControllerTag extends Controller{
 
     private function delete_tag($id){
         $tag = new Tag($id, null, null);
-        if($tag->delete_and_assoc()){
+        if($tag->delete()){
             self::redirect("tag");     
         }
     }

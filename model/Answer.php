@@ -78,7 +78,7 @@ class Answer extends Post{
         return $data;
     }
 
-    public static function sum_of_answers_by_userId($userId){
+    public static function nbAnswers_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
         return $nbAnswers = $data['nbAnswers'];
@@ -101,7 +101,7 @@ class Answer extends Post{
     //Fait la somme des réponses pour le profile d'un utilisateur
     public function delete(){
         $vote = new Vote(null, $this->postId, null, null);
-        $post = new Question($this->parentId, null, null, null, null, null, null, null, null, null, null);
+        $post = new Question($this->parentId, null, null, null, null, null, null, null, null, null, null, null);
         if($vote->delete() && $post->delete_accepted_answer()){
             self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$this->postId));
             return true;
@@ -109,7 +109,7 @@ class Answer extends Post{
         
     }
         
-    public function set_post(){
+    public function setPost(){
         self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
         return true;
     }

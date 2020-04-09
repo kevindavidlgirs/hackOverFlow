@@ -37,26 +37,45 @@ class Tag extends Model{
         return $result;
     }
 
+    //C'est avec la table "posttag" que je compte les tags, j'aurai pu mettre cette fonction dans "Question.php"
+    //vu que "posttag" est partagé ente "question.php" et "tag.php".
+    public static function getNbTags($postId){
+        $query = self::execute("SELECT count(*) as nbTags from posttag where PostId = :PostId", array("PostId" => $postId));
+        $data = $query->fetch();
+        return $result = $data['nbTags'];
+    }
+
     public static function get_tag_by_postId($postId){
         $query = self::execute("SELECT * FROM posttag p, tag t WHERE t.TagId = p.TagId AND p.PostId = :PostId", array("PostId" => $postId));
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $results[] = $row['TagName'];
+            $results[] = new Tag($row['TagId'], $row['TagName'], null);
         }
         return $results;
     }
-    //Retourne un tableau de tag
     public static function get_tag_by_name($tagName){
         $query = self::execute("SELECT * FROM tag WHERE tagName = :tagName", array("tagName" => $tagName));
-        return $data = $query->fetch();
+        $data = $query->fetch();
+        if($query->rowCount() == 0){
+            return false;
+        }else{
+            return $tag = new Tag($data['TagId'], $data['TagName'], null);
+        }
     }
 
-    //Retourne un objet tag
     public static function get_tag_by_id($id){
         $query = self::execute("SELECT * FROM tag WHERE tagId = :tagId", array("tagId" => $id));
         $data = $query->fetch();
-        return $tag = new Tag($data['TagId'], $data['TagName'], null);
+        if($query->rowCount() == 0){
+            return false;
+        }else{
+            return $tag = new Tag($data['TagId'], $data['TagName'], null);
+        }
+    }
+
+    public static function tagExist($tagName){
+        return self::get_tag_by_name($tagName);
     }
 
     public static function validate_unicity($tagName, $id){
@@ -87,7 +106,7 @@ class Tag extends Model{
         return true;
     }
 
-    public function delete_and_assoc(){
+    public function delete(){
         self::execute("DELETE FROM posttag WHERE tagId = :tagId", array("tagId"=>$this->tagId));
         self::execute("DELETE FROM tag WHERE tagId = :tagId", array("tagId"=>$this->tagId));
         return true;
@@ -97,4 +116,6 @@ class Tag extends Model{
         self::execute("INSERT INTO tag(TagName) VALUES(:TagName)", array("TagName" => $this->tagName));
         return true;    
     }
+
+    
 }

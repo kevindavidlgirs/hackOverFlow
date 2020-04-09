@@ -68,7 +68,7 @@
                     echo $post->getNbAnswers() ." answer(s))</small>";
                   }
                   foreach($post->getTags() as $tag){
-                    echo '<a type="button" class="btn button" href="post/tags/'.$tag.'">'.$tag.'</a>';
+                    echo '<a type="button" class="btn button" href="post/tags/'.$tag->getTagName().'">'.$tag->getTagName().'</a>';
                   }
                 ?>    
               </li>

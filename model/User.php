@@ -139,11 +139,11 @@ class User extends Model {
     }
 
     public function get_sum_questions(){
-        return $getSumVote = Question::sum_of_questions_by_userId($this->userId);    
+        return $getSumVote = Question::nbQuestions_by_userId($this->userId);    
     }
 
     public function get_sum_answers(){
-        return $getSumVote  = Answer::sum_of_answers_by_userId($this->userId);
+        return $getSumVote  = Answer::nbAnswers_by_userId($this->userId);
            
     }
 

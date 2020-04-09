@@ -1,6 +1,6 @@
 -- MariaDB dump 10.17  Distrib 10.4.8-MariaDB, for osx10.10 (x86_64)
 --
--- Host: 127.0.0.1    Database: prwb_1920_xyy
+-- Host: 127.0.0.1    Database: prwb_1920_G09
 -- ------------------------------------------------------
 -- Server version	10.4.8-MariaDB
 
