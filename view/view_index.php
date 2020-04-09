@@ -55,18 +55,8 @@
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
                   echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
-                  
-                  //Se charge d'afficher le nombre de votes et réponses
-                  if($post->getTotalVote() === null){
-                    echo "<small> (0 vote(s), ";
-                  }else{
-                    echo "<small> (".$post->getTotalVote()." vote(s), ";   
-                  }
-                  if($post->getNbAnswers() === null){
-                    echo "0 answer(s))</small>";
-                  }else{
-                    echo $post->getNbAnswers() ." answer(s))</small>";
-                  }
+                  echo "<small> (".$post->getTotalVote()." vote(s), ";   
+                  echo $post->getNbAnswers() ." answer(s))</small>";
                   foreach($post->getTags() as $tag){
                     echo '<a type="button" class="btn button" href="post/tags/'.$tag->getTagName().'">'.$tag->getTagName().'</a>';
                   }

@@ -71,7 +71,7 @@ class Question extends Post {
         }else{
             return $result = new Question($post["PostId"], $post["AuthorId"], Tools::sanitize($post["Title"]), $post["Body"], $post["Timestamp"], 
                                     User::get_user_by_id($post["AuthorId"])->getFullName(), Vote::get_SumVote($post["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($postId)['nbAnswers'], $post["AcceptedAnswerId"], Answer::get_answers($postId), Tag::get_tag_by_postId($post["PostId"]), Tag::getNbTags($post["PostId"]));
+                                        Answer::get_nbAnswers($postId), $post["AcceptedAnswerId"], Answer::get_answers($postId), Tag::get_tag_by_postId($post["PostId"]), Tag::getNbTags($post["PostId"]));
         }
             
     }
@@ -92,7 +92,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
+                                        Answer::get_nbAnswers($row["PostId"]), null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
     }
@@ -111,7 +111,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), Tools::sanitize(self::remove_markdown($row["Body"])), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
+                                        Answer::get_nbAnswers($row["PostId"]), null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
             
@@ -150,7 +150,7 @@ class Question extends Post {
         foreach($data as $row){                                     
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
+                                        Answer::get_nbAnswers($row["PostId"]), null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;    
     }
@@ -169,7 +169,7 @@ class Question extends Post {
         foreach($data as $row){
             $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
-                                        Answer::get_nbAnswers($row["PostId"])['nbAnswers'], null, null, Tag::get_tag_by_postId($row["PostId"]), null);
+                                        Answer::get_nbAnswers($row["PostId"]), null, null, Tag::get_tag_by_postId($row["PostId"]), null);
         }
         return $results;
     }

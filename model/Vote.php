@@ -36,13 +36,13 @@ class Vote extends Model{
         if($query->rowcount()== 0){
             $data['sumVote'] = 0;     
         }
-        return $results = new Vote(null, null, null, $data['sumVote']);
+        return $results = new Vote(null, null, null, $data['sumVote'] ?? 0);
     }
 
     public static function get_upDown($userId, $postId){
         $query = self::execute("SELECT UpDown FROM vote WHERE UserId= :UserId and PostId = :PostId", array("UserId"=>$userId, "PostId"=>$postId));
         $data = $query->fetch();
-        return $data['UpDown'];
+        return $data['UpDown'] ?? 0;
     }
 
     public function update_vote($value){

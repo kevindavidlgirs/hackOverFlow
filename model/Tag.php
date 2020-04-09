@@ -74,8 +74,12 @@ class Tag extends Model{
         }
     }
 
-    public static function tagExist($tagName){
+    public static function testExistenceByName($tagName){
         return self::get_tag_by_name($tagName);
+    }
+
+    public static function testExistenceById($tagId){
+        return self::get_tag_by_id($tagId);
     }
 
     public static function validate_unicity($tagName, $id){

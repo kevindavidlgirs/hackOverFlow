@@ -357,7 +357,7 @@ class ControllerPost extends Controller{
             $max_tags = Configuration::get("max_tags");
             $question = Question::get_question($postId);
             if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) 
-                                && (int)$question->getNbTags() < (int)$max_tags && Tag::tagExist($tagName)){
+                                && (int)$question->getNbTags() < (int)$max_tags && Tag::testExistenceByName($tagName)){
                 $tag = Tag::get_tag_by_name($tagName);
                 if($question->addTag($tag->getTagId())){
                     self::redirect("post", "show", $postId);    
@@ -374,11 +374,13 @@ class ControllerPost extends Controller{
         $user = self::get_user_or_redirect();
         if(isset($_GET['param1']) && isset($_GET['param2'])){
             $postId = $_GET['param1'];
-            $tagName = $_GET['param2'];
+            $tagId = $_GET['param2'];
             $question = Question::get_question($postId);
-            if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) && Tag::tagExist($tagName)){
-                $tag = Tag::get_tag_by_name($tagName);
+            if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) && Tag::testExistenceById($tagId)){
+                $tag = Tag::get_tag_by_id($tagId);
                 if($question->removeTag($tag->getTagId())){
+                    self::redirect("post", "show", $postId);    
+                }else{
                     self::redirect("post", "show", $postId);    
                 }
             }else{

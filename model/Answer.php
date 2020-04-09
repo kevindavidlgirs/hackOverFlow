@@ -75,13 +75,13 @@ class Answer extends Post{
     public static function get_nbAnswers($questionId){
         $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostId GROUP BY(ParentId)", array("PostId"=>$questionId));
         $data = $query->fetch();
-        return $data;
+        return $result = $data['nbAnswers'] ?? 0;
     }
 
     public static function nbAnswers_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
-        return $nbAnswers = $data['nbAnswers'];
+        return $result = $data['nbAnswers'];
     }
 
     public static function validate($answer){

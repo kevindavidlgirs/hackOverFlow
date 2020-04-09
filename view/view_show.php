@@ -47,7 +47,7 @@
           <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
 
             <?php foreach($post->getTags() as $tag): ?>
-              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagName() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagName() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
+              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagName() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagId() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
             <?php endforeach ?>
             
             <?php if($post->getNbTags() < $max_tags): ?>
