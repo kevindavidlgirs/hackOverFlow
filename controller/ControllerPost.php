@@ -61,19 +61,29 @@ class ControllerPost extends Controller{
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
         if(isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_POST['search'])){
-            $tagName = $_GET['param1'];
-            (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagName ,$decode), "user" => $user, "tagName" => $tagName, "ongletSelected" => 3));    
+            $tagId = $_GET['param1'];
+            $tag = Tag::get_tag_by_id($tagId);
+            if($tag){
+                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId ,$decode), "user" => $user, "tag" => $tag, "ongletSelected" => 3));    
+            }else{
+                $this->redirect();
+            }
         }else{
             if (isset($_GET['param1']) && isset($_POST['search'])) {
-                $tagName = $_GET['param1'];
+                $tagId = $_GET['param1'];
                 $encode = Utils::url_safe_encode($_POST['search']);
-                self::redirect("post", "tags", $tagName, $encode);
+                self::redirect("post", "tags", $tagId, $encode);
             }
             if(isset($_GET['param1']) && isset($_GET['param2'])){
-                $tagName = $_GET['param1'];
+                $tagId = $_GET['param1'];
                 $decode = Utils::url_safe_decode($_GET['param2']);
+            }
+            $tag = Tag::get_tag_by_id($tagId);
+            if($tag){
+                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId ,$decode), "user" => $user, "tag" => $tag, "ongletSelected" => 3));    
+            }else{
+                $this->redirect();
             }    
-            (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagName ,$decode), "user" => $user, "tagName" => $tagName, "ongletSelected" => 3));    
         }
     }
 
@@ -102,12 +112,16 @@ class ControllerPost extends Controller{
         $errors = [];
         $user = self::get_user_or_redirect();
         if (isset($_POST['title']) && isset($_POST['body'])){
+            $tagsId = [];
+            if(isset($_POST['choice'])){
+                $tagsId = $_POST['choice'];
+            }
             $title = $_POST['title'];
             $body = $_POST['body'];
-            $question = new Question(null, $user->getUserId(), $title , $body, null, null, null, null, null, null, null, null);
-            $errors = Question::validate($question);
+            $question = new Question(null, $user->getUserId(), $title , $body, null, null, null, null, null, null, null, null, null);
+            $errors = Question::validate($question, Configuration::get("max_tags"), $tagsId);
             if(count($errors) == 0){
-                $question->create_question();   
+                $question->create_question($tagsId);   
                 self::redirect();
             }
         }
@@ -205,10 +219,10 @@ class ControllerPost extends Controller{
     
     private function answer_edition($parentId, $answerId, $user, $body){
         if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId()){
-            $answer = new Answer($body, null, $parentId, null, null, $answerId, null);
+            $answer = new Answer($body, null, $parentId, null, null, $answerId, null, null);
             $error = Answer::validate($answer);
             if(count($error) == 0){
-                $answer->setPost();
+                $answer->update();
                 self::redirect("post", "show", $parentId);       
             }else{
                 self::view_answer_edition($parentId, $answerId, $user, $error);
@@ -218,10 +232,10 @@ class ControllerPost extends Controller{
 
     private function question_edition($questionId, $answerId, $user, $title, $body){
         if($user->getUserId() === Question::get_question($questionId)->getAuthorId()){
-            $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null, null);
-            $errors = Question::validate($question);
+            $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null, null, null);
+            $errors = Question::validate($question, null, null);
             if(count($errors) == 0){
-                $question->setPost();
+                $question->update();
                 self::redirect("post", "show", $questionId);       
             }else{
                 self::view_question_edition($questionId, $answerId, $user, $errors);
@@ -284,36 +298,40 @@ class ControllerPost extends Controller{
     }
     
     private function delete_question($questionId, $user){
-        $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null, null);
+        $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null, null, null);
         if($user->getUserId() === Question::get_question($questionId)->getAuthorId() && $question->delete()){
             self::redirect();    
         }
     }
 
     private function delete_answer($questionId, $answerId, $user){
-        $answer = new Answer(null, null, $questionId, null, null, $answerId, null);
+        $answer = new Answer(null, null, $questionId, null, null, $answerId, null, null);
         if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId() && $answer->delete()){
             self::redirect("post", "show", $questionId);    
         }
     }
                 
     public function answer(){
-        $user = self::get_user_or_redirect();
-        if(isset($_GET['param1']) && isset($_POST['body'])){
-            $parentId = $_GET['param1'];
-            $body = $_POST['body'];
-            $authorId = $user->getUserId();
-            $answer = new Answer($body, $authorId, $parentId, null, null, null, null);
-            $error = Answer::validate($answer);
-            if(count($error) == 0){
-                $answer->add_answer();
-                self::redirect("post", "show", $parentId);
+        if(self::get_user_or_false()){
+            $user = self::get_user_or_redirect();
+            if(isset($_GET['param1']) && isset($_POST['body'])){
+                $parentId = $_GET['param1'];
+                $body = $_POST['body'];
+                $authorId = $user->getUserId();
+                $answer = new Answer($body, $authorId, $parentId, null, null, null, null, null);
+                $error = Answer::validate($answer);
+                if(count($error) == 0){
+                    $answer->create();
+                    self::redirect("post", "show", $parentId);
+                }else{
+                    (new View("show"))->show(array("post"=> Question::get_question($parentId), "user"=> $user, "error" => $error, "max_tags" => Configuration::get("max_tags"))); 
+                }           
             }else{
-                (new View("show"))->show(array("post"=> Question::get_question($parentId), "user"=> $user, "error" => $error, "max_tags" => Configuration::get("max_tags"))); 
-            }           
+                self::redirect();
+            }
         }else{
-            self::redirect();
-        }    
+            self::redirect("user", "signup");
+        }     
     }
 
     public function accept_answer(){

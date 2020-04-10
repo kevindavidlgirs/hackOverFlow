@@ -43,12 +43,21 @@
         <div class="form-group">
           <label><strong>Tags</strong></label><br>
           <small>Add up to <?= $max_tags ?> tags to describe what your question is about</small><br>
-          <?php foreach($allTags as $tag): ?>
-            <div class="form-check form-check-inline ">
-              <input class="form-check-input is-invalid" type="checkbox" id="inlineCheckbox1" name="" value="<?= $tag->getTagName() ?>">
-              <label class="form-check-label" for="inlineCheckbox1"><?= $tag->getTagName()?></label>
-            </div>
-          <?php endforeach ?>
+          <?php if(array_key_exists('tags', $errors)):?>
+            <?php foreach($allTags as $tag): ?>
+                <input class="form-check-input is-invalid" type="checkbox" name="choice[]" value="<?= $tag->getTagId() ?>">
+                <label class="form-check-label" for="inlineCheckbox1"><?= $tag->getTagName()?></label>
+              </div>
+            <?php endforeach ?><br>
+            <small style="color:crimson"><?= $errors['tags']; ?></small>
+          <?php else: ?>
+            <?php foreach($allTags as $tag): ?>
+              <div class="form-check form-check-inline ">
+                <input class="form-check-input" type="checkbox" name="choice[]" value="<?= $tag->getTagId() ?>">
+                <label class="form-check-label" for="inlineCheckbox1"><?= $tag->getTagName()?></label>
+              </div>
+            <?php endforeach ?>
+          <?php endif ?>
         </div>
 
         <!-- Gestion du body -->

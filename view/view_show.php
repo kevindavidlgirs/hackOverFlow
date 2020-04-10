@@ -27,14 +27,14 @@
         <!-- Affiche la question ainsi que le temps depuis la création de celle-ci et que le créateur -->
         <li class="list-group-item">
           <h5><?= $post->getTitle() ?></h5>          
-          <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
+          <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
           
           <!-- Gestion des boutons de supression et d'édition "start" -->
           <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn pad' name='edit'><i class='fas fa-edit'></i></button>
             </form>
-          <?php if($post->getNbAnswers() < 1): ?>
+          <?php if($post->getNbAnswers() < 1 && !$post->hasComments()): ?>
             <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn pad' name='delete'><i class='fas fa-trash-alt'></i></button>
             </form>
@@ -47,7 +47,7 @@
           <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
 
             <?php foreach($post->getTags() as $tag): ?>
-              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagName() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagId() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
+              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagId() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagId() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
             <?php endforeach ?>
             
             <?php if($post->getNbTags() < $max_tags): ?>
@@ -76,7 +76,7 @@
           <?php else: ?>
             
             <?php foreach($post->getTags() as $tag): ?>
-                <a type="button" class="btn button" href="post/tags/<?= $tag->getTagName() ?>"><?= $tag->getTagName() ?></a>
+                <a type="button" class="btn button" href="post/tags/<?= $tag->getTagId() ?>"><?= $tag->getTagName() ?></a>
             <?php endforeach ?>  
             
           <?php endif ?>  
@@ -130,18 +130,26 @@
             <!-- affiche le body du post sélectionné -->
             <div class="col">
               <?= $post->getBodyMarkedown() ?>
-            </div>  
+              <!-- affiche les commentaires du post sélectionné -->
+              <div style="margin-left : 25px;">
+                <?php if($post->hasComments()):  ?>
+                  <?php foreach($post->getComments() as $comment): ?>
+                    <!-- ATTENTION UTILISER MARKDOWN POUR CHAQUE COMMENTAIRE -->
+                    <hr><small><?= $comment->getBody()."<a href='user/profile/".$comment->getAuthorId()."'> ".$comment->getFullNameAuthor()."</a> ".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                      <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
+                        <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
+                        <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
+                      <?php endif ?>
+                    </hr>
+                  <?php endforeach ?><br>
+                <?php endif ?>
+                <?php if($user !== null): ?><a href="comment/add/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>
+              </div>    
+            </div> 
           </div>
-          
-          <?php
-            if($post->getNbAnswers() > 0){
-              echo $post->getNbAnswers().' Answer(s)';
-            }else{
-              echo '0 Answer(s)';
-            }
-          ?>     
+          <span><?= $post->getNbAnswers().' Answer(s)';?></span>      
         </li>
-
+            
         <!--Affiche les réponses-->
         <?php foreach($post->getAnswers() as $answer) : ?>
 
@@ -202,9 +210,26 @@
               
               <div class="col">
                 <!-- Affiche le corps de la réponse -->
-                <?= $answer->getBodyMarkedown(); ?><br>
-                <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
+                <?= $answer->getBodyMarkedown(); ?><br>                
+                <!-- affiche les commentaires de la réponse sélectionnée -->
+                <div class="col">
+                  <div style="margin-left : 25px;">
+                    <?php if($answer->hasComments()):  ?>
+                      <?php foreach($answer->getComments() as $comment): ?>
+                        <!-- ATTENTION UTILISER MARKDOWN POUR CHAQUE COMMENTAIRE -->
+                        <hr><small><?= $comment->getBody()."<a href='user/profile/".$comment->getAuthorId()."'> ".$comment->getFullNameAuthor()."</a> ".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                          <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
+                            <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
+                            <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
+                          <?php endif ?>
+                        </hr>
+                      <?php endforeach ?><br>
+                    <?php endif ?>
+                    <?php if($user !== null): ?><a href="comment/add/<?= $answer->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>
+                  </div>    
+                </div> 
                 <?php if($user !== null): ?>
+                
                   <!-- Gestion des boutons d'acceptance -->
                   <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $user->getUserId() === $post->getAuthorId()): ?>
                     <form action='post/accept_answer/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
@@ -223,6 +248,8 @@
                 <?php endif ?>
               </div>
             </div>  
+            <?= "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameAuthor()."</a></small>"; ?>
+
           </li>
 
         <?php endforeach ?>

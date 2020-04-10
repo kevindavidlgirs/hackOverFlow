@@ -45,7 +45,7 @@ class Tag extends Model{
         return $result = $data['nbTags'];
     }
 
-    public static function get_tag_by_postId($postId){
+    public static function get_tags_by_postId($postId){
         $query = self::execute("SELECT * FROM posttag p, tag t WHERE t.TagId = p.TagId AND p.PostId = :PostId", array("PostId" => $postId));
         $data = $query->fetchAll();
         $results = [];

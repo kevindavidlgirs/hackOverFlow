@@ -37,11 +37,11 @@
             </li>
             <?php if($ongletSelected == 3):?>
               <li class="nav-item">
-                <a class="nav-link  <?php if($ongletSelected == 3)echo 'active'?>">Question tagged [<?=$tagName?>]</a>
+                <a class="nav-link  <?php if($ongletSelected == 3)echo 'active'?>">Question tagged [<?=$tag->getTagName()?>]</a>
               </li>
             <?php endif ?>
             <li class="nav-item">
-              <form action="post/<?php if($ongletSelected == 0){echo 'index';}elseif($ongletSelected == 1){echo 'unanswered';}elseif($ongletSelected == 2){echo 'votes';}elseif($ongletSelected == 3){echo 'tags/'.$tagName;}  ?>" method="post">
+              <form action="post/<?php if($ongletSelected == 0){echo 'index';}elseif($ongletSelected == 1){echo 'unanswered';}elseif($ongletSelected == 2){echo 'votes';}elseif($ongletSelected == 3){echo 'tags/'.$tag->getTagId();}  ?>" method="post">
                 <input class="form-control" type="search" name="search" placeholder="Search..." aria-label="Search">
               </form>
             </li>
@@ -54,11 +54,11 @@
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." ago by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
+                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
                   echo "<small> (".$post->getTotalVote()." vote(s), ";   
                   echo $post->getNbAnswers() ." answer(s))</small>";
-                  foreach($post->getTags() as $tag){
-                    echo '<a type="button" class="btn button" href="post/tags/'.$tag->getTagName().'">'.$tag->getTagName().'</a>';
+                  foreach($post->getTags() as $tagOfPost){
+                    echo '<a type="button" class="btn button" href="post/tags/'.$tagOfPost->getTagId().'">'.$tagOfPost->getTagName().'</a>';
                   }
                 ?>    
               </li>
