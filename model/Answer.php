@@ -114,6 +114,10 @@ class Answer extends Post{
         self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
         return true;
     }
+
+    public function isQuestion(){
+        return false;
+    }
 }
 ?>
 

@@ -22,13 +22,10 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-    <?php if(isset($parentId)): ?> 
-      <form action="post/edit/<?= $parentId ?>/<?= $answerId ?>" method="post">
-    <?php else : ?>
-      <form action="post/edit/<?= $post->getPostId() ?>" method="post">
-    <?php endif ?>
-        <div class="form-group">
-          <?php if(method_exists($post,'getTitle')):?>
+      <?php if($post->isQuestion()):?>
+
+        <form action="post/edit/<?= $post->getPostId() ?>" method="post">
+          <div class="form-group">
             <h5>Title</h5>
             <small>Be specific and imagine you're asking a question to another person</small>
             <?php if(array_key_exists('title', $errors)):?>
@@ -39,20 +36,39 @@
             <?php else: ?>
               <input class="form-control" type="text" name="title" value="<?= $post->getTitle() ?>"><br>
             <?php endif ?>
-          <?php endif ?>
-          <h5>Body</h5>
-          <small>Include all information someone would need to answer your question</small>
-          <?php if(array_key_exists('body', $errors)):?>
-            <textarea class="form-control is-invalid" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
-            <div class="invalid-feedback">
-              <?= $errors['body']; ?>
-            </div>
-          <?php else: ?>
-            <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
-          <?php endif ?>
-        </div>
-        <button type="submit" class="btn btn-dark mb-2">Edit your post</button>
-      </form>
+            <h5>Body</h5>
+            <small>Include all information someone would need to answer your question</small>
+            <?php if(array_key_exists('body', $errors)):?>
+              <textarea class="form-control is-invalid" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+              <div class="invalid-feedback">
+                <?= $errors['body']; ?>
+              </div>
+            <?php else: ?>
+              <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+            <?php endif ?>
+          </div>
+          <button type="submit" class="btn btn-dark mb-2">Save</button>
+        </form>
+
+      <?php else: ?>
+      
+        <form action="post/edit/<?= $post->getParentId() ?>/<?= $post->getPostId() ?>" method="post">
+          <div class="form-group">
+            <h5>Body</h5>
+            <small>Edit your answer to make it understandable</small>
+            <?php if(array_key_exists('body', $errors)):?>
+              <textarea class="form-control is-invalid" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+              <div class="invalid-feedback">
+                <?= $errors['body']; ?>
+              </div>
+            <?php else: ?>
+              <textarea class="form-control" type="text" name="body" rows="10"><?= $post->getBody() ?></textarea>
+            <?php endif ?>
+          </div>
+          <button type="submit" class="btn btn-dark mb-2">Save</button>
+        </form>
+
+      <?php endif ?>
     </main>          
   </body>
 </html>

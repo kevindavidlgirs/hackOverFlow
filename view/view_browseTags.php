@@ -72,32 +72,40 @@
               </td>
             </tr>
           <?php endforeach?>
-          <?php if(isset($user) && $user->isAdmin()): ?>
-            <tr>
-              <td>
-                <form action="tag/create" method="post" style='display: inline-block'>
-                  <?php if(array_key_exists('unicity', $error) && $error['tagId'] === null): ?>
+        </tbody>
+      </table>
+      <?php if(isset($user) && $user->isAdmin()): ?>
+        <tr>
+          <td>
+            <form action="tag/create" method="post" style='display: inline-block'>
+              <?php if(array_key_exists('unicity', $error) && $error['tagId'] === null): ?>
+                <input class="form-control is-invalid" type="text" name="newTag">
+                <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
+                <div class="invalid-feedback">
+                  <?= $error['unicity']; ?><br>
+                </div> 
+                <?php elseif(array_key_exists('tagName', $error) && $error['tagId'] === null): ?>
+                  <div class="input-group invalid-feedback">
                     <input class="form-control is-invalid" type="text" name="newTag">
-                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
-                    <div class="invalid-feedback">
-                      <?= $error['unicity']; ?><br>
-                    </div> 
-                  <?php elseif(array_key_exists('tagName', $error) && $error['tagId'] === null): ?>
-                    <input class="form-control is-invalid" type="text" name="newTag">
-                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
+                    <span class="input-group-btn">
+                      <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:rgb(47, 79, 79)"></i></button>
+                    </span>
                     <div class="invalid-feedback">
                       <?= $error['tagName']; ?><br>
                     </div> 
-                  <?php else: ?>
+                  </div>
+                <?php else: ?>
+                  <div class="input-group">
                     <input class="form-control" type="text" name="newTag">
-                    <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:white"></i></button>
-                  <?php endif ?>
-                </form>
-              </td>
-            </tr> 
-          <?php endif ?>
-        </tbody>
-      </table>
+                    <span class="input-group-btn">
+                      <button type='submit' class='btn btn-outline-*' name='add'><i class="fas fa-plus-circle" style="color:rgb(47, 79, 79)"></i></button>
+                    </span>
+                  </div>
+                <?php endif ?>
+            </form>
+          </td>
+       </tr> 
+      <?php endif ?>
     </main>          
   </body>
 </html>

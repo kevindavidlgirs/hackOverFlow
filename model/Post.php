@@ -63,6 +63,8 @@ abstract class Post extends Model {
         return $this->comments != false;
     }
 
+    abstract function isQuestion();
+
     abstract public function update();
 
     abstract public function delete();

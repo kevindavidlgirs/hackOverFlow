@@ -103,8 +103,6 @@ Class Comment extends Model{
     public static function markdown($markedown){
         $Parsedown = new Parsedown();
         $Parsedown->setSafeMode(true); 
-        //Ne fonctionne pas (à régler)
-        $Parsedown->setBreaksEnabled(false);
         return $html = $Parsedown->text($markedown);  
     }
     

@@ -245,6 +245,10 @@ class Question extends Post {
         self::execute("DELETE FROM posttag WHERE PostId = :PostId and TagId = :TagId", array("PostId"=>$this->postId, "TagId"=>$tagId));    
         return true;
     }
+
+    public function isQuestion(){
+        return true;
+    }
 }
 
 ?>

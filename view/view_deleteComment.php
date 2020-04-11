@@ -22,7 +22,7 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-      <form action='comment/delete/<?= $comment->getCommentId()?>/<?= $postId ?>' method='post'>
+      <form action='comment/delete/<?= $comment->getCommentId()?>/<?= $post->getPostId()?>/<?php if(!$post->isQuestion()){echo $question->getPostId();} ?>' method='post'>
         <div class="card col-md-4 offset-md-4">
           <div class="card-header text-center header-color-white">
             <h3>Are you sure you want delete this comment ?</h3>

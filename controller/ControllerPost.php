@@ -121,7 +121,7 @@ class ControllerPost extends Controller{
             $question = new Question(null, $user->getUserId(), $title , $body, null, null, null, null, null, null, null, null, null);
             $errors = Question::validate($question, Configuration::get("max_tags"), $tagsId);
             if(count($errors) == 0){
-                $question->create_question($tagsId);   
+                $question->create($tagsId);   
                 self::redirect();
             }
         }
@@ -170,33 +170,25 @@ class ControllerPost extends Controller{
     }
 
     //Affiche la vue pour l'édition d'une réponse
-    private function view_answer_edition($questionId, $answerId, $user, $errors){   
-        if (Question::get_question($questionId) &&  Answer::get_answer($answerId)){
-            if(!is_numeric($questionId) || !is_numeric($answerId) 
-                                        || !($user->getUserId() === Answer::get_answer($answerId)->getAuthorId())){
-                self::redirect();        
-            }
+    private function view_answer_edition($questionId, $answerId, $user, $errors){  
+        $question = Question::get_question($questionId);
+        $answer = Answer::get_answer($answerId);
+        if(!$question || !$answer || !($user->getUserId() === $answer->getAuthorId())
+                                  || !($question->getPostId() === $answer->getParentId())){
+            self::redirect();           
         }else{
-            self::redirect();
+            (new View("edit"))->show(array("post" => $answer, "user" => $user, "errors" => $errors));         
         }
-        (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, 
-                                       "post" => Answer::get_answer($answerId),"user" => $user, "errors" => $errors));         
     }
 
     //Affiche la vue pour l'edition d'une question
     private function view_question_edition($questionId, $answerId, $user, $errors){
-        if(!is_numeric($questionId)){
-            self::redirect();
-        }
-        if (Question::get_question($questionId)){
-            if(!($user->getUserId() === Question::get_question($questionId)->getAuthorId())){
-                self::redirect();     
-            }
+        $question = Question::get_question($questionId);
+        if(!$question || !($user->getUserId() === $question->getAuthorId())){
+            self::redirect();     
         }else{
-            self::redirect();
+            (new View("edit"))->show(array("post" => $question, "user" => $user, "errors" => $errors));         
         }
-        (new View("edit"))->show(array("parentId"=>$questionId, "answerId" => $answerId, 
-                                       "post" => Question::get_question($questionId), "user" => $user, "errors" => $errors));         
     }
     
     //Sert à ajouter la modification du corps d'une réponse ou d'une question (à modifier).
