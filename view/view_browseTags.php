@@ -36,7 +36,7 @@
           <?php foreach($tags as $tag): ?>
             <tr>
               <td>
-                <?= $tag->getTagName()."  (<a href=post/tags/".$tag->getTagId().">".$tag->getNbAssociatedQuestions()." posts</a>)" ?>
+                <?= $tag->getTagName()."  (<a href=post/tags/".$tag->getTagId()."/1>".$tag->getNbAssociatedQuestions()." posts</a>)" ?>
               </td>
               <td>
                 <?php if(isset($user) && $user->isAdmin()): ?>

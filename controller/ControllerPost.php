@@ -9,78 +9,228 @@ require_once 'framework/Utils.php';
 class ControllerPost extends Controller{
 
 
-    //Méthode posts pour les affichage ainsi que Tag
+    //Il est clairement possible de factoriser/découper le code,
+    //je devrais le faire avant la fin de l'itération si possible....
     public function index() {
         $user = null;
-        $decode = null;
+        $page = 1;
+        $nb_pages = 0;
+        $start_from = 0;
+        $record_per_page = 5;
+        $search_enc = null;
+        $search_dec = null;
+        $questions = null;
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
-        if (isset($_POST['search'])) {
-            $encode = Utils::url_safe_encode($_POST['search']);
-            self::redirect("post", "index", $encode);
-        }
-        if(isset($_GET['param1'])){
-            $decode = Utils::url_safe_decode($_GET['param1']);
-        }
-        (new View("index"))->show(array("posts"=> Question::get_questions($decode), "user" => $user, "ongletSelected" => 0));
-    }
-
-    public function unanswered() {
-        $user = null;
-        $decode = null;
-        if(self::get_user_or_false())
-            $user = self::get_user_or_redirect();
-        if (isset($_POST['search'])) {
-            $encode = Utils::url_safe_encode($_POST['search']);
-            self::redirect("post", "unanswered", $encode);
-        }
-        if(isset($_GET['param1'])){
-            $decode = Utils::url_safe_decode($_GET['param1']);
-        }
-        (new View("index"))->show(array("posts"=> Question::get_questions_unanswered($decode), "user" => $user, "ongletSelected" => 1));
-    }
-
-    public function votes(){
-        $user = null;
-        $decode = null;
-        if(self::get_user_or_false())
-            $user = self::get_user_or_redirect();
-        if (isset($_POST['search'])) {
-            $encode = Utils::url_safe_encode($_POST['search']);
-            self::redirect("post", "votes", $encode);
-        }
-        if(isset($_GET['param1'])){
-            $decode = Utils::url_safe_decode($_GET['param1']);
-        }
-        (new View("index"))->show(array("posts"=> Question::get_questions_by_votes($decode), "user" => $user,  "ongletSelected" => 2));    
-    }
-
-    public function tags(){
-        $user = null;
-        $decode = null;
-        if(self::get_user_or_false())
-            $user = self::get_user_or_redirect();
-        if(isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_POST['search'])){
-            $tagId = $_GET['param1'];
-            $tag = Tag::get_tag_by_id($tagId);
-            if($tag){
-                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId ,$decode), "user" => $user, "tag" => $tag, "ongletSelected" => 3));    
+        if (isset($_GET['param1']) && isset($_POST['search'])) {
+            $page = $_GET['param1'];
+            $search_enc = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "index", $page, $search_enc);
+        }elseif(isset($_GET['param1'])){
+            if(is_numeric($_GET['param1'])){
+                $page = $_GET['param1'];
+                if(isset($_GET['param2'])){
+                    $search_enc  = $_GET['param2'];
+                    $search_dec = Utils::url_safe_decode($_GET['param2']);
+                }
+                $start_from = ($page-1)*$record_per_page;
+                $questions = Question::get_questions($search_dec, $start_from, $record_per_page);
+                $nb_pages = ceil(Question::count_questions($search_dec)/$record_per_page);
+                if($page !=1 && ($page > $nb_pages || $page < 0))
+                    self::redirect("post", "index", 1);
+                if(!$questions){
+                    $page = 1;
+                    $start_from = ($page-1)*$record_per_page;
+                    $questions = Question::get_questions($search_dec, $start_from, $record_per_page);
+                    $nb_pages = ceil(Question::count_questions($search_dec)/$record_per_page);
+                }
             }else{
                 $this->redirect();
             }
         }else{
-            if (isset($_GET['param1']) && isset($_POST['search'])) {
-                $tagId = $_GET['param1'];
-                $encode = Utils::url_safe_encode($_POST['search']);
-                self::redirect("post", "tags", $tagId, $encode);
+            $questions = Question::get_questions($search_dec, $start_from, $record_per_page);
+            $nb_pages = ceil(Question::count_questions($search_dec)/$record_per_page);
+        }
+        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'newest', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
+    }
+
+    public function active(){
+        $user = null;
+        $page = 1;
+        $nb_pages = 0;
+        $start_from = 0;
+        $record_per_page = 5;
+        $search_enc = null;
+        $search_dec = null;
+        $questions = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_redirect();
+        if (isset($_GET['param1']) && isset($_POST['search'])) {
+            $page = $_GET['param1'];
+            $search_enc = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "active", $page, $search_enc);
+        }elseif(isset($_GET['param1'])){
+            if(is_numeric($_GET['param1'])){
+                $page = $_GET['param1'];
+                if(isset($_GET['param2'])){
+                    $search_enc  = $_GET['param2'];
+                    $search_dec = Utils::url_safe_decode($_GET['param2']);
+                }
+                $start_from = ($page-1)*$record_per_page;
+                $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
+                $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
+                if($page !=1 && ($page > $nb_pages || $page < 0))
+                    self::redirect("post", "active", 1);
+                if(!$questions){
+                    $page = 1;
+                    $start_from = ($page-1)*$record_per_page;
+                    $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
+                    $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
+                }
+            }else{
+                $this->redirect();
             }
-            if(isset($_GET['param1']) && isset($_GET['param2'])){
-                $tagId = $_GET['param1'];
-                $decode = Utils::url_safe_decode($_GET['param2']);
+        }else{
+            $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
+            $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
+        }
+        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'active', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
+    }
+
+    public function unanswered() {
+        $user = null;
+        $page = 1;
+        $nb_pages = 0;
+        $start_from = 0;
+        $record_per_page = 5;
+        $search_enc = null;
+        $search_dec = null;
+        $questions = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_redirect();
+        if (isset($_GET['param1']) && isset($_POST['search'])) {
+            $page = $_GET['param1'];
+            $search_enc = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "unanswered", $page, $search_enc);
+        }elseif(isset($_GET['param1'])){
+            if(is_numeric($_GET['param1'])){
+                $page = $_GET['param1'];
+                if(isset($_GET['param2'])){
+                    $search_enc  = $_GET['param2'];
+                    $search_dec = Utils::url_safe_decode($_GET['param2']);
+                }
+                $start_from = ($page-1)*$record_per_page;
+                $questions = Question::get_questions_unanswered($search_dec, $start_from, $record_per_page);
+                $nb_pages = ceil(Question::count_questions_unanswered($search_dec)/$record_per_page);
+                if($page !=1 && ($page > $nb_pages || $page < 0))
+                    self::redirect("post", "unanswered", 1);
+                if(!$questions){
+                    $page = 1;
+                    $start_from = ($page-1)*$record_per_page;
+                    $questions = Question::get_questions_unanswered($search_dec, $start_from, $record_per_page);
+                    $nb_pages = ceil(Question::count_questions_unanswered($search_dec)/$record_per_page);
+                }
+            }else{
+                $this->redirect();
             }
+        }else{
+            $questions = Question::get_questions_unanswered($search_dec, $start_from, $record_per_page);
+            $nb_pages = ceil(Question::count_questions_unanswered($search_dec)/$record_per_page);
+        }
+        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'unanswered', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
+    }
+
+    public function votes(){
+        $user = null;
+        $page = 1;
+        $nb_pages = 0;
+        $start_from = 0;
+        $record_per_page = 5;
+        $search_enc = null;
+        $search_dec = null;
+        $questions = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_redirect();
+        if (isset($_GET['param1']) && isset($_POST['search'])) {
+            $page = $_GET['param1'];
+            $search_enc = Utils::url_safe_encode($_POST['search']);
+            self::redirect("post", "votes", $page, $search_enc);
+        }elseif(isset($_GET['param1'])){
+            if(is_numeric($_GET['param1'])){
+                $page = $_GET['param1'];
+                if(isset($_GET['param2'])){
+                    $search_enc  = $_GET['param2'];
+                    $search_dec = Utils::url_safe_decode($_GET['param2']);
+                }
+                $start_from = ($page-1)*$record_per_page;
+                $questions = Question::get_questions_by_votes($search_dec, $start_from, $record_per_page);
+                $nb_pages = ceil(Question::count_questions_by_votes($search_dec)/$record_per_page);
+                if($page !=1 && ($page > $nb_pages || $page < 0))
+                    self::redirect("post", "votes", 1);
+                if(!$questions){
+                    $page = 1;
+                    $start_from = ($page-1)*$record_per_page;
+                    $questions = Question::get_questions_by_votes($search_dec, $start_from, $record_per_page);
+                    $nb_pages = ceil(Question::count_questions_by_votes($search_dec)/$record_per_page);
+                }
+            }else{
+                $this->redirect();
+            }
+        }else{
+            $questions = Question::get_questions_by_votes($search_dec, $start_from, $record_per_page);
+            $nb_pages = ceil(Question::count_questions_by_votes($search_dec)/$record_per_page);
+        }
+        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'votes', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));    
+    }
+
+    public function tags(){
+        $user = null; 
+        $page = 1;
+        $nb_pages = 0;
+        $start_from = 0;
+        $record_per_page = 5;
+        $search_enc = null;
+        $search_dec = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_redirect();
+        if(isset($_GET['param1']) && isset($_GET['param2']) && !isset($_GET['param3']) && !isset($_POST['search'])){
+            $tagId = $_GET['param1'];
+            if(!is_numeric($_GET['param2']))
+                $this->redirect();    
+            $page = $_GET['param2'];
             $tag = Tag::get_tag_by_id($tagId);
+            $nb_pages = ceil(Question::count_questions_by_tag($tagId)/$record_per_page);
+            if($page !=1 && ($page > $nb_pages || $page < 0))
+                self::redirect("post", "tags", $tagId, 1);
+            $start_from = ($page-1)*$record_per_page;
             if($tag){
-                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId ,$decode), "user" => $user, "tag" => $tag, "ongletSelected" => 3));    
+                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId, $search_dec, $start_from, $record_per_page), "user" => $user, "tag" => $tag, "filter" => 'Question tagged', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));    
+            }else{
+                $this->redirect();
+            }
+        }else{
+            if (isset($_GET['param1']) && isset($_GET['param2']) && !isset($_GET['param3']) && isset($_POST['search'])) {
+                $tagId = $_GET['param1'];
+                $page = $_GET['param2'];
+                $search_enc = Utils::url_safe_encode($_POST['search']);
+                self::redirect("post", "tags", $tagId, $page, $search_enc);
+            }elseif(isset($_GET['param1']) && isset($_GET['param2']) && isset($_GET['param3']) && !isset($_POST['search'])){            
+                $tagId = $_GET['param1'];
+                if(is_numeric($_GET['param2']))
+                    $page = $_GET['param2'];
+                $search_enc = $_GET['param3'];
+                $search_dec = Utils::url_safe_decode($search_enc);
+                $nb_pages = ceil(Question::count_questions_by_tag($tagId, $search_dec)/$record_per_page);
+                if($page !=1 && ($page > $nb_pages || $page < 0))
+                    self::redirect("post", "tags", $tagId, 1);
+                $start_from = ($page-1)*$record_per_page;
+                $tag = Tag::get_tag_by_id($tagId);
+            }elseif(isset($_GET['param1']) && !isset($_GET['param2']) && !isset($_GET['param3']) && !isset($_POST['search'])){
+                $tagId = $_GET['param1'];
+                self::redirect("post", "tags", $tagId, $page);
+            }
+            if($tag){
+                (new View("index"))->show(array("posts"=> Question::get_questions_by_tag($tagId, $search_dec, $start_from, $record_per_page), "user" => $user, "tag" => $tag, "filter" => 'Question tagged', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));    
             }else{
                 $this->redirect();
             }    
@@ -173,7 +323,7 @@ class ControllerPost extends Controller{
     private function view_answer_edition($questionId, $answerId, $user, $errors){  
         $question = Question::get_question($questionId);
         $answer = Answer::get_answer($answerId);
-        if(!$question || !$answer || !($user->getUserId() === $answer->getAuthorId())
+        if(!$question || !$answer || !($user->isAdmin() || $user->getUserId() === $answer->getAuthorId())
                                   || !($question->getPostId() === $answer->getParentId())){
             self::redirect();           
         }else{
@@ -184,7 +334,7 @@ class ControllerPost extends Controller{
     //Affiche la vue pour l'edition d'une question
     private function view_question_edition($questionId, $answerId, $user, $errors){
         $question = Question::get_question($questionId);
-        if(!$question || !($user->getUserId() === $question->getAuthorId())){
+        if(!$question || !($user->isAdmin() || $user->getUserId() === $question->getAuthorId())){
             self::redirect();     
         }else{
             (new View("edit"))->show(array("post" => $question, "user" => $user, "errors" => $errors));         
@@ -210,7 +360,7 @@ class ControllerPost extends Controller{
     }
     
     private function answer_edition($parentId, $answerId, $user, $body){
-        if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId()){
+        if($user->isAdmin() || $user->getUserId() === Answer::get_answer($answerId)->getAuthorId()){
             $answer = new Answer($body, null, $parentId, null, null, $answerId, null, null);
             $error = Answer::validate($answer);
             if(count($error) == 0){
@@ -223,7 +373,7 @@ class ControllerPost extends Controller{
     }
 
     private function question_edition($questionId, $answerId, $user, $title, $body){
-        if($user->getUserId() === Question::get_question($questionId)->getAuthorId()){
+        if($user->isAdmin() || $user->getUserId() === Question::get_question($questionId)->getAuthorId()){
             $question = new Question($questionId, null, $title, $body, null, null, null, null, null, null, null, null, null);
             $errors = Question::validate($question, null, null);
             if(count($errors) == 0){
@@ -268,18 +418,18 @@ class ControllerPost extends Controller{
         }
     }
 
-    private function show_delete_question($questionId, $user){
-        if($user->getUserId() === Question::get_question($questionId)->getAuthorId()){
-            (new View("delete"))->show(array("postId"=>$questionId, "user"=>$user));
-        } 
-    }
-    
     private function show_delete_answer($questionId, $answerId, $user){
-        if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId()){
+        if($user->isAdmin() || $user->getUserId() === Answer::get_answer($answerId)->getAuthorId()){
             (new View("delete"))->show(array("postId"=>$questionId, "answerId"=>$answerId, "user"=>$user));
         }
     }  
 
+
+    private function show_delete_question($questionId, $user){
+        if($user->isAdmin() || $user->getUserId() === Question::get_question($questionId)->getAuthorId()){
+            (new View("delete"))->show(array("postId"=>$questionId, "user"=>$user));
+        } 
+    }
 
     private function delete_questionOrAnswer($questionId, $answerId, $user){
         if(is_numeric($answerId)){
@@ -291,14 +441,14 @@ class ControllerPost extends Controller{
     
     private function delete_question($questionId, $user){
         $question = new Question($questionId, null, null, null, null, null, null, null, null, null, null, null, null);
-        if($user->getUserId() === Question::get_question($questionId)->getAuthorId() && $question->delete()){
+        if(($user->isAdmin() || $user->getUserId() === Question::get_question($questionId)->getAuthorId()) && $question->delete($user)){
             self::redirect();    
         }
     }
 
     private function delete_answer($questionId, $answerId, $user){
         $answer = new Answer(null, null, $questionId, null, null, $answerId, null, null);
-        if($user->getUserId() === Answer::get_answer($answerId)->getAuthorId() && $answer->delete()){
+        if(($user->isAdmin() || $user->getUserId() === Answer::get_answer($answerId)->getAuthorId()) && $answer->delete($user)){
             self::redirect("post", "show", $questionId);    
         }
     }
@@ -332,10 +482,12 @@ class ControllerPost extends Controller{
             $postId = $_GET['param1'];
             $answerId = $_GET['param2'];
             $question = Question::get_question($postId);
-            if($user->getUserId() === $question->getAuthorId()){
+            if($user->isAdmin() || $user->getUserId() === $question->getAuthorId()){
                 if($question->accept_answer($answerId)){
                     self::redirect("post", "show", $postId);    
                 }
+            }else{
+                $this->redirect();
             }
         }else{
             self::redirect();
@@ -347,10 +499,12 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1']) && isset($_POST['delete_acceptation'])){
             $postId = $_GET['param1'];
             $question = Question::get_question($postId);
-            if($user->getUserId() === $question->getAuthorId()){
+            if($user->isAdmin() || $user->getUserId() === $question->getAuthorId()){
                 if($question->delete_accepted_answer()){
                     self::redirect("post", "show", $postId);
                 }
+            }else{
+                $this::redirect();
             }
         }else{
             self::redirect();

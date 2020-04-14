@@ -39,12 +39,13 @@
           <?php endif ?>
         </div>
         
-        <!-- Gestion des tags (S'il n'y a pas de Tags?) -->
+        <!-- Gestion des tags (S'il n'y a pas de Tags? A voir....) -->
         <div class="form-group">
           <label><strong>Tags</strong></label><br>
           <small>Add up to <?= $max_tags ?> tags to describe what your question is about</small><br>
           <?php if(array_key_exists('tags', $errors)):?>
             <?php foreach($allTags as $tag): ?>
+              <div class="form-check form-check-inline ">
                 <input class="form-check-input is-invalid" type="checkbox" name="choice[]" value="<?= $tag->getTagId() ?>">
                 <label class="form-check-label" for="inlineCheckbox1"><?= $tag->getTagName()?></label>
               </div>

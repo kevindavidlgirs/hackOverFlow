@@ -100,7 +100,11 @@ class Answer extends Post{
         return true;
     }
 
-    public function delete(){
+    public function delete($user){
+        if($user->isAdmin()){
+            $comment = new Comment(null, null, null, $this->postId, null, null);
+            $comment->deleteAll($user);
+        }
         $vote = new Vote(null, $this->postId, null, null);
         $post = new Question($this->parentId, null, null, null, null, null, null, null, null, null, null, null, null);
         if($vote->delete() && $post->delete_accepted_answer()){
@@ -108,6 +112,16 @@ class Answer extends Post{
             return true;
         }
         
+    }
+
+    public function deleteAll($user){
+        if($user->isAdmin()){
+            $answers = self::get_answers($this->parentId);
+            foreach($answers as $answer){
+                $answer->delete($user);
+            }
+        }
+        return true;
     }
         
     public function update(){

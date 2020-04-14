@@ -100,6 +100,16 @@ Class Comment extends Model{
         return true;
     }
 
+    public function deleteAll($user){
+        if($user->isAdmin()){
+            $comments = self::get_comments_by_postId($this->postId);
+            foreach($comments as $comment){
+                $comment->delete();
+            }
+        }
+        return true;
+    }
+
     public static function markdown($markedown){
         $Parsedown = new Parsedown();
         $Parsedown->setSafeMode(true); 

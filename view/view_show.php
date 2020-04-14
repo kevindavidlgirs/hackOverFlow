@@ -30,11 +30,11 @@
           <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
           
           <!-- Gestion des boutons de supression et d'édition "start" -->
-          <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
+          <?php if($user !== null && ($user->isAdmin() || $user->getFullName() === $post->getFullNameAuthor())): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn pad' name='edit'><i class='fas fa-edit'></i></button>
             </form>
-          <?php if($post->getNbAnswers() < 1 && !$post->hasComments()): ?>
+          <?php if($user->isAdmin() || ($post->getNbAnswers() < 1 && !$post->hasComments())): ?>
             <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
               <button type='submit' class='btn pad' name='delete'><i class='fas fa-trash-alt'></i></button>
             </form>
@@ -44,7 +44,7 @@
           <!-- Gestion des boutons de supression et d'édition "end" -->
 
           <!-- Gestion des tags "start"-->
-          <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
+          <?php if($user !== null && ($user->isAdmin() || $user->getFullName() === $post->getFullNameAuthor())): ?>
 
             <?php foreach($post->getTags() as $tag): ?>
               <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagId() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagId() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
@@ -186,7 +186,7 @@
                   <!-- Gestion des boutons lorsqu'une question a été acceptée -->         
                   <?php if($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
-                    <?php if($user->getUserId() === $post->getAuthorId()): ?>
+                    <?php if($user->isAdmin() || $user->getUserId() === $post->getAuthorId()): ?>
                       <form action="post/delete_accepted_answer/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
                         <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
                       </form>
@@ -218,17 +218,17 @@
                 <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameAuthor()."</a></small>"; ?>              
                 <?php if($user !== null): ?>
                   <!-- Gestion des boutons d'acceptance -->
-                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $user->getUserId() === $post->getAuthorId()): ?>
+                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && ($user->isAdmin() || $user->getUserId() === $post->getAuthorId())): ?>
                     <form action='post/accept_answer/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='accept'><i class='far fa-check-circle'></i></button>
                     </form>
                   <?php endif ?>
                   <!-- Gestion boutons edit et delete -->
-                  <?php if($user->getFullName() === $answer->getFullNameAuthor()): ?>
+                  <?php if($user->isAdmin() || ($user->getFullName() === $answer->getFullNameAuthor())): ?>
                     <form action='post/edit/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
                     </form>
-                    <?php if(!$answer->hasComments()): ?>
+                    <?php if($user->isAdmin() || !$answer->hasComments()): ?>
                       <form action='post/delete/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                         <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
                       </form>  

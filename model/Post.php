@@ -67,6 +67,6 @@ abstract class Post extends Model {
 
     abstract public function update();
 
-    abstract public function delete();
+    abstract public function delete($user);
 }
 ?>
