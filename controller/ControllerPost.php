@@ -45,7 +45,7 @@ class ControllerPost extends Controller{
                     $nb_pages = ceil(Question::count_questions($search_dec)/$record_per_page);
                 }
             }else{
-                $this->redirect();
+                self::redirect("post", "index", 1);
             }
         }else{
             $questions = Question::get_questions($search_dec, $start_from, $record_per_page);
@@ -88,7 +88,7 @@ class ControllerPost extends Controller{
                     $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
                 }
             }else{
-                $this->redirect();
+                self::redirect("post", "active", 1);
             }
         }else{
             $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
@@ -131,7 +131,7 @@ class ControllerPost extends Controller{
                     $nb_pages = ceil(Question::count_questions_unanswered($search_dec)/$record_per_page);
                 }
             }else{
-                $this->redirect();
+                self::redirect("post", "unanswered", 1);
             }
         }else{
             $questions = Question::get_questions_unanswered($search_dec, $start_from, $record_per_page);
@@ -174,7 +174,7 @@ class ControllerPost extends Controller{
                     $nb_pages = ceil(Question::count_questions_by_votes($search_dec)/$record_per_page);
                 }
             }else{
-                $this->redirect();
+                self::redirect("post", "votes", 1);
             }
         }else{
             $questions = Question::get_questions_by_votes($search_dec, $start_from, $record_per_page);
@@ -194,9 +194,9 @@ class ControllerPost extends Controller{
         if(self::get_user_or_false())
             $user = self::get_user_or_redirect();
         if(isset($_GET['param1']) && isset($_GET['param2']) && !isset($_GET['param3']) && !isset($_POST['search'])){
-            $tagId = $_GET['param1'];
-            if(!is_numeric($_GET['param2']))
-                $this->redirect();    
+            if(!is_numeric($_GET['param2']) || !is_numeric($_GET['param1']))
+                $this->redirect();  
+            $tagId = $_GET['param1'];  
             $page = $_GET['param2'];
             $tag = Tag::get_tag_by_id($tagId);
             $nb_pages = ceil(Question::count_questions_by_tag($tagId)/$record_per_page);
@@ -210,14 +210,17 @@ class ControllerPost extends Controller{
             }
         }else{
             if (isset($_GET['param1']) && isset($_GET['param2']) && !isset($_GET['param3']) && isset($_POST['search'])) {
+                if(!is_numeric($_GET['param2']) || !is_numeric($_GET['param1']))
+                    $this->redirect();
                 $tagId = $_GET['param1'];
                 $page = $_GET['param2'];
                 $search_enc = Utils::url_safe_encode($_POST['search']);
                 self::redirect("post", "tags", $tagId, $page, $search_enc);
             }elseif(isset($_GET['param1']) && isset($_GET['param2']) && isset($_GET['param3']) && !isset($_POST['search'])){            
+                if(!is_numeric($_GET['param2']) || !is_numeric($_GET['param1']))
+                    $this->redirect();
                 $tagId = $_GET['param1'];
-                if(is_numeric($_GET['param2']))
-                    $page = $_GET['param2'];
+                $page = $_GET['param2'];
                 $search_enc = $_GET['param3'];
                 $search_dec = Utils::url_safe_decode($search_enc);
                 $nb_pages = ceil(Question::count_questions_by_tag($tagId, $search_dec)/$record_per_page);
