@@ -146,6 +146,10 @@ class User extends Model {
         return $result  = Answer::nbAnswers_by_userId($this->userId);
     }
 
+    public function get_sum_comments(){
+        return $result = Comment::nbComments_by_userId($this->userId);
+    }
+
     public function save() {
         self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
             array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));

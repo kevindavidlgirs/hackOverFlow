@@ -133,9 +133,8 @@
               <!-- affiche les commentaires du post sélectionné -->
               <div style="margin-left : 25px;">
                 <?php if($post->hasComments()):  ?>
-                <!-- ATTENTION UTILISER MARKDOWN POUR CHAQUE COMMENTAIRE -->
                   <?php foreach($post->getComments() as $comment): ?>
-                    <hr><?= "<small>".$comment->getBody()." - <a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                    <hr><?= "<small>".$comment->getBodyMarkedown()."<a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
                       <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
                         <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
                         <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
@@ -241,8 +240,7 @@
                   <div style="margin-left : 25px;">
                     <?php if($answer->hasComments()):  ?>
                       <?php foreach($answer->getComments() as $comment): ?>
-                        <!-- ATTENTION UTILISER MARKDOWN POUR CHAQUE COMMENTAIRE -->
-                        <hr><?= "<small>".$comment->getBody()." - <a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                        <hr><?= "<small>".$comment->getBodyMarkedown()."<a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
                           <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
                             <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
                             <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>

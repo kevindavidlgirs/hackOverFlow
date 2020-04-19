@@ -110,6 +110,12 @@ Class Comment extends Model{
         return true;
     }
 
+    public function nbComments_by_userId($userId){
+        $query = self::execute("SELECT count(*) as nbComments from comment where UserId = :UserId", array("UserId"=>$userId));
+        $data = $query->fetch();
+        return $result = $data['nbComments'];
+    }
+
     public static function markdown($markedown){
         $Parsedown = new Parsedown();
         $Parsedown->setSafeMode(true); 

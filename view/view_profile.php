@@ -38,6 +38,10 @@
               Nombre de réponses :
               <span class="badge badge-secondary badge-pill"><?= $profile->get_sum_answers() ?></span>
             </li>
+            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+              Nombre de commentaires :
+              <span class="badge badge-secondary badge-pill"><?= $profile->get_sum_comments()?></span>
+            </li>
           </ul>
           </div>
         </div>
