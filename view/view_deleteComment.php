@@ -18,15 +18,14 @@
   </head>
   <body>
     <?php
-      $active = 'question';
       include('header.html');  
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-      <form action='post/delete/<?= $postId ?>/<?php if(isset($answerId)){ echo $answerId; }?>' method='post'>
+      <form action='comment/delete/<?= $comment->getCommentId()?>/<?= $post->getPostId()?>/<?php if(!$post->isQuestion()){echo $question->getPostId();} ?>' method='post'>
         <div class="card col-md-4 offset-md-4">
           <div class="card-header text-center header-color-white">
-            <h3>Are you sure you want delete your post ?</h3>
+            <h3>Are you sure you want delete this comment ?</h3>
           </div>
           <div class="card-body text-center">
               <p>This process cannot be undone.</p>

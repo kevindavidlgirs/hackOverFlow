@@ -8,30 +8,12 @@
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
 
-    <!-- Bootstrap core CSS -->
     <base href="<?= $web_root ?>" />
+    
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
@@ -45,17 +27,25 @@
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
-              <a class="nav-link active" href="post/index">Newest</a>
+              <a class="nav-link <?php if($filter == 'newest')echo 'active'?>" href="post">Newest</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="post/unanswered">Unanswered</a>
+              <a class="nav-link  <?php if($filter == 'active')echo 'active'?>" href="post/active">Active</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="post/votes">Votes</a>
+              <a class="nav-link  <?php if($filter == 'unanswered')echo 'active'?>" href="post/unanswered">Unanswered</a>
             </li>
             <li class="nav-item">
-              <form action="post/index" method="post">
-                <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+              <a class="nav-link  <?php if($filter == 'votes')echo 'active'?>" href="post/votes">Votes</a>
+            </li>
+            <?php if($filter == 'Question tagged'):?>
+              <li class="nav-item">
+                <a class="nav-link  <?php echo 'active'?>">Question tagged [<?=$tag->getTagName()?>]</a>
+              </li>
+            <?php endif ?>
+            <li class="nav-item">
+              <form action="post/<?php if($filter == 'Question tagged'){echo 'tags/'.$tag->getTagId();}elseif($filter == 'newest'){echo "index";}else{echo $filter;}  ?>/<?= $page ?>" method="post">
+                <input class="form-control" type="search" name="search" placeholder="Search..." aria-label="Search">
               </form>
             </li>
           </ul>
@@ -67,23 +57,43 @@
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  include('time.html');
-                  //Se charge d'afficher le nombre de réponses
-                  if($post->getTotalVote() === null){
-                    echo "<small> (0 vote(s), ";
-                  }else{
-                    echo "<small> (".$post->getTotalVote()." vote(s), ";   
-                  }
-                  if($post->getNbAnswers() === null){
-                    echo "0 answer(s))</small>";
-                  }else{
-                    echo $post->getNbAnswers() ." answer(s))</small>";
+                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
+                  echo "<small> (".$post->getTotalVote()." vote(s), ";   
+                  echo $post->getNbAnswers() ." answer(s))</small>";
+                  foreach($post->getTags() as $tagOfPost){
+                    echo '<a type="button" class="btn button" href="post/tags/'.$tagOfPost->getTagId().'/1">'.$tagOfPost->getTagName().'</a>';
                   }
                 ?>    
               </li>
+              
             <?php endforeach ?>
           </ul>
         </div>
+        <navs>
+          <ul class="pagination justify-content-end">
+            <?php if($page > 1): ?>
+              <li class="page-item">
+                <a class="page-link" style="border-color:white; color:#686868	;" href="post/<?php if($filter == 'Question tagged'){echo 'tags/'.$tag->getTagId();}elseif($filter == 'newest'){echo 'index';}else{echo $filter;} ?>/<?=$page-1?>/<?= $search_enc ?>" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                  <span class="sr-only">Previous</span>
+                </a>
+              </li>
+            <?php endif ?>
+            <?php if($nb_pages != 1): ?>
+              <?php for($i = 1; $i <= $nb_pages; ++$i): ?>
+                <li class="page-item <?= ($i == $page) ? "active" : "" ?>"><a <?= ($i == $page) ? "style='background-color: #323232; border-color:white; color:white;'" : "style='background-color: #e5e5e5; border-color:white; color:white;'" ?> class="page-link" href="post/<?php if($filter == 'Question tagged'){echo 'tags/'.$tag->getTagId();}elseif($filter == 'newest'){echo "index";}else{echo $filter;} ?>/<?=$i?>/<?= $search_enc ?>"><?= $i ?></a></li>
+              <?php endfor; ?>
+            <?php endif ?>
+            <?php if($page < $nb_pages): ?>
+            <li class="page-item">
+              <a class="page-link" style="border-color:white; color:#686868	;" href="post/<?php if($filter == 'Question tagged'){echo 'tags/'.$tag->getTagId();}elseif($filter == 'newest'){echo 'index';}else{echo $filter;} ?>/<?=$page+1?>/<?= $search_enc ?>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+              </a>
+            </li>
+            <?php endif ?>
+          </ul>
+        </nav>
       </div>
     </main>
   </body>

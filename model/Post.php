@@ -1,5 +1,6 @@
 <?php
 require_once("lib/parsedown-1.7.3/Parsedown.php");
+require_once('framework/Utils.php');
 require_once("framework/Model.php");
 
 abstract class Post extends Model {
@@ -9,7 +10,22 @@ abstract class Post extends Model {
     protected $authorId;
     protected $fullNameAuthor;
     protected $totalVote;
+    protected $comments;
+    protected $nbcomments;
     //"protected" mauvaise pratique ? (impossible d'utiliser "private" dans ce cas...)
+
+    public static function markdown($markedown){
+        $Parsedown = new Parsedown();
+        $Parsedown->setSafeMode(true); 
+        return $html = $Parsedown->text($markedown);  
+    }
+    
+    public static function remove_markdown($value){
+        $parsedown = new Parsedown();
+        $parsedown->setSafeMode(true);
+	    $html = $parsedown->text($value);
+        return strip_tags($html);
+    }
 
     public function getBodyMarkedown(){
         return self::markdown($this->body);
@@ -39,23 +55,18 @@ abstract class Post extends Model {
         return $this->authorId;
     }
 
-    public function set_post(){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
-        return true;
+    public function getComments(){
+        return $this->comments;
     }
 
-    //Ajouter les méthodes valide, delete et autres.
-    protected static function markdown($markedown){
-        $Parsedown = new Parsedown();
-        $Parsedown->setSafeMode(true); 
-        return $html = $Parsedown->text($markedown);  
+    public function hasComments(){
+        return $this->comments != false;
     }
-    
-    protected static function remove_markdown($value){
-        $parsedown = new Parsedown();
-        $parsedown->setSafeMode(true);
-	    $html = $parsedown->text($value);
-        return strip_tags($html);
-    }
+
+    abstract function isQuestion();
+
+    abstract public function update();
+
+    abstract public function delete($user);
 }
 ?>

@@ -9,6 +9,25 @@
     color: red;
 }
 
-.test{
-    width: 30%;
+.list-group .list-group-item .button{
+    display : inline;
+    margin : 1px;
+    padding: 2px;
+    text-align:center;
+    font-size:14px;
+    background: rgba(251, 255, 0, 0.5);
+}
+
+.buttons{
+    display : inline;
+    margin : 1px;
+    padding: 2px;
+    border-radius: 5px;
+    text-align:center;
+    font-size:14px;
+    background: rgba(251, 255, 0, 0.5);   
+}
+
+.pad{
+    padding: 2px;
 }

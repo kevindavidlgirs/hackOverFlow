@@ -11,13 +11,15 @@ class User extends Model {
     private $hashed_password;
     private $fullname;
     private $email;
+    private $role;
 
-    public function __construct($userId, $username, $hashed_password, $fullname, $email) {
+    public function __construct($userId, $username, $hashed_password, $fullname, $email, $role = null) {
         $this->userId = $userId;
         $this->username = $username;
         $this->hashed_password = $hashed_password;
         $this->fullname = $fullname;
         $this->email = $email;
+        $this->role = $role;
     }
 
     public function getUserId(){
@@ -35,6 +37,10 @@ class User extends Model {
     public function getEmail(){
         return $this->email;
     }
+
+    public function isAdmin(){
+        return $this->role == "admin";
+    }
     
     //Recherche à voir si un utilisateur existe déjà dans BD sur base de son userName
     public static function get_user_by_userName($username) {
@@ -43,7 +49,7 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"], $data['Role']);
         }
     }
 
@@ -54,7 +60,7 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"], $data['Role']);
         }
     }
         
@@ -65,7 +71,7 @@ class User extends Model {
         if ($query->rowCount() == 0) {
             return false;
         } else {
-            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"]);
+            return new User($data['UserId'], $data["UserName"], $data["Password"], $data["FullName"], $data["Email"], $data['Role']);
         }
     }
 
@@ -73,46 +79,8 @@ class User extends Model {
     public static function get_user_by_id($userId) {
         $query = self::execute("SELECT * FROM user WHERE UserId =:Id", array("Id" => $userId));
         $data = $query->fetch();
-        return $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email']);
+        return $results = new User($data['UserId'], $data['UserName'], $data['Password'], $data['FullName'], $data['Email'], $data['Role']);
        
-    }
-
-    public function get_sum_questions(){
-        return $getSumVote = Question::sum_of_questions_by_userId($this->userId);    
-    }
-
-    public function get_sum_answers(){
-        return $getSumVote  = Answer::sum_of_answers_by_userId($this->userId);
-           
-    }
-    //Devrais-je la nommer autrement ? Du genre : create profile ? (A voir ave l'evolution du projet)
-    public function update() {
-        self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
-            array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
-        return $this;
-    }
-
-    //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
-    public function validate(){
-        $errors = array();
-        if (!(isset($this->username) && is_string($this->username) && strlen($this->username) > 0)) {
-            $errors['user'] = "username is required.";
-        } if (!(isset($this->username) && is_string($this->username) && strlen($this->username) >= 3 && strlen($this->username) <= 16)) {
-            $errors['user'] = "username length must be between 3 and 16.";
-        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $this->username))) {
-            $errors['user'] = "username must start by a letter and must contain only letters and numbers.";
-        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) > 0)) {
-                $errors['name'] = "fullname is required.";
-        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 30)) {
-                $errors['name'] = "fullname length must be between 3 and 16.";
-        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z ]*$/", $this->fullname))) {
-                $errors['name'] = "fullname contain only letters.";
-        } if(!(isset($this->email) && strlen($this->email) > 0)){
-            $errors['email'] = "email is required.";
-        } else if(!preg_match("@^[a-z0-9-._]+\@[a-z0-9-._]{2,}\.[a-z]{2,4}$@", $this->email)){
-            $errors['email'] = "invalid email.";
-        }
-        return $errors;
     }
 
     //renvoie un tableau d'erreur(s) 
@@ -170,16 +138,46 @@ class User extends Model {
         return $hash === Tools::my_hash($clear_password);
     }
 
-    //indique si un l'utilisateur est connecté
-    public function user_logged()
-    {
-        if (!isset($_SESSION['user'])) {
-            return false;
-        } else {
-            return true;
-        }
+    public function get_sum_questions(){
+        return $result = Question::nbQuestions_by_userId($this->userId);    
     }
 
+    public function get_sum_answers(){
+        return $result  = Answer::nbAnswers_by_userId($this->userId);
+    }
+
+    public function get_sum_comments(){
+        return $result = Comment::nbComments_by_userId($this->userId);
+    }
+
+    public function save() {
+        self::execute("INSERT INTO user(username,password,fullname,email) VALUES(:username,:password,:fullname,:email)", 
+            array("username"=>$this->username, "password"=>$this->hashed_password, "fullname"=>$this->fullname, "email"=>$this->email));
+        return $this;
+    }
+
+    //Valide que le username, fullname, et email ont bien les longueurs et formats attendus.
+    public function validate(){
+        $errors = array();
+        if (!(isset($this->username) && is_string($this->username) && strlen($this->username) > 0)) {
+            $errors['user'] = "username is required.";
+        } if (!(isset($this->username) && is_string($this->username) && strlen($this->username) >= 3 && strlen($this->username) <= 16)) {
+            $errors['user'] = "username length must be between 3 and 16.";
+        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $this->username))) {
+            $errors['user'] = "username must start by a letter and must contain only letters and numbers.";
+        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) > 0)) {
+                $errors['name'] = "fullname is required.";
+        } if (!(isset($this->fullname) && is_string($this->fullname) && strlen($this->fullname) >= 3 && strlen($this->fullname) <= 30)) {
+                $errors['name'] = "fullname length must be between 3 and 16.";
+        } if (!(isset($this->username) && is_string($this->username) && preg_match("/^[a-zA-Z ]*$/", $this->fullname))) {
+                $errors['name'] = "fullname contain only letters.";
+        } if(!(isset($this->email) && strlen($this->email) > 0)){
+            $errors['email'] = "email is required.";
+        } else if(!preg_match("@^[a-z0-9-._]+\@[a-z0-9-._]{2,}\.[a-z]{2,4}$@", $this->email)){
+            $errors['email'] = "invalid email.";
+        }
+        return $errors;
+    }
 }
 
 

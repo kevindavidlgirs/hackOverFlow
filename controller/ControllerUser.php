@@ -57,8 +57,10 @@ class ControllerUser extends Controller {
                 $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
 
                 if (count($errors) == 0) { 
-                    $user->update(); //sauve l'utilisateur
+                    $user->save(); 
                     $this->log_user(User::get_user_by_userName($username));
+                }else{
+                    $user = null;
                 }
             }
             (new View("signup"))->show(array("username" => $username, "password" => $password, "password_confirm" => $password_confirm, 
@@ -67,22 +69,17 @@ class ControllerUser extends Controller {
             }  
     }
 
-    //profil de l'utilisateur connecté ou donné 'faux'
+    //profil de l'utilisateur connecté 
     public function profile() {
+        $user = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_false();
         if($this->user_logged() && !isset($_GET["param1"])){
-            $user = $this->get_user_or_redirect();
-            (new View("profile"))->show(array("user" => $user));
-        }else if ($this->user_logged() && isset($_GET["param1"]) && $_GET["param1"] !== "") {
-            $user = User::get_user_by_id($_GET["param1"]);
-            if(strlen($user->getUserName())> 0) {
-                (new View("profile"))->show(array("user" => $user));    
-            }else{
-                $this->redirect();
-            }
-        }else if (isset($_GET["param1"]) && $_GET["param1"] !== "") {
-            $user = User::get_user_by_id($_GET["param1"]);
-            if(strlen($user->getUserName())> 0){
-                (new View("profile"))->show(array("user" => $user));    
+            (new View("profile"))->show(array("user" => $user, "profile" => $user));
+        }else if (isset($_GET["param1"])) {
+            $profile = User::get_user_by_id($_GET["param1"]);
+            if(strlen($profile->getUserName())> 0) {
+                (new View("profile"))->show(array("user" => $user, "profile" => $profile));    
             }else{
                 $this->redirect();
             }

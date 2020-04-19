@@ -7,7 +7,7 @@ class Answer extends Post{
     private $timestamp;
     private $nbVote;
 
-    public function __construct($body, $authorId, $parentId, $timestamp, $fullNameAuthor, $postId, $totalVote){
+    public function __construct($body, $authorId, $parentId, $timestamp, $fullNameAuthor, $postId, $totalVote, $comments){
         $this->postId = $postId;
         $this->body = $body;
         $this->authorId = $authorId;
@@ -15,6 +15,7 @@ class Answer extends Post{
         $this->parentId = $parentId;
         $this->timestamp = $timestamp;
         $this->totalVote = $totalVote;
+        $this->comments = $comments;
     }
 
     public function getFullNameAuthor(){
@@ -29,16 +30,27 @@ class Answer extends Post{
         return $this->parentId;
     }
 
+    //Récupère une seule réponse
+    public static function get_answer($answerId){
+        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$answerId));
+        $data = $query->fetch();
+        if($query->rowCount() !== 0){
+            return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
+                                    $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
+                                        $data['PostId'], Vote::get_SumVote($data['PostId']), null);  
+        }
+        return false;
+    }
 
-    //Récupère toutes les réponses pour une question
+    //Récupère en premier lieu la réponse acceptée puis les réponses sur base du score des votes
     public static function get_answers($parentId){
         $results = [];
         $query = self::execute("SELECT * FROM post WHERE ParentId = :ParentId AND postid = (SELECT AcceptedAnswerId FROM post WHERE PostId = :PostId )", array("ParentId"=>$parentId,"PostId"=>$parentId));
-        $value = $query->fetch(); 
+        $data = $query->fetch(); 
         if($query->rowCount() !== 0){
-            $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
-                                $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
-                                $value['PostId'], Vote::get_SumVote($value['PostId'])->getTotalVote()); 
+            $results[] = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
+                                $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
+                                $data['PostId'], Vote::get_SumVote($data['PostId'])->getTotalVote(), Comment::get_comments_by_postId($data['PostId'])); 
         } 
         $query = self::execute("SELECT post.*, max_score FROM post, 
                                     ( 
@@ -55,59 +67,25 @@ class Answer extends Post{
         foreach($data1 as $value){
             $results[] = new Answer($value['Body'], $value['AuthorId'], $value['ParentId'], 
                                     $value['Timestamp'], User::get_user_by_id($value['AuthorId'])->getFullName(), 
-                                        $value['PostId'], Vote::get_SumVote($value['PostId'])->getTotalVote());
+                                        $value['PostId'], Vote::get_SumVote($value['PostId'])->getTotalVote(), Comment::get_comments_by_postId($value['PostId']));
         }
         return $results;
     }
-
-    //Récupère une seule réponse
-    public static function get_answer($answerId){
-        $query = self::execute("SELECT * FROM post WHERE PostId = :PostId", array("PostId"=>$answerId));
-        $data = $query->fetch();
-        if($query->rowCount() !== 0){
-            return $result = new Answer($data['Body'], $data['AuthorId'], $data['ParentId'], 
-                                    $data['Timestamp'], User::get_user_by_id($data['AuthorId'])->getFullName(), 
-                                        $data['PostId'], Vote::get_SumVote($data['PostId']));  
-        }
-        return false;
-    }
-    
+   
     //Récupère le nombre de question pour un post
     public static function get_nbAnswers($questionId){
         $query = self::execute("SELECT count(*) as nbAnswers FROM post WHERE ParentId = :PostId GROUP BY(ParentId)", array("PostId"=>$questionId));
         $data = $query->fetch();
-        return $data;
+        return $result = $data['nbAnswers'] ??= 0; //Opérateur D'affectation De Coalescence Nulle
+                                                   //https://www.designcise.com/web/tutorial/whats-the-difference-between-null-coalescing-operator-and-ternary-operator-in-php 
     }
 
-    //Ajoute une réponse en bd pour un post donné
-    public function add_answer(){
-        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$this->authorId, "Body"=>$this->body, "ParentId"=>$this->parentId));
-        return true;
-    }
-
-    //Fait la somme des réponses pour le profile d'un utilisateur
-    public static function sum_of_answers_by_userId($userId){
+    public static function nbAnswers_by_userId($userId){
         $query = self::execute("SELECT count(*) as nbAnswers from post where title ='' and AuthorId = :AuthorId", array("AuthorId"=>$userId));
         $data = $query->fetch();
-        return $nbAnswers = $data['nbAnswers'];
+        return $result = $data['nbAnswers'];
     }
 
-    //Edite la réponse en bd
-    public function edit_answer($answerId, $body){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$answerId, "Body"=>$body));
-        return true;
-    }
-
-    public function delete($questionId, $answerId){
-        $vote = new Vote(null, $answerId, null, null);
-        $post = new Question($questionId, null, null, null, null, null, null, null, null, null, null);
-        if($vote->delete($answerId) && $post->delete_accepted_answer($questionId)){
-            self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$answerId));
-            return true;
-        }
-        
-    }
-    
     public static function validate($answer){
         $error = [];
         if(strlen($answer->getBody()) < 30){
@@ -115,7 +93,45 @@ class Answer extends Post{
         }
         return $error;
     }
-    
+
+    //Ajoute une réponse en BD pour un post donné
+    public function create(){
+        self::execute("INSERT INTO post(AuthorId, Title, Body, ParentId) VALUES(:AuthorId, '', :Body, :ParentId)", array("AuthorId"=>$this->authorId, "Body"=>$this->body, "ParentId"=>$this->parentId));
+        return true;
+    }
+
+    public function delete($user){
+        if($user->isAdmin()){
+            $comment = new Comment(null, null, null, $this->postId, null, null);
+            $comment->deleteAll($user);
+        }
+        $vote = new Vote(null, $this->postId, null, null);
+        $post = new Question($this->parentId, null, null, null, null, null, null, null, null, null, null, null, null);
+        if($vote->delete() && $post->delete_accepted_answer()){
+            self::execute("DELETE FROM post WHERE PostId = :AnswerId", array("AnswerId"=>$this->postId));
+            return true;
+        }
+        
+    }
+
+    public function deleteAll($user){
+        if($user->isAdmin()){
+            $answers = self::get_answers($this->parentId);
+            foreach($answers as $answer){
+                $answer->delete($user);
+            }
+        }
+        return true;
+    }
+        
+    public function update(){
+        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
+        return true;
+    }
+
+    public function isQuestion(){
+        return false;
+    }
 }
 ?>
 

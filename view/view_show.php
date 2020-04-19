@@ -3,32 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v3.8.5">
     <title>Hack overFlow</title>
+
     <base href="<?= $web_root ?>" />
+    
     <!-- Bootstrap core CSS + fontawesome -->    
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
     <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
@@ -39,23 +24,64 @@
     <!-- MAIN -->
     <main role="main" class="container">
       <ul class="list-group list-group-flush">
-        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci ainsi que le créateur -->
+        <!-- Affiche la question ainsi que le temps depuis la création de celle-ci et que le créateur -->
         <li class="list-group-item">
           <h5><?= $post->getTitle() ?></h5>          
-          <?php include("time.html"); ?>
-
-          <?php if($user !== null && $user->getFullName() === $post->getFullNameAuthor()): ?>
+          <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; ?>
+          
+          <!-- Gestion des boutons de supression et d'édition "start" -->
+          <?php if($user !== null && ($user->isAdmin() || $user->getFullName() === $post->getFullNameAuthor())): ?>
             <form action='post/edit/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
-              <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
+              <button type='submit' class='btn pad' name='edit'><i class='fas fa-edit'></i></button>
             </form>
-            <?php if($post->getNbAnswers() < 1): ?>
+          <?php if($user->isAdmin() || ($post->getNbAnswers() < 1 && !$post->hasComments())): ?>
             <form action='post/delete/<?= $post->getPostId() ?>' method='post' style='display: inline-block'>
-              <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
+              <button type='submit' class='btn pad' name='delete'><i class='fas fa-trash-alt'></i></button>
             </form>
             <?php endif ?>
           <?php endif ?>
+          <br>
+          <!-- Gestion des boutons de supression et d'édition "end" -->
 
+          <!-- Gestion des tags "start"-->
+          <?php if($user !== null && ($user->isAdmin() || $user->getFullName() === $post->getFullNameAuthor())): ?>
 
+            <?php foreach($post->getTags() as $tag): ?>
+              <span class="buttons"><a type="button" class="btn pad" href="post/tags/<?= $tag->getTagId() ?>"><?= $tag->getTagName() ?></a><a class="btn pad" href="post/removeTag/<?= $post->getPostId() ?>/<?= $tag->getTagId() ?>"><i class="far fa-times-circle fa-2px"></i></a></span>
+            <?php endforeach ?>
+            
+            <?php if($post->getNbTags() < $max_tags): ?>
+              <form action="post/addTag/<?= $post->getPostId() ?>" method="post" class="form-inline" style='display: inline-block'>
+                <select name="tag" style="font-size: .8em">
+                  <?php foreach($allTags as $tag): ?>
+                    <?php $containsTag = false; ?>
+                    
+                    <!-- DEVRAIT CHANGER -->
+                    <?php foreach($post->getTags() as $postTag): ?>
+                      <?php if($postTag->getTagName() === $tag->getTagName()): ?>
+                        <?php $containsTag = true; ?>
+                      <?php endif ?>
+                    <?php endforeach ?>
+                    <!-- DEVRAIT CHANGER -->
+
+                    <?php if(!$containsTag): ?>
+                      <option><?=$tag->getTagName()?></option>
+                    <?php endif ?>
+                  <?php endforeach ?>
+                </select> 
+                <button type="submit" value="Submit" class='btn pad'><i class="fas fa-plus"></i></button>
+              </form>  
+            <?php endif ?> 
+
+          <?php else: ?>
+            
+            <?php foreach($post->getTags() as $tag): ?>
+                <a type="button" class="btn button" href="post/tags/<?= $tag->getTagId() ?>"><?= $tag->getTagName() ?></a>
+            <?php endforeach ?>  
+            
+          <?php endif ?>  
+          <!-- Gestion des tags "end"-->
+              
         </li>
         <li class="list-group-item">
           <div class="row">
@@ -104,24 +130,32 @@
             <!-- affiche le body du post sélectionné -->
             <div class="col">
               <?= $post->getBodyMarkedown() ?>
-            </div>  
+              <!-- affiche les commentaires du post sélectionné -->
+              <div style="margin-left : 25px;">
+                <?php if($post->hasComments()):  ?>
+                  <?php foreach($post->getComments() as $comment): ?>
+                    <hr><?= "<small>".$comment->getBodyMarkedown()."<a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                      <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
+                        <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
+                        <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
+                      <?php endif ?>
+                    </hr>
+                  <?php endforeach ?><br>
+                <?php endif ?>
+                <?php if($user !== null): ?><a href="comment/add/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>
+              </div>    
+            </div> 
           </div>
-          
-          <?php
-            if($post->getNbAnswers() > 0){
-              echo $post->getNbAnswers().' Answer(s)';
-            }else{
-              echo '0 Answer(s)';
-            }
-          ?>     
+          <span><?= $post->getNbAnswers().' Answer(s)';?></span>      
         </li>
-
+            
         <!--Affiche les réponses-->
         <?php foreach($post->getAnswers() as $answer) : ?>
 
           <li class="list-group-item">
             <div class="row">
               <div class="col col-lg-1">
+
                 <?php if($user !== null):?>
 
                   <!-- Gestion des boutons like si l'utilisateur est connecté -->
@@ -134,6 +168,7 @@
                       <i class="far fa-heart fa-7px"></i>
                     </a><br>
                   <?php endif ?>
+
                   <!-- Affiche le nombre de vote entre le butons like et dislike -->
                   <?= $answer->getTotalVote() ?>
                   <small>vts.</small>
@@ -150,7 +185,7 @@
                   <!-- Gestion des boutons lorsqu'une question a été acceptée -->         
                   <?php if($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
-                    <?php if($user->getUserId() === $post->getAuthorId()): ?>
+                    <?php if($user->isAdmin() || $user->getUserId() === $post->getAuthorId()): ?>
                       <form action="post/delete_accepted_answer/<?= $post->getPostId()?>" method="post" style='display: inline-block'>
                         <button type='submit' class='btn btn-outline-*' name='delete_acceptation'><i class="fas fa-times rediconcolor"></i></button>
                       </form>
@@ -159,7 +194,7 @@
 
                 <?php else: ?>  
 
-                  <!-- Getion des boutons like et dislike si l'utilisateur est un visiteur -->  
+                  <!-- Gestion des boutons like et dislike si l'utilisateur est un visiteur -->  
                   <a class="btn" href="user/signup">
                     <i class="far fa-heart fa-7px"></i>
                   </a><br>
@@ -170,31 +205,53 @@
                   </a>
                   <?php if($post->getAcceptedAnswerId() === $answer->getPostId()): ?>
                     <i class="fas fa-check greeniconcolor"></i>
-                  <?php endif ?>  
+                  <?php endif ?> 
+
                 <?php endif ?>
-              </div>
               
+              </div>
               <div class="col">
+
                 <!-- Affiche le corps de la réponse -->
-                <?= $answer->getBodyMarkedown(); ?><br>
-                <?php include("time.html"); ?>
+                <?= $answer->getBodyMarkedown(); ?><br> 
+                <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameAuthor()."</a></small>"; ?>              
                 <?php if($user !== null): ?>
                   <!-- Gestion des boutons d'acceptance -->
-                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && $user->getUserId() === $post->getAuthorId()): ?>
+                  <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && ($user->isAdmin() || $user->getUserId() === $post->getAuthorId())): ?>
                     <form action='post/accept_answer/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='accept'><i class='far fa-check-circle'></i></button>
                     </form>
                   <?php endif ?>
                   <!-- Gestion boutons edit et delete -->
-                  <?php if($user->getFullName() === $answer->getFullNameAuthor()): ?>
+                  <?php if($user->isAdmin() || ($user->getFullName() === $answer->getFullNameAuthor())): ?>
                     <form action='post/edit/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'></i></button>
                     </form>
-                    <form action='post/delete/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
-                      <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
-                    </form>  
+                    <?php if($user->isAdmin() || !$answer->hasComments()): ?>
+                      <form action='post/delete/<?= $post->getPostId() ?>/<?= $answer->getPostId() ?>' method='post' style='display: inline-block'>
+                        <button type='submit' class='btn btn-outline-*' name='delete'><i class='fas fa-trash-alt'></i></button>
+                      </form>  
+                    <?php endif ?>
                   <?php endif ?>
                 <?php endif ?>
+                
+                <!-- affiche les commentaires de la réponse sélectionnée -->
+                <div class="col">
+                  <div style="margin-left : 25px;">
+                    <?php if($answer->hasComments()):  ?>
+                      <?php foreach($answer->getComments() as $comment): ?>
+                        <hr><?= "<small>".$comment->getBodyMarkedown()."<a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
+                          <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
+                            <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
+                            <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
+                          <?php endif ?>
+                        </hr>
+                      <?php endforeach ?><br>
+                    <?php endif ?>
+                    <?php if($user !== null): ?><a href="comment/add/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>    
+                  </div> 
+                </div> 
+
               </div>
             </div>  
           </li>
