@@ -8,9 +8,8 @@ require_once 'framework/Utils.php';
 
 class ControllerPost extends Controller{
 
+    //                                                                  PHP
 
-    //Il est clairement possible de factoriser/découper le code,
-    //je devrais le faire avant la fin de l'itération si possible....
     public function index() {
         $user = null;
         $page = 1;
@@ -557,6 +556,17 @@ class ControllerPost extends Controller{
             $this->redirect();
         }
     }
+
+
+    //                                                                      JAVASCRIPT
+
+    public function get_questions_service(){
+        $questions_json = Question::get_questions_as_json(Question::get_questions(null, 0, 5)); 
+        echo $questions_json;
+    }
+
+    
+
 }
 
 ?>

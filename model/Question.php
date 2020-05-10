@@ -98,6 +98,32 @@ class Question extends Post {
         return $results;
     }
 
+    public static function get_questions_as_json($questions){
+        $str = "";
+        foreach($questions as $question){
+            $postId = json_encode($question->getPostId());
+            $authorId = json_encode($question->getAuthorId());
+            $fullname = json_encode($question->getFullNameAuthor());
+            $title = json_encode($question->getTitle());
+            $body = json_encode($question->getBody());
+            $timestamp = json_encode($question->getTimestamp());
+            $totalVote = json_encode($question->getTotalVote());
+            $nbAnswers = json_encode($question->getAnswers());
+            $str .= "
+            {\"postId\":$postId,\"authorId\":$authorId,\"fullName\":$fullname,\"title\":$title,\"body\":$body,\"timestamp\":$timestamp,\"totalVote\":$totalVote,\"nbAnswers\":$nbAnswers,\"tags\":{"; 
+            for($i = 0; $i < sizeof($question->getTags()); $i++){
+                $tagId = $question->getTags()[$i]->getTagId();
+                $tagName = $question->getTags()[$i]->getTagName();
+                $str .= "\"[$i]\":[\"$tagId\",\"$tagName\"]";
+                $str .= $i < sizeof($question->getTags())-1 ?"," : "";
+            }
+            $str .= "}},";
+        }
+        if($str !== "")
+            $str = substr($str,0,strlen($str)-1);
+        return "[$str]";
+    }
+
     //Une méthode pour compter des array d'objets ?
     public static function count_questions($decode){
         if($decode === null){
@@ -448,6 +474,7 @@ class Question extends Post {
     public function isQuestion(){
         return true;
     }
+
 }
 
 ?>

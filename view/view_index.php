@@ -14,7 +14,79 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
+    <!-- Bootstrap core CSS + fontawesome -->    
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script>
+      let questions;
+      let navigation;
+      let question_list;
+
+      $(function(){
+        
+        navigation = $("#navigation");
+        question_list = $("#question_list");
+        getQuestions();
+        displayNavigation();
+        displayList();
+        $('#newest').on('click', function (e) {
+          e.preventDefault()
+          $('#newest').tab('show')
+        })
+      });
+      
+      function getQuestions(){
+        $.get("post/get_questions_service/", function(data){
+          questions = data;
+          console.log(data);
+        },"json").fail(function(){
+          console.log("fail json !");
+        });
+      }
+
+      function displayNavigation(){
+        let html = "<ul class=\"nav nav-tabs card-header-tabs row\">" +
+                   "<li id=\"newest\" class=\"nav-item\">" +
+                   "<a class=\"nav-link\" href=\"post\">Newest</a>" +
+                   "</li>" +
+                   "<li class=\"nav-item\">" +
+                   "<a class=\"nav-link\" href=\"post/active\">Active</a>"+
+                   "</li>"+
+                   "<li class=\"nav-item\">"+
+                   "<a class=\"nav-link\" href=\"post/unanswered\">Unanswered</a>"+
+                   "</li>"+
+                   "<li class=\"nav-item\">"+
+                   "<a class=\"nav-link\" href=\"post/votes\">Votes</a>"+
+                   "</li>"+
+                   "<li class=\"nav-item\">"+
+                   "<form action=\"\" method=\"post\">"+
+                   "<input class=\"form-control\" type=\"search\" name=\"search\" placeholder=\"Search...\" aria-label=\"Search\">"+
+                   "</form>"+
+                   "</li>"+
+                   "</ul>";
+        navigation.html(html);
+      }
+
+      function displayList(){
+        let html = "<ul class=\"list-group list-group-flush\">";
+        for (let question of questions){
+          html += "<li class=\"list-group-item\">";
+          html += "<a href=post/show/"+question["postId"]+">"+question["title"]+"</a><br>"; 
+          html += ""+question['body']+"\"<br>\"";
+          hmtl += "<small>Asked \"+Utils::time_elapsed_string("+question['timestamp']+")+\" by <a href='user/profile/\""+question['authorId']+"\"'>\""+question['fullname']+"\"</a></small>\""; 
+          html += "<small> (\""+question['totalVote']+"\" vote(s), \"";   
+          html += ""+question['nbAnswers']+"\" answer(s))</small>\"";
+          for($i = 0 ; $i < sizeof(question["tags"]); $i++){
+            html += "<a type=\"button\" class=\"btn button\" href=\"post/tags/'"+question['tags'][$i]['tagId']+"'/1\">'"+question['tags'][$i]['tagName']+"'</a>";
+          }
+          html += "</li>";
+        }
+        html += "</ul>";
+        question_list.html(html);
+      }
+
+    
+    </script>
   </head>
   <body>
     <?php
@@ -23,8 +95,10 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-      <div class="card">
-        <div class="card-header">
+      <div id="card" class="card">
+
+        <!-- navigation -->
+        <div id="navigation" class="card-header">
           <ul class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
               <a class="nav-link <?php if($filter == 'newest')echo 'active'?>" href="post">Newest</a>
@@ -50,7 +124,10 @@
             </li>
           </ul>
         </div>
-        <div class="card-body">
+        <!-- Navigation -->
+      
+        <!-- list questions -->
+        <div id="question_list" class="card-body">
           <ul class="list-group list-group-flush"> 
             <?php foreach($posts as $post): ?>
               <li class="list-group-item">
@@ -69,8 +146,11 @@
             <?php endforeach ?>
           </ul>
         </div>
+        <!-- list questions -->
+
+        <!-- pagination -->
         <navs>
-          <ul class="pagination justify-content-end">
+          <ul id="pagination" class="pagination justify-content-end">
             <?php if($page > 1): ?>
               <li class="page-item">
                 <a class="page-link" style="border-color:white; color:#686868	;" href="post/<?php if($filter == 'Question tagged'){echo 'tags/'.$tag->getTagId();}elseif($filter == 'newest'){echo 'index';}else{echo $filter;} ?>/<?=$page-1?>/<?= $search_enc ?>" aria-label="Previous">
@@ -94,6 +174,8 @@
             <?php endif ?>
           </ul>
         </nav>
+        <!-- pagination -->
+
       </div>
     </main>
   </body>
