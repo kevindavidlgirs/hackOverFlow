@@ -14,7 +14,6 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
     <!-- Bootstrap core CSS + fontawesome -->    
 
     <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>

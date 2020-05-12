@@ -93,7 +93,7 @@ class ControllerPost extends Controller{
             $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
             $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
         }
-        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'active', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
+        (new View("index"))->show(array("posts"=> $questions , "user" => $user, "filter" => 'active', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
     }
 
     public function unanswered() {
@@ -561,12 +561,37 @@ class ControllerPost extends Controller{
     //                                                                      JAVASCRIPT
 
     public function get_questions_service(){
-        $questions_json = Question::get_questions_as_json(Question::get_questions(null, 0, 5)); 
-        echo $questions_json;
+        if(isset($_GET['param1']) && $_GET['param1'] === 'newest'){
+            $questions = Question::get_questions(null, 0, 5);
+            self::return_json_question($questions);
+        }else if (isset($_GET['param1']) && $_GET['param1'] === 'active'){
+            $questions = Question::get_questions_active(null, 0, 5);
+            self::return_json_question($questions);
+        }else if (isset($_GET['param1']) && $_GET['param1'] === 'unanswered'){
+            $questions = Question::get_questions_unanswered(null, 0, 5);
+            self::return_json_question($questions);
+        }else if (isset($_GET['param1']) && $_GET['param1'] === 'votes'){
+            $questions = Question::get_questions_by_votes(null, 0, 5);
+            self::return_json_question($questions);
+        }else if (isset($_GET['param1']) && $_GET['param1'] === 'tags' && isset($_GET['param2']) && is_numeric($_GET['param2'])){
+            $tagId = $_GET['param2'];
+            $questions = Question::get_questions_by_tag($tagId,null, 0, 5);
+            self::return_json_question($questions);
+        }else{
+            $questions_json = Question::get_questions_as_json(Question::get_questions(null, 0, 5)); 
+            echo $questions_json;
+        }
     }
 
-    
-
+    private function return_json_question($questions){
+        if($questions){
+            $questions_json = Question::get_questions_as_json($questions); 
+            echo $questions_json;
+        }else{
+            $questions_json = Question::get_questions_as_json(Question::get_questions(null, 0, 5)); 
+            echo $questions_json;    
+        }
+    }
 }
 
 ?>
