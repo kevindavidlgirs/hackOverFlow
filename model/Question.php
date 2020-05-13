@@ -62,8 +62,9 @@ class Question extends Post {
         return $this->nbTags;
     }
 
-    public static function get_questions_as_json($questions){
+    public static function get_questions_as_json($questions, $nb_pages){
         $str = "";
+        $json = "";
         foreach($questions as $question){
             $postId = json_encode($question->getPostId());
             $authorId = json_encode($question->getAuthorId());
@@ -83,9 +84,11 @@ class Question extends Post {
             }
             $str .= "]},";
         }
-        if($str !== "")
+        if($str !== ""){
             $str = substr($str,0,strlen($str)-1);
-        return "[$str]";
+            $json = "{\"questions\":[$str]},{\"pages\":[{\"nb_pages\":$nb_pages}]}";
+        }
+        return "[$json]";
     }
 
     //Récupère un post grace à son id
@@ -105,6 +108,7 @@ class Question extends Post {
 
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
     //et le nombre de réponse de chaque post.
+    //Changer $nb_pages par $record_per_page
     public static function get_questions($decode, $start_from, $nb_pages){
         if($decode === null){
             $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC LIMIT $start_from, $nb_pages", array());
