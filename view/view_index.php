@@ -24,12 +24,12 @@
       var question_list;
       var pagination;
       var tagId = null;
-      var tagName = null;
+      var tagName;
       var typeList = 'newest';
       var searchValue = null;
       var questions;
-      var page;
       var nb_pages = 0;
+      var page;
 
       $(function(){
         navigation = $("#navigation");
@@ -48,7 +48,7 @@
           searchValue = $(this).val();
           typeList = "search";
           page = 1;
-          displayNavigation();
+          constructNavigation();
           displayQuestionsSearch();
           $("#inputSearch").val(searchValue);
           $("#inputSearch").focus();
@@ -64,9 +64,9 @@
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
           questions = data;
           nb_pages = questions['1']['pages']['0']['nb_pages'];
-          displayNavigation();
-          displayAllQuestions();
-          displayPagination();
+          constructNavigation();
+          constructListQuestions();
+          constructPagination();
           configActions();
         },"json").fail(function(){
           console.log("fail json !");
@@ -77,8 +77,8 @@
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
           questions = data;
           nb_pages = questions['1']['pages']['0']['nb_pages'];
-          displayAllQuestions();
-          displayPagination();
+          constructListQuestions();
+          constructPagination();
           configActions();
         },"json").fail(function(){
           console.log("fail json !");
@@ -96,13 +96,13 @@
           }else{
             nb_pages = 0;
           }
-          displayAllQuestions();
-          displayPagination();
+          constructListQuestions();
+          constructPagination();
           configActions();
         });
       }
 
-      function displayNavigation(){
+      function constructNavigation(){
         let html = "<li class=\"nav-item\" id=\"newest\">" +
                    "<a id=\"newest\" class='nav-link "+(typeList == 'newest'? "active" : "" )+"' href=\"javascript:displayAll('newest');\";>Newest</a>" +
                    "</li>" +
@@ -127,7 +127,7 @@
         navigation.html(html);
       }
 
-      function displayAllQuestions(){
+      function constructListQuestions(){
         let html = "";
         if(Object.entries(questions).length !== 0){
           for (let question of questions['0']['questions']){
@@ -147,7 +147,7 @@
       }
         
 
-      function displayPagination(){
+      function constructPagination(){
         let html = "<ul class=\"pagination justify-content-end\">";
         if(page > 1){
           html += "<li class=\"page-item\">"+
@@ -173,16 +173,18 @@
         pagination.html(html);
       }
 
+      //Il devrait y' avoir plus simple
       function choosePage(pge){
         page = pge;
       }
-
       function incrementNbPages(side){
         if(side == 'Previous')
           --page;
         else
           ++page;
       }
+       //Il devrait y' avoir plus simple
+
     </script>
 
   </head>
