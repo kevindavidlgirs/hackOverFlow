@@ -89,4 +89,27 @@ class ControllerUser extends Controller {
         
     }
 
+    public function stats(){
+        $user = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_false();   
+        (new View("stats"))->show(array("user" => $user));   
+    }
+
+    public function get_stats_service(){
+        if(isset($_GET['param1']) && isset($_GET['param2'])){
+            $number = $_GET['param1'];
+            $time = $_GET['param2'];
+            if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
+                echo User::get_user_stats_as_json($number, $time);    
+            }else{
+                $user = null;
+                if(self::get_user_or_false())
+                    $user = self::get_user_or_false();   
+                (new View("stats"))->show(array("user" => $user));       
+            }
+        }
+    }
+
+
 }

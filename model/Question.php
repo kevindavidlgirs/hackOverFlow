@@ -86,7 +86,7 @@ class Question extends Post {
         }
         if($str !== ""){
             $str = substr($str,0,strlen($str)-1);
-            $json = "{\"questions\":[$str]},{\"pages\":[{\"nb_pages\":$nb_pages}]}";
+            $json = "{\"questions\":[$str]},{\"pages\":[$nb_pages]}";
         }
         return "[$json]";
     }

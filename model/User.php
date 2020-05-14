@@ -178,6 +178,28 @@ class User extends Model {
         }
         return $errors;
     }
+
+    public static function get_user_stats_as_json($number, $time){
+        $query = self::execute("SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions FROM 
+                                (select authorId, count(*) s from post where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(authorId)) t1 
+                                LEFT JOIN 
+                                (select userId, count(*) s2 from comment where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(userId)) 
+                                t2 ON (t1.authorId = t2.userId), user u where u.userId = t1.authorId order by ((ifnull(t1.s, 0) + ifnull(t2.s2, 0))) DESC",array());
+        $data = $query->fetchAll();
+        $limit = Configuration::get("member_stats_limit");
+        if(sizeof($data) < $limit)
+            $limit = sizeof($data);
+        $str = "";
+        for($i = 0; $i < $limit; ++$i){
+            $userName = json_encode($data[$i][0]);
+            $sumActions = json_encode($data[$i][1]);
+            $str .="{\"userName\":$userName,\"sumActions\":$sumActions},";   
+        }
+        if($str !== "")
+            $str = substr($str,0,strlen($str)-1);
+        return "[$str]";
+    }
+
 }
 
 

@@ -22,7 +22,9 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-		  <div class="card text-white bg-dark mb-3 col-md-4 offset-md-4" style="max-width: 24rem;">
+      <div class="card text-white bg-dark mb-3 col-md-4 offset-md-4" style="max-width: 24rem;">
+        <!-- <img src="img/img1.jpg" class="img-thumbnail rounded mx-auto d-block"> -->
+
         <div class="card-header text-center"><h4><?= $profile->getFullName() ?></h4></div>
           <div class="card-body">
           <ul class="list-group ">

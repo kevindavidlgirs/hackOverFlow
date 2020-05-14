@@ -20,16 +20,16 @@
     <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script>
       //Type à réctifier.
-      var navigation;
-      var question_list;
-      var pagination;
-      var tagId = null;
-      var tagName;
-      var typeList = 'newest';
-      var searchValue = null;
-      var questions;
-      var nb_pages = 0;
-      var page;
+      let navigation;
+      let question_list;
+      let pagination;
+      let tagId = null;
+      let tagName;
+      let typeList = 'newest';
+      let searchValue = null;
+      let questions;
+      let nb_pages = 0;
+      let page;
 
       $(function(){
         navigation = $("#navigation");
@@ -48,8 +48,10 @@
           searchValue = $(this).val();
           typeList = "search";
           page = 1;
-          constructNavigation();
+          //!
           displayQuestionsSearch();
+          constructNavigation();
+          //!
           $("#inputSearch").val(searchValue);
           $("#inputSearch").focus();
         });
@@ -62,8 +64,9 @@
         tagId = tgId;
         tagName = tgName;
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
+          console.log(data)
           questions = data;
-          nb_pages = questions['1']['pages']['0']['nb_pages'];
+          nb_pages = questions['1']['pages'];
           constructNavigation();
           constructListQuestions();
           constructPagination();
@@ -76,7 +79,7 @@
       function displayPageSelected(){
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
           questions = data;
-          nb_pages = questions['1']['pages']['0']['nb_pages'];
+          nb_pages = questions['1']['pages'];
           constructListQuestions();
           constructPagination();
           configActions();
@@ -92,7 +95,7 @@
           questions = JSON.parse(data.replace(/\r?\n|\r/g, ''));
           //POURQUOI DES SAUTS A LA LIGNES ALEATOIRES ?! :^O
           if(Object.entries(questions).length !== 0){
-            nb_pages = questions['1']['pages']['0']['nb_pages'];
+            nb_pages = questions['1']['pages'];
           }else{
             nb_pages = 0;
           }
