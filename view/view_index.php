@@ -50,7 +50,7 @@
           page = 1;
           //!
           displayQuestionsSearch();
-          constructNavigation();
+          buildNavigation();
           //!
           $("#inputSearch").val(searchValue);
           $("#inputSearch").focus();
@@ -64,12 +64,11 @@
         tagId = tgId;
         tagName = tgName;
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
-          console.log(data)
           questions = data;
           nb_pages = questions['1']['pages'];
-          constructNavigation();
-          constructListQuestions();
-          constructPagination();
+          buildNavigation();
+          buildListQuestions();
+          buildPagination();
           configActions();
         },"json").fail(function(){
           console.log("fail json !");
@@ -80,8 +79,8 @@
         $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
           questions = data;
           nb_pages = questions['1']['pages'];
-          constructListQuestions();
-          constructPagination();
+          buildListQuestions();
+          buildPagination();
           configActions();
         },"json").fail(function(){
           console.log("fail json !");
@@ -99,13 +98,13 @@
           }else{
             nb_pages = 0;
           }
-          constructListQuestions();
-          constructPagination();
+          buildListQuestions();
+          buildPagination();
           configActions();
         });
       }
 
-      function constructNavigation(){
+      function buildNavigation(){
         let html = "<li class=\"nav-item\" id=\"newest\">" +
                    "<a id=\"newest\" class='nav-link "+(typeList == 'newest'? "active" : "" )+"' href=\"javascript:displayAll('newest');\";>Newest</a>" +
                    "</li>" +
@@ -130,7 +129,7 @@
         navigation.html(html);
       }
 
-      function constructListQuestions(){
+      function buildListQuestions(){
         let html = "";
         if(Object.entries(questions).length !== 0){
           for (let question of questions['0']['questions']){
@@ -150,7 +149,7 @@
       }
         
 
-      function constructPagination(){
+      function buildPagination(){
         let html = "<ul class=\"pagination justify-content-end\">";
         if(page > 1){
           html += "<li class=\"page-item\">"+

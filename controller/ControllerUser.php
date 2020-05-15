@@ -97,19 +97,25 @@ class ControllerUser extends Controller {
     }
 
     public function get_stats_service(){
-        if(isset($_GET['param1']) && isset($_GET['param2'])){
+        if(isset($_GET['param1']) && is_numeric($_GET['param1']) && isset($_GET['param2']) && ctype_alpha($_GET['param2'])){
             $number = $_GET['param1'];
             $time = $_GET['param2'];
             if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
                 echo User::get_user_stats_as_json($number, $time);    
-            }else{
-                $user = null;
-                if(self::get_user_or_false())
-                    $user = self::get_user_or_false();   
-                (new View("stats"))->show(array("user" => $user));       
             }
         }
     }
 
-
+    public function get_details_activity_service(){
+        if(isset($_GET['param1']) && is_numeric($_GET['param1']) && isset($_GET['param2']) && ctype_alpha($_GET['param2']) && isset($_GET['param3']) && ctype_alpha($_GET['param3'])){
+            $number = $_GET['param1'];
+            $time = $_GET['param2'];
+            $user = $_GET['param3'];
+            if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
+                if(User::get_user_by_userName($user)){
+                    echo User::get_user_activity_as_json($number, $time, $user);
+                }  
+            }
+        }
+    }
 }

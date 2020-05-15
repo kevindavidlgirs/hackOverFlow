@@ -21,13 +21,17 @@
         let chart;
         let number;
         let time;
+        let usersName;
         let userName;
         let sumActions;
+        let historic;
+        let dataHistoric;
 
         $(function(){
           chartBalise = $("#chart");
           number = $("#select1").children("option:selected").val();
           time = $("#select2").children("option:selected").val();
+          historic = $("#historic");
           createChartData();
           configActions();
         });
@@ -36,12 +40,14 @@
           $("#select1").change(function(){
             number = $(this).children("option:selected").val();
             time = $("#select2").children("option:selected").val();
-            createChartData()
+            createChartData();
+            removeHistoricTable();
           });
           $("#select2").change(function(){
             number = $("#select1").children("option:selected").val();
             time = $(this).children("option:selected").val();
-            createChartData()
+            createChartData();
+            removeHistoricTable();
           });
         }
 
@@ -49,7 +55,7 @@
           chart = new Chart(chartBalise, {
             type:'bar',
             data: {
-                labels: userName,
+                labels: usersName,
                 datasets:[{
                   data: sumActions,
                   backgroundColor:'rgba(251, 255, 0, 0.5)',
@@ -58,6 +64,11 @@
                 }]
             },
             options:{
+              events: ['mousemove', 'click'], 
+              onClick: (evt, item) => {
+                userName = chart.data.labels[item[0]._index];
+                displayDetailsActivity();
+              },
               scales: {
                 yAxes: [{
                   ticks: {min: 0
@@ -79,21 +90,55 @@
         function createChartData(){
           $.get("user/get_stats_service/"+number+"/"+time+"/", function(data){
             data = JSON.parse(data.replace(/\r?\n|\r/g, ''));
-            userName = [];
+            usersName = [];
             sumActions = [];
             for(i = 0; i < Object.keys(data).length; ++i){
-              userName.push(data[i].userName);
+              usersName.push(data[i].userName);
               sumActions.push(data[i].sumActions);
             }
             if(chart == undefined){
               createChart();
             }else{
-              chart.data.labels = userName;
+              chart.data.labels = usersName;
               chart.data.datasets[0].data = sumActions;
               chart.update();
             }
-             
           });
+        }
+
+        function displayDetailsActivity(){
+         $.get("user/get_details_activity_service/"+number+"/"+time+"/"+userName+"/", function(data){
+          data = JSON.parse(data.replace(/\r?\n|\r/g, ''));
+          dataHistoric = data;
+          buildHistoricTable();
+         });
+        }
+        
+        function buildHistoricTable(){
+          html = "<h4>Detail activity for "+dataHistoric[0].user+"</h4>"+
+                 "<table class=\"table table-striped\">"+
+                 "<thead class=\"thead-dark\">"+
+                 "<tr>"+
+                 "<th scope=\"col\">Moment</th>"+
+                 "<th scope=\"col\">Type</th>"+
+                 "<th scope=\"col\">Question</th>"+
+                 "</tr>"+
+                 "</thead>"+
+                 "<tbody>";
+                 for(let question of dataHistoric){
+                 html += "<tr>"+
+                         "<td>"+question.timestamp+"</td>"+
+                         "<td>create/edit "+question.type+"</td>"+
+                         "<td>"+(question.title.length > 90 ? (question.title.substring(0, 90)+"...") : question.title)+"</td>"+
+                         "</tr>";
+                 }
+          html +="</tbody>"+
+                 "</table>";
+          historic.html(html);       
+        }
+
+        function removeHistoricTable(){
+          historic.html("");
         }
     </script>
     
@@ -106,6 +151,7 @@
     <!-- MAIN -->
     <main role="main" class="container">
       <div style='text-align: center;'>
+        <h4 style="display: inline;">Period : Last </h4>
         <select id="select1">
           <?php for($i = 1; $i <= 99; ++$i): ?>
             <option value=<?= $i ?>><?= $i?></option>
@@ -118,9 +164,14 @@
           <option value="year">Year(s)</option>
         </select>
       </div>
+      <br>
 
       <canvas id="chart"></canvas>
-    
+      <br>      
+
+      <div id="historic">
+      </div>
+
     </main>
   </body>
 </html>

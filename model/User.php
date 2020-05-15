@@ -191,8 +191,8 @@ class User extends Model {
             $limit = sizeof($data);
         $str = "";
         for($i = 0; $i < $limit; ++$i){
-            $userName = json_encode($data[$i][0]);
-            $sumActions = json_encode($data[$i][1]);
+            $userName = json_encode($data[$i]['userName']);
+            $sumActions = json_encode($data[$i]['sumActions']);
             $str .="{\"userName\":$userName,\"sumActions\":$sumActions},";   
         }
         if($str !== "")
@@ -200,6 +200,28 @@ class User extends Model {
         return "[$str]";
     }
 
+    public static function get_user_activity_as_json($number, $time, $user){
+        $query = self::execute("select title ttl,timestamp, 'question' as type from post, user where AuthorId = UserId and userName = :user and title!='' and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                UNION
+                                select body as ttl, timestamp, 'reponse' as type from post, user where AuthorId = UserId and userName =  :user and (title='' or title is null) and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                UNION
+                                select body as ttl, timestamp, 'comment' as type from comment c, user u where c.UserId=u.UserId and userName = :user and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                order by Timestamp desc", array("user" => $user));
+        $data = $query->fetchAll();
+        $str = "";
+        $user = json_encode($user);
+        for($i = 0; $i < sizeof($data); ++$i){
+            $title = json_encode($data[$i]['ttl']);
+            $timestamp = json_encode(Utils::time_elapsed_string($data[$i]['timestamp']));
+            $type = json_encode($data[$i]['type']);
+            $str .= "{\"user\":$user,\"title\":$title,\"timestamp\":$timestamp,\"type\":$type},";
+        }
+        if($str !== "")
+            $str = substr($str,0,strlen($str)-1);
+        return "[$str]";
+    }
+
+    
 }
 
 
