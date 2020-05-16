@@ -14,6 +14,7 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
+    <!-- je préfère une installation en local du chart plutôt qu'une connexion à un serveur distant (à changer)-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
     <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script>
@@ -28,13 +29,17 @@
         let dataHistoric;
 
         $(function(){
+          getIdDOM();
+          createChartData();
+          configActions();
+        });
+
+        function getIdDOM(){
           chartBalise = $("#chart");
           number = $("#select1").children("option:selected").val();
           time = $("#select2").children("option:selected").val();
           historic = $("#historic");
-          createChartData();
-          configActions();
-        });
+        }
 
         function configActions(){
           $("#select1").change(function(){
@@ -108,14 +113,13 @@
 
         function displayDetailsActivity(){
          $.get("user/get_details_activity_service/"+number+"/"+time+"/"+userName+"/", function(data){
-          data = JSON.parse(data.replace(/\r?\n|\r/g, ''));
-          dataHistoric = data;
+          dataHistoric = JSON.parse(data.replace(/\r?\n|\r/g, ''));
           buildHistoricTable();
          });
         }
         
         function buildHistoricTable(){
-          html = "<h4>Detail activity for "+dataHistoric[0].user+"</h4>"+
+          html = "<h4>Detail activity for <a href='user/profile/"+dataHistoric[0].userId+"'>"+dataHistoric[0].userName+"</a></h4>"+
                  "<table class=\"table table-striped\">"+
                  "<thead class=\"thead-dark\">"+
                  "<tr>"+
@@ -127,8 +131,8 @@
                  "<tbody>";
                  for(let question of dataHistoric){
                  html += "<tr>"+
-                         "<td>"+question.timestamp+"</td>"+
-                         "<td>create/edit "+question.type+"</td>"+
+                         "<td style='color:rgb(250, 128, 114)'>"+question.timestamp+"</td>"+
+                         "<td>create/edit <b>"+question.type+"</b></td>"+
                          "<td>"+(question.title.length > 90 ? (question.title.substring(0, 90)+"...") : question.title)+"</td>"+
                          "</tr>";
                  }
@@ -152,12 +156,12 @@
     <main role="main" class="container">
       <div style='text-align: center;'>
         <h4 style="display: inline;">Period : Last </h4>
-        <select id="select1">
+        <select class="custom-select col-2" id="select1">
           <?php for($i = 1; $i <= 99; ++$i): ?>
             <option value=<?= $i ?>><?= $i?></option>
           <?php endfor ?>
         </select>
-        <select id="select2">
+        <select class="custom-select col-2" id="select2">
           <option value="day">Day(s)</option>
           <option value="week">Week(s)</option>
           <option value="month">Month(s)</option>

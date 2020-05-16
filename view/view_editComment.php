@@ -17,6 +17,7 @@
   </head>
   <body>
     <?php
+      $active = 'question';
       include('header.html');  
     ?>
     <!-- MAIN -->

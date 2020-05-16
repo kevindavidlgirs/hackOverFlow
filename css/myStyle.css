@@ -31,3 +31,9 @@
 .pad{
     padding: 2px;
 }
+
+label.error {
+    color: red;
+    font-size: 8pt;
+    padding-left: .5em;
+}

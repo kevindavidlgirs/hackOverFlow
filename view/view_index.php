@@ -32,11 +32,15 @@
       let page;
 
       $(function(){
+        getIdDOM();
+        displayAll(typeList);
+      });
+
+      function getIdDOM(){
         navigation = $("#navigation");
         question_list = $("#question_list");
         pagination = $("#pagination");
-        displayAll(typeList);
-      });
+      }
 
       function configActions(){
         $("#inputSearch").focus();
@@ -91,7 +95,7 @@
       function displayQuestionsSearch(){
         $.post("post/get_questions_service/newest/"+page+"/"+(tagId != null ? tagId : "")+"/", {search : searchValue}, function(data){
           //POURQUOI DES SAUTS A LA LIGNES ALEATOIRES ?! :^O
-          questions = JSON.parse(data.replace(/\r?\n|\r/g, ''));
+          questions = JSON.parse(data);
           //POURQUOI DES SAUTS A LA LIGNES ALEATOIRES ?! :^O
           if(Object.entries(questions).length !== 0){
             nb_pages = questions['1']['pages'];
@@ -136,7 +140,7 @@
             html += "<li class=\"list-group-item\">";
             html += "<a href=post/show/"+question["postId"]+">"+question["title"]+"</a><br>"; 
             html += question['body']+"<br>";
-            html += "<small>Asked "+question['timestamp']+" by <a href='user/profile/"+question["authorId"]+"'>"+question["fullName"]+"</a></small>"; 
+            html += "<small style='color:rgb(250, 128, 114)'>Asked "+question['timestamp']+" by <a href='user/profile/"+question["authorId"]+"'>"+question["fullName"]+"</a></small>"; 
             html += "<small> ("+question['totalVote']+" vote(s), ";   
             html += ""+question['nbAnswers']+" answer(s))</small><span id=\"tags\">";
             for(let tag of question['tags']){
@@ -175,7 +179,7 @@
         pagination.html(html);
       }
 
-      //Il devrait y' avoir plus simple
+      //Il devrait exister une méthode avoir plus simple
       function choosePage(pge){
         page = pge;
       }
@@ -185,7 +189,7 @@
         else
           ++page;
       }
-       //Il devrait y' avoir plus simple
+      //Il devrait exister une méthode avoir plus simple
 
     </script>
 
@@ -233,7 +237,7 @@
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
+                  echo "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
                   echo "<small> (".$post->getTotalVote()." vote(s), ";   
                   echo $post->getNbAnswers() ." answer(s))</small>";
                   foreach($post->getTags() as $tagOfPost){

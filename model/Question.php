@@ -462,7 +462,7 @@ class Question extends Post {
     }
 
     public function update(){
-        self::execute("UPDATE post SET Title = :Title, Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
+        self::execute("UPDATE post SET Title = :Title, Body = :Body, timestamp = now() WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
         return true;
     }
 

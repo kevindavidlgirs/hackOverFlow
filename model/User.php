@@ -200,21 +200,22 @@ class User extends Model {
         return "[$str]";
     }
 
-    public static function get_user_activity_as_json($number, $time, $user){
-        $query = self::execute("select title ttl,timestamp, 'question' as type from post, user where AuthorId = UserId and userName = :user and title!='' and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+    public static function get_user_activity_as_json($number, $time, $userName){
+        $query = self::execute("select authorId id, title ttl,timestamp, 'question' as type from post, user where AuthorId = UserId and userName = :userName and title!='' and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
                                 UNION
-                                select body as ttl, timestamp, 'reponse' as type from post, user where AuthorId = UserId and userName =  :user and (title='' or title is null) and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                select authorId id, body as ttl, timestamp, 'reponse' as type from post, user where AuthorId = UserId and userName = :userName and (title='' or title is null) and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
                                 UNION
-                                select body as ttl, timestamp, 'comment' as type from comment c, user u where c.UserId=u.UserId and userName = :user and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
-                                order by Timestamp desc", array("user" => $user));
+                                select u.userId id, body as ttl, timestamp, 'comment' as type from comment c, user u where c.UserId=u.UserId and userName = :userName and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                order by Timestamp desc", array("userName" => $userName));
         $data = $query->fetchAll();
         $str = "";
-        $user = json_encode($user);
+        $userName = json_encode($userName);
         for($i = 0; $i < sizeof($data); ++$i){
             $title = json_encode($data[$i]['ttl']);
             $timestamp = json_encode(Utils::time_elapsed_string($data[$i]['timestamp']));
             $type = json_encode($data[$i]['type']);
-            $str .= "{\"user\":$user,\"title\":$title,\"timestamp\":$timestamp,\"type\":$type},";
+            $userId = json_encode($data[$i]['id']);
+            $str .= "{\"userId\":$userId,\"userName\":$userName,\"title\":$title,\"timestamp\":$timestamp,\"type\":$type},";
         }
         if($str !== "")
             $str = substr($str,0,strlen($str)-1);
