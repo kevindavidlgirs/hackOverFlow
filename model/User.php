@@ -180,12 +180,29 @@ class User extends Model {
     }
 
     public static function get_user_stats_as_json($number, $time){
-        $query = self::execute("SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions FROM 
+
+        //Solution rapide à changer (full join n'existe pas pour MySql) 
+        //https://stackoverflow.com/questions/4796872/how-to-do-a-full-outer-join-in-mysql
+        $query1 = self::execute("SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions FROM 
                                 (select authorId, count(*) s from post where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(authorId)) t1 
                                 LEFT JOIN 
                                 (select userId, count(*) s2 from comment where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(userId)) 
                                 t2 ON (t1.authorId = t2.userId), user u where u.userId = t1.authorId order by ((ifnull(t1.s, 0) + ifnull(t2.s2, 0))) DESC",array());
-        $data = $query->fetchAll();
+        $data1 = $query1->fetchAll();
+
+        $query2 = self::execute("SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions FROM 
+                                (select userId, count(*) s from comment where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(userId)) t1
+                                LEFT JOIN 
+                                (select authorId, count(*) s2 from post where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(authorId)) 
+                                t2 ON (t1.userId = t2.authorId), user u where u.userId = t1.userId order by ((ifnull(t1.s, 0) + ifnull(t2.s2, 0))) DESC",array());
+        $data2 = $query2->fetchAll();
+
+        if(sizeof($data1) < sizeof($data2)){
+            $data = $data2;
+        }else{
+            $data = $data1;
+        }
+
         $limit = Configuration::get("member_stats_limit");
         if(sizeof($data) < $limit)
             $limit = sizeof($data);
@@ -224,22 +241,3 @@ class User extends Model {
 
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

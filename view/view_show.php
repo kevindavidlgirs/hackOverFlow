@@ -32,15 +32,15 @@
       
       function configActions(){
         $("a[name='edit']").click(function(e){
-          e.preventDefault();
-
-          $("a[name='edit']").next('form').hide()
-          $("a[name='edit']").show()
+          e.preventDefault()
 
           editLink = $(this)
-          let form = editLink.next('form');
           answerId = editLink.attr("id")
-          
+          let form = editLink.next('form')
+
+          editLink.show()
+          form.hide()
+
           configGestionErrors(form)
           editLink.toggle("slide");
 
@@ -107,6 +107,7 @@
         if(answerId == questionId)
           answerId = '';
         $.post("comment/add_comment_service/"+questionId+"/"+answerId+"/", {body : body}, function(data){
+          //Probleme avec parsing et data defined
           data = JSON.parse(data);
           editLink.before(buildComment(data));
         });
