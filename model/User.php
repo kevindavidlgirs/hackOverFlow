@@ -102,7 +102,7 @@ class User extends Model {
         $errors = [];
         $user = self::get_user_by_userName($username);
         if ($user) {
-            $errors['user'] = "This user already exists.";
+            $errors['user'] = "This username already exists.";
         }
         $user = self::get_user_by_fullName($fullname);
         if ($user) {

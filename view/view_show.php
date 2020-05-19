@@ -20,39 +20,44 @@
     <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
     <script>
       let questionId = "<?= $post->getPostId() ?>"
-      let answerId = '';
-      let body;
-      let editLink;
-      let html;
-      let data;
+      let answerId = ''
+      let body
+      let editLink
+      let html
+      let data
+      let answerForm
 
       $(function(){
-        configActions()
+        configActionsForComments()
+        configActionsForAnswer()
+        answerForm = $("#answerForm")
+        configGestionErrorsForAnswer()
       });
       
-      function configActions(){
+      function configActionsForComments(){
         $("a[name='edit']").click(function(e){
+
           e.preventDefault()
 
+          $("a[name='edit']").next('form').hide()
+          $("a[name='edit']").show()
+
           editLink = $(this)
-          answerId = editLink.attr("id")
           let form = editLink.next('form')
+          answerId = editLink.attr("id")
 
-          editLink.show()
-          form.hide()
-
-          configGestionErrors(form)
-          editLink.toggle("slide");
+          configGestionErrorsForComments(form)
+          editLink.toggle("slide")
 
           form.toggle("slide", function(){
-            addComment = $(this).find("#addComment")
-            addComment.attr("disabled", true);
+            addCommentButton = $(this).find("#addCommentButton")
+            addCommentButton.attr("disabled", true);
 
             $(this).find(":input").on("input", function (){
-              addComment.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
+              addCommentButton.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
             });
 
-            $(this).find("#addComment").click(function(){
+            $(this).find("#addCommentButton").click(function(){
               $("a[name='edit']").next('form').hide()
               $("a[name='edit']").show()
               body = form.find("#body").val()
@@ -74,7 +79,16 @@
         }); 
       }
 
-      function configGestionErrors(form){
+      function configActionsForAnswer(){
+        let addAnswerButton = $("#addCommentButton")
+        addAnswerButton.attr("disabled", true);
+        console.log(addAnswerButton.find("#button"))
+        answerForm.find("#body").on("input", function (){
+          addAnswerButton.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
+        });
+      }
+
+      function configGestionErrorsForComments(form){
         form.validate({
           rules: {
             body:{
@@ -102,6 +116,35 @@
 				  }
         });
       }
+
+
+      function configGestionErrorsForAnswer(){
+        answerForm.validate({
+          rules: {
+            body:{
+              required: true,
+              minlength: 10,
+            }
+          },
+          messages: {
+            body: {
+              required: "the field above requires a minimum of 30 characters",
+              minlength: "The length of the body must be greater than or equal to 30 characters.",
+            }
+          },
+          errorPlacement: function(error, element) {
+            error.addClass("invalid-feedback")
+            error.insertBefore(answerForm.find("#butto"));
+          },
+          highlight: function ( element, error ) {
+            $(element).addClass("is-invalid");
+				  },
+				  unhighlight: function ( element, error) {
+            $(element).removeClass("is-invalid");
+				  }
+        });
+      }
+      
 
       function addCmt(){
         if(answerId == questionId)
@@ -223,7 +266,6 @@
                     <i class="far fa-frown" ></i>
                   </a>
                 <?php endif ?>
-                          
               
               <?php else: ?>  
 
@@ -260,7 +302,7 @@
                 <form style="display:none">
                   <div class="form-group form-inline">
                     <input id="body" name="body" type="text" class="form-control mb-2 mr-sm-1 col-8">
-                    <button id="addComment" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
+                    <button id="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
                     <button id="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
                   </div>
                 </form>
@@ -378,7 +420,7 @@
                     <form style="display:none">
                       <div class="form-group form-inline">
                         <input id="body" name="body" type="text" class="form-control mb-2 mr-sm-1 col-8">
-                        <button id="addComment" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
+                        <button id="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
                         <button id="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
                       </div>
                     </form>
@@ -394,9 +436,9 @@
         <?php endforeach ?>
 
       </ul><br>
+
       <!-- Formulaire pour ajouter une réponse -->
-      
-      <form action="post/answer/<?= $post->getPostId() ?>" method="post">
+      <form id="answerForm" action="post/answer/<?= $post->getPostId() ?>" method="post">
         <div class="form-group">
           <small>Your answer</small>
             <?php if(array_key_exists('body', $error)): ?>
@@ -408,7 +450,7 @@
               <textarea class="form-control rounded-0" name="body" rows="10"></textarea>
             <?php endif ?>
         </div>
-        <button type="submit" class="btn btn-primary btn-dark">Post your answer</button>
+        <button id="addAnswerButton" type="submit" class="btn btn-primary btn-dark">Post your answer</button>
       </form>
     </main>          
   </body>

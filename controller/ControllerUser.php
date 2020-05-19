@@ -118,4 +118,37 @@ class ControllerUser extends Controller {
             }
         }
     }
+
+    public function username_signup_service(){
+        $res = "true";
+        if(isset($_POST['username']) && $_POST["username"] !== ""){
+            $user = User::get_user_by_userName($_POST["username"]);
+            if($user){
+                $res = "false";
+            }
+        } 
+        echo $res;   
+    }
+
+    public function email_signup_service(){
+        $res = "true";
+        if(isset($_POST['email']) && $_POST["email"] !== ""){
+            $user = User::get_user_by_email($_POST["email"]);
+            if($user){
+                $res = "false";
+            }
+        } 
+        echo $res;   
+    }
+
+    public function username_login_service(){
+        $res = "false";
+        if(isset($_POST['username']) && $_POST["username"] !== ""){
+            $user = User::get_user_by_username($_POST["username"]);
+            if($user){
+                $res = "true";
+            }
+        } 
+        echo $res;  
+    }
 }
