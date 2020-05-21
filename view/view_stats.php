@@ -71,6 +71,7 @@
             options:{
               events: ['mousemove', 'click'], 
               onClick: (evt, item) => {
+                console.log(chart.data.labels[item[0]._index])
                 userName = chart.data.labels[item[0]._index];
                 displayDetailsActivity();
               },
@@ -112,11 +113,10 @@
         }
 
         function displayDetailsActivity(){
-         $.get("user/get_details_activity_service/"+number+"/"+time+"/"+userName+"/", function(data){
-          dataHistoric = data
-          console.log(dataHistoric)
-          buildHistoricTable();
-         });
+          $.get("user/get_details_activity_service/"+number+"/"+time+"/"+userName+"/", function(data){
+            dataHistoric = JSON.parse(data.replace(/\r?\n|\r/g, ''));
+            buildHistoricTable();
+          });
         }
         
         function buildHistoricTable(){

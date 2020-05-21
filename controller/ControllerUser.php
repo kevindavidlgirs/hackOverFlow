@@ -113,7 +113,7 @@ class ControllerUser extends Controller {
             $user = $_GET['param3'];
             if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
                 if(User::get_user_by_userName($user)){
-                    echo json_encode(User::get_user_activity_as_json($number, $time, $user));
+                    echo User::get_user_activity_as_json($number, $time, $user);
                 }  
             }
         }

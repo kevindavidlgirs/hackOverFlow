@@ -53,7 +53,7 @@
               required: true,
               minlength: 3,
               maxlength: 16,
-              regex: /^[a-zA-Z]*$/,
+              regex: /^[a-zA-Z ]*$/,
             },
             email: {
               remote: {

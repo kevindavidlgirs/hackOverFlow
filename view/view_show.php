@@ -65,7 +65,7 @@
               addCmt(); 
             });
 
-            $(this).find('["name=cancelButton"]').click(function(){
+            $(this).find('[name="cancelButton"]').click(function(){
               $("a[name='edit']").next('form').hide()
               $("a[name='edit']").show()
               form.find(":input").val('')
@@ -150,6 +150,7 @@
         $.post("comment/add_comment_service/"+questionId+"/"+answerId+"/", {body : body}, function(data){
           //Probleme avec parsing et data defined
           data = JSON.parse(data);
+          console.log(data)
           editLink.before(buildComment(data));
         });
       }
