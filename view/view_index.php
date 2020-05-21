@@ -124,7 +124,7 @@
                    "<li id=\"tags\" class=\"nav-item\"><a class='nav-link active' "+((tagId == null || tagId == "") || typeList !== "tags" ? "style=\"display:none;\"" : "")+">Question tagged ["+tagName+"]</a></li>"+
                    "<li class=\"nav-item\">"+
                    "</li>"+
-                   "<li id=\"tags\" class=\"nav-item\"><a class='nav-link active' "+(typeList !== 'search' ? "style=\"display:none;\"" : "")+">Search Results</a></li>"+
+                   "<li class=\"nav-item\"><a class='nav-link active' "+(typeList !== 'search' ? "style=\"display:none;\"" : "")+">Search Results</a></li>"+
                    "<li class=\"nav-item\">"+
                    "<form >"+
                    "<input id=\"inputSearch\" class=\"form-control\" type=\"search\" placeholder=\"Search...\" name=\"search\" aria-label=\"Search\" >"+

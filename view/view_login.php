@@ -14,7 +14,46 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    //<script></script>
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
+    <script>
+      $(function(){
+        
+        $('#loginForm').validate({
+          rules: {
+            username: {
+              required: true
+            },
+            password: {
+              required: true
+            }    
+          },
+          messages: {
+            username: {
+              required: 'username is required.'              
+            },
+            password: {
+              required: 'password is required.'
+            }
+          },
+          errorPlacement: function(error, element) {
+            error.addClass("invalid-feedback")
+            error.insertAfter(element);
+          },
+          highlight: function ( element, error ) {
+            $(element).addClass("is-invalid");
+				  },
+				  unhighlight: function ( element, error) {
+            $(element).removeClass("is-invalid");
+				  }
+        });
+
+        $("#username").focus();
+
+      });
+
+    </script>
   </head>
   <body>
     <?php

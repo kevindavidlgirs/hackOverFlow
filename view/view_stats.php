@@ -113,7 +113,8 @@
 
         function displayDetailsActivity(){
          $.get("user/get_details_activity_service/"+number+"/"+time+"/"+userName+"/", function(data){
-          dataHistoric = JSON.parse(data.replace(/\r?\n|\r/g, ''));
+          dataHistoric = data
+          console.log(dataHistoric)
           buildHistoricTable();
          });
         }

@@ -29,8 +29,8 @@
 
       $(function(){
         configActionsForComments()
-        configActionsForAnswer()
         answerForm = $("#answerForm")
+        configActionsForAnswer()
         configGestionErrorsForAnswer()
       });
       
@@ -50,14 +50,14 @@
           editLink.toggle("slide")
 
           form.toggle("slide", function(){
-            addCommentButton = $(this).find("#addCommentButton")
+            addCommentButton = $(this).find('[name="addCommentButton"]')
             addCommentButton.attr("disabled", true);
 
             $(this).find(":input").on("input", function (){
               addCommentButton.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
             });
 
-            $(this).find("#addCommentButton").click(function(){
+            $(this).find('[name="addCommentButton"]').click(function(){
               $("a[name='edit']").next('form').hide()
               $("a[name='edit']").show()
               body = form.find("#body").val()
@@ -65,7 +65,7 @@
               addCmt(); 
             });
 
-            $(this).find("#cancelButton").click(function(){
+            $(this).find('["name=cancelButton"]').click(function(){
               $("a[name='edit']").next('form').hide()
               $("a[name='edit']").show()
               form.find(":input").val('')
@@ -74,17 +74,15 @@
             if($(this).is(":visible")){
               $(this).find('input').focus();
             }
-
           });
         }); 
       }
 
       function configActionsForAnswer(){
-        let addAnswerButton = $("#addCommentButton")
+        let addAnswerButton = $('[name="addAnswerButton"]')
         addAnswerButton.attr("disabled", true);
-        console.log(addAnswerButton.find("#button"))
-        answerForm.find("#body").on("input", function (){
-          addAnswerButton.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
+        answerForm.find('[name="body"]').on("input", function (){
+          addAnswerButton.attr("disabled", $(this).val().length < 30);
         });
       }
 
@@ -123,7 +121,7 @@
           rules: {
             body:{
               required: true,
-              minlength: 10,
+              minlength: 30,
             }
           },
           messages: {
@@ -134,7 +132,7 @@
           },
           errorPlacement: function(error, element) {
             error.addClass("invalid-feedback")
-            error.insertBefore(answerForm.find("#butto"));
+            error.insertBefore(answerForm.find("#addAnswerButton"));
           },
           highlight: function ( element, error ) {
             $(element).addClass("is-invalid");
@@ -302,8 +300,8 @@
                 <form style="display:none">
                   <div class="form-group form-inline">
                     <input id="body" name="body" type="text" class="form-control mb-2 mr-sm-1 col-8">
-                    <button id="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
-                    <button id="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
+                    <button name="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
+                    <button name="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
                   </div>
                 </form>
                 <!-- formulaire JAVASCRIPT -->
@@ -450,7 +448,7 @@
               <textarea class="form-control rounded-0" name="body" rows="10"></textarea>
             <?php endif ?>
         </div>
-        <button id="addAnswerButton" type="submit" class="btn btn-primary btn-dark">Post your answer</button>
+        <button id="addAnswerButton" name="addAnswerButton" type="submit" class="btn btn-primary btn-dark">Post your answer</button>
       </form>
     </main>          
   </body>
