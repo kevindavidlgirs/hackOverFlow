@@ -14,6 +14,14 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
+    <script>
+      $(function(){
+        
+      });
+    </script>
   </head>
   <body>
     <?php

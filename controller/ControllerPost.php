@@ -518,8 +518,6 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1']) && isset($_POST['tag'])){
             $postId = $_GET['param1'];
             $tagName = $_POST['tag'];
-            //Devrais-je laisser le test sur le tag reçu en $_POST sachant qu'un utilisateur pourrait 
-            //envoyer de données erronées...
             $max_tags = Configuration::get("max_tags");
             $question = Question::get_question($postId);
             if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) 

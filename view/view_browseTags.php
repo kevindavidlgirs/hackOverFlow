@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fr">
   <head>
@@ -14,10 +15,41 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
+
     <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
     <script>
-
+      $(function(){
+        $("form :input").change(function(){
+          //bugs à régler "this"... 
+          $(this).parent().validate({
+            rules: {
+              tagName:{
+                required: true,
+                maxlength: 10
+              }
+            },
+            messages: {
+              tagName: {
+                required: "the tag is required.",
+                maxlength: "the tag must have less than 10 letters."
+              }
+            },
+            errorPlacement: function(error, element) {
+              error.addClass("invalid-feedback")
+              error.insertAfter(this);
+            },
+            highlight: function ( element, error ) {
+              $(element).addClass("is-invalid");
+              //Désactiver le bouton 
+            },
+            unhighlight: function ( element, error) {
+              $(element).removeClass("is-invalid");
+              //Réactiver le bouton
+				    }
+          });
+        });
+      });
     </script>
   </head>
   <body>
@@ -66,7 +98,7 @@
                       </div> 
                     
                     <?php else: ?>
-                      <input id="" placeholder="<?= $tag->getTagName() ?>" type="text" name="tagName" class="form-control" >
+                      <input placeholder="<?= $tag->getTagName() ?>" type="text" name="tagName" class="form-control" >
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
                     <?php endif ?>  
 

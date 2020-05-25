@@ -71,7 +71,6 @@
             options:{
               events: ['mousemove', 'click'], 
               onClick: (evt, item) => {
-                console.log(chart.data.labels[item[0]._index])
                 userName = chart.data.labels[item[0]._index];
                 displayDetailsActivity();
               },
