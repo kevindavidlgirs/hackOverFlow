@@ -14,7 +14,185 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
+    <!-- Bootstrap core CSS + fontawesome -->    
+
+    <!-- Javascript -->
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script>
+      //Type à réctifier.
+      let navigation;
+      let question_list;
+      let pagination;
+      let tagId = null;
+      let tagName;
+      let typeList = 'newest';
+      let searchValue = null;
+      let questions;
+      let nb_pages = 0;
+      let page;
+
+      $(function(){
+        getIdDOM();
+        displayAll(typeList);
+      });
+
+      function getIdDOM(){
+        navigation = $("#navigation");
+        question_list = $("#question_list");
+        pagination = $("#pagination");
+      }
+
+      function configActions(){
+        $("#inputSearch").focus();
+        $('#tags a').on('click', function (e) {
+          displayAll("tags", $(this).attr("id"), $(this).attr("name"));
+        });
+
+        $("#inputSearch").on("input", function(){
+          searchValue = $(this).val();
+          typeList = "search";
+          page = 1;
+          //!
+          displayQuestionsSearch();
+          buildNavigation();
+          //!
+          $("#inputSearch").val(searchValue);
+          $("#inputSearch").focus();
+        });
+      }
+
+//Rassembler ces deux fonctions
+      function displayAll(tpList, tgId = null, tgName = null){
+        page = 1;
+        typeList = tpList;
+        tagId = tgId;
+        tagName = tgName;
+        $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
+          questions = data;
+          nb_pages = questions['1']['pages'];
+          buildNavigation();
+          buildListQuestions();
+          buildPagination();
+          configActions();
+        },"json").fail(function(){
+          console.log("fail json !");
+        });
+      }
+
+      function displayPageSelected(){
+        $.get("post/get_questions_service/"+typeList+"/"+page+"/"+(tagId != null ? tagId : "")+"/", function(data){
+          questions = data;
+          nb_pages = questions['1']['pages'];
+          buildListQuestions();
+          buildPagination();
+          configActions();
+        },"json").fail(function(){
+          console.log("fail json !");
+        });
+      }
+//Rassembler ces deux fonctions
+
+      function displayQuestionsSearch(){
+        $.post("post/get_questions_service/newest/"+page+"/"+(tagId != null ? tagId : "")+"/", {search : searchValue}, function(data){
+          //POURQUOI DES SAUTS A LA LIGNES ALEATOIRES ?! :^O
+          questions = JSON.parse(data);
+          //POURQUOI DES SAUTS A LA LIGNES ALEATOIRES ?! :^O
+          if(Object.entries(questions).length !== 0){
+            nb_pages = questions['1']['pages'];
+          }else{
+            nb_pages = 0;
+          }
+          buildListQuestions();
+          buildPagination();
+          configActions();
+        });
+      }
+
+      function buildNavigation(){
+        let html = "<li class=\"nav-item\" id=\"newest\">" +
+                   "<a id=\"newest\" class='nav-link "+(typeList == 'newest'? "active" : "" )+"' href=\"javascript:displayAll('newest');\";>Newest</a>" +
+                   "</li>" +
+                   "<li class=\"nav-item\">" +
+                   "<a id=\"active\" class='nav-link "+(typeList == 'active'? "active" : "" )+"' href=\"javascript:displayAll('active');\">Active</a>"+
+                   "</li>"+
+                   "<li class=\"nav-item\">"+
+                   "<a id=\"unanswered\" class='nav-link "+(typeList == 'unanswered'? "active" : "" )+"' href=\"javascript:displayAll('unanswered');\">Unanswered</a>"+
+                   "</li>"+
+                   "<li class=\"nav-item\">"+
+                   "<a id=\"votes\" class='nav-link "+(typeList == 'votes'? "active" : "" )+"' href=\"javascript:displayAll('votes');\">Votes</a>"+
+                   "</li>"+
+                   "<li id=\"tags\" class=\"nav-item\"><a class='nav-link active' "+((tagId == null || tagId == "") || typeList !== "tags" ? "style=\"display:none;\"" : "")+">Question tagged ["+tagName+"]</a></li>"+
+                   "<li class=\"nav-item\">"+
+                   "</li>"+
+                   "<li class=\"nav-item\"><a class='nav-link active' "+(typeList !== 'search' ? "style=\"display:none;\"" : "")+">Search Results</a></li>"+
+                   "<li class=\"nav-item\">"+
+                   "<form >"+
+                   "<input id=\"inputSearch\" class=\"form-control\" type=\"search\" placeholder=\"Search...\" name=\"search\" aria-label=\"Search\" >"+
+                   "</form>"+
+                   "</li>"; 
+        navigation.html(html);
+      }
+
+      function buildListQuestions(){
+        let html = "";
+        if(Object.entries(questions).length !== 0){
+          for (let question of questions['0']['questions']){
+            html += "<li class=\"list-group-item\">";
+            html += "<a href=post/show/"+question["postId"]+">"+question["title"]+"</a><br>"; 
+            html += question['body']+"<br>";
+            html += "<small style='color:rgb(250, 128, 114)'>Asked "+question['timestamp']+" by <a href='user/profile/"+question["authorId"]+"'>"+question["fullName"]+"</a></small>"; 
+            html += "<small> ("+question['totalVote']+" vote(s), ";   
+            html += ""+question['nbAnswers']+" answer(s))</small><span id=\"tags\">";
+            for(let tag of question['tags']){
+              html += "<a id='"+tag["tagId"]+"' name='"+tag["tagName"]+"' type=\"button\" class=\"btn button\">"+tag["tagName"]+"</a>";
+            }
+            html += "</span></li>";
+          }
+        }
+        question_list.html(html);
+      }
+        
+
+      function buildPagination(){
+        let html = "<ul class=\"pagination justify-content-end\">";
+        if(page > 1){
+          html += "<li class=\"page-item\">"+
+                  "<a type=\"button\" class=\"page-link\" style=\"border-color:white; color:#686868	;\"  aria-label=\"Previous\" onclick=\"incrementNbPages('Previous');"+(typeList == 'search'? "displayQuestionsSearch();" : "displayPageSelected();")+"\">"+
+                  "<span aria-hidden=\"true\">&laquo;</span>"+
+                  "<span class=\"sr-only\">Previous</span>"+
+                  "</a>"+
+                  "</li>";
+          }
+        if(nb_pages != 1){
+          for(var i = 1; i <= nb_pages; ++i)
+            html += "<li class=\"page-item"+(i == page ? ' active' : "" )+"\"><a type=\"button\""+ (i == page ? " style='background-color: #323232; border-color:white; color:white;'" : " style='background-color: #e5e5e5; border-color:white; color:white;'")+" class=\"page-link\" onclick=\"choosePage("+i+");"+(typeList == 'search'? "displayQuestionsSearch();" : "displayPageSelected();")+"\">"+i+"</a></li>";
+        }
+        if(page < nb_pages){
+          html += "<li class=\"page-item\">"+
+                  "<a type=\"button\" class=\"page-link\" style=\"border-color:white; color:#686868	;\" aria-label=\"Next\" onclick=\"incrementNbPages('Next'); displayPageSelected();"+(typeList == 'search'? "displayQuestionsSearch();" : "displayPageSelected();")+"\">"+
+                  "<span aria-hidden=\"true\">&raquo;</span>"+
+                  "<span class=\"sr-only\">Next</span>"+
+                  "</a>"+
+                  "</li>";
+        }     
+        html += "</ul>";              
+        pagination.html(html);
+      }
+
+      //Il devrait exister une méthode avoir plus simple
+      function choosePage(pge){
+        page = pge;
+      }
+      function incrementNbPages(side){
+        if(side == 'Previous')
+          --page;
+        else
+          ++page;
+      }
+      //Il devrait exister une méthode avoir plus simple
+
+    </script>
+
   </head>
   <body>
     <?php
@@ -23,9 +201,9 @@
     ?>
     <!-- MAIN -->
     <main role="main" class="container">
-      <div class="card">
+      <div id="card" class="card">
         <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs row">
+          <ul id="navigation" class="nav nav-tabs card-header-tabs row">
             <li class="nav-item">
               <a class="nav-link <?php if($filter == 'newest')echo 'active'?>" href="post">Newest</a>
             </li>
@@ -50,14 +228,16 @@
             </li>
           </ul>
         </div>
+      
+        <!-- list questions -->
         <div class="card-body">
-          <ul class="list-group list-group-flush"> 
+          <ul id="question_list" class="list-group list-group-flush"> 
             <?php foreach($posts as $post): ?>
               <li class="list-group-item">
                 <?php
                   echo "<a href=post/show/".$post->getPostId().">".$post->getTitle()."</a><br>"; 
                   echo $post->getBodyMarkedownRemoved()."<br>";
-                  echo "<small>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
+                  echo "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$post->getAuthorId()."'>".$post->getFullNameAuthor()."</a></small>"; 
                   echo "<small> (".$post->getTotalVote()." vote(s), ";   
                   echo $post->getNbAnswers() ." answer(s))</small>";
                   foreach($post->getTags() as $tagOfPost){
@@ -69,7 +249,10 @@
             <?php endforeach ?>
           </ul>
         </div>
-        <navs>
+        <!-- list questions -->
+
+        <!-- pagination -->
+        <navs id="pagination">
           <ul class="pagination justify-content-end">
             <?php if($page > 1): ?>
               <li class="page-item">
@@ -94,6 +277,8 @@
             <?php endif ?>
           </ul>
         </nav>
+        <!-- pagination -->
+
       </div>
     </main>
   </body>

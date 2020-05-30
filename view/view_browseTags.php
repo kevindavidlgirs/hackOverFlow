@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fr">
   <head>
@@ -14,7 +15,42 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
+    <script>
+      $(function(){
+        $("form :input").change(function(){
+          //bugs à régler "this"... 
+          $(this).parent().validate({
+            rules: {
+              tagName:{
+                required: true,
+                maxlength: 10
+              }
+            },
+            messages: {
+              tagName: {
+                required: "the tag is required.",
+                maxlength: "the tag must have less than 10 letters."
+              }
+            },
+            errorPlacement: function(error, element) {
+              error.addClass("invalid-feedback")
+              error.insertAfter(this);
+            },
+            highlight: function ( element, error ) {
+              $(element).addClass("is-invalid");
+              //Désactiver le bouton 
+            },
+            unhighlight: function ( element, error) {
+              $(element).removeClass("is-invalid");
+              //Réactiver le bouton
+				    }
+          });
+        });
+      });
+    </script>
   </head>
   <body>
     <?php
@@ -31,6 +67,8 @@
               <th scope="col">Action</th>
             <?php endif ?>
           </tr>
+
+        <!-- Formulaires pour montrer les tags existants -->  
         </thead>
         <tbody>
           <?php foreach($tags as $tag): ?>
@@ -43,6 +81,7 @@
                   
                   <form action="tag/edit/<?= $tag->getTagId() ?>" method="post" class="form-inline" style='display: inline-block'>
                     
+                    <!-- Erreur si le tag n'est pas unique -->
                     <?php if(array_key_exists('unicity', $error) && $error['tagId'] === $tag->getTagId()):?>
                       <input class="form-control is-invalid" type="text" name="tagName" value=<?= $error['tagName'] ?> >
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
@@ -50,6 +89,7 @@
                         <?= $error['unicity']; ?><br>
                       </div>   
                     
+                    <!-- Erreur si le champ est vide ou si les caractères du tags dépassent sont supérieurs à 10 -->
                     <?php elseif(array_key_exists('tagName', $error) && $error['tagId'] === $tag->getTagId()): ?>
                       <input class="form-control is-invalid" type="text" name="tagName" placeholder="<?= $tag->getTagName() ?>" >
                       <button type='submit' class='btn btn-outline-*' name='edit'><i class='fas fa-edit'style="color:white"></i></button>
@@ -74,6 +114,9 @@
           <?php endforeach?>
         </tbody>
       </table>
+      <!-- Formulaires pour montrer les tags existants -->
+
+      <!-- Formulaire de création d'un nouveau tag -->
       <?php if(isset($user) && $user->isAdmin()): ?>
         <tr>
           <td>
@@ -106,6 +149,8 @@
           </td>
        </tr> 
       <?php endif ?>
+      <!-- Formulaire de création d'un nouveau tag -->
+
     </main>          
   </body>
 </html>

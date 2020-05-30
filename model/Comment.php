@@ -51,6 +51,20 @@ Class Comment extends Model{
         return $this->timeStamp;
     }
 
+    public function get_comment_as_json($commentId){
+        $query = self::execute("SELECT * FROM comment c, user u WHERE c.userId = u.userId AND commentId = :commentId", array("commentId" => $commentId));
+        $data = $query->fetch();
+        $str = "";
+        if(sizeof($data) !== 0){
+            $commentId = json_encode($data['CommentId']);
+            $body = json_encode(self::markdown($data['Body']));
+            $fullName = json_encode($data['FullName']);
+            $userId = json_encode($data['UserId']);
+            $timestamp = json_encode(Utils::time_elapsed_string($data['Timestamp']));
+            $str .= "{\"commentId\":$commentId,\"body\":$body,\"fullName\":$fullName,\"userId\":$userId,\"timestamp\":$timestamp}";
+        }
+        return "[$str]";
+    }
 
     public static function get_comment($commentId){
         $query = self::execute("SELECT * FROM comment WHERE CommentId = :CommentId", array("CommentId" => $commentId));
@@ -85,13 +99,13 @@ Class Comment extends Model{
     }
 
     public function create(){
-        $query = self::execute("INSERT INTO comment(UserId, PostId, Body) values(:UserId, :PostId, :Body)", 
+        self::execute("INSERT INTO comment(UserId, PostId, Body) values(:UserId, :PostId, :Body)", 
                                 array('UserId'=> $this->authorId, 'PostId'=> $this->postId, 'Body'=> $this->body));
-       
+        return $commentId = self::lastInsertId();
     }
 
     public function update(){
-        self::execute("UPDATE comment SET Body = :Body WHERE CommentId = :CommentId", array("Body"=>$this->body, "CommentId" => $this->commentId));
+        self::execute("UPDATE comment SET Body = :Body, timestamp = now() WHERE CommentId = :CommentId", array("Body"=>$this->body, "CommentId" => $this->commentId));
         return true;
     }
 
@@ -121,6 +135,7 @@ Class Comment extends Model{
         $Parsedown->setSafeMode(true); 
         return $html = $Parsedown->text($markedown);  
     }
+    
     
 
 }

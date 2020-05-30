@@ -14,7 +14,161 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
+    <!-- Bootstrap core CSS + fontawesome -->    
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
+    <script>
+      let questionId = "<?= $post->getPostId() ?>"
+      let answerId = ''
+      let body
+      let editLink
+      let html
+      let data
+      let answerForm
+
+      $(function(){
+        configActionsForComments()
+        answerForm = $("#answerForm")
+        configActionsForAnswer()
+        configGestionErrorsForAnswer()
+      });
+      
+      function configActionsForComments(){
+        $("a[name='edit']").click(function(e){
+
+          e.preventDefault()
+
+          $("a[name='edit']").next('form').hide()
+          $("a[name='edit']").show()
+
+          editLink = $(this)
+          let form = editLink.next('form')
+          answerId = editLink.attr("id")
+
+          configGestionErrorsForComments(form)
+          editLink.toggle("slide")
+
+          form.toggle("slide", function(){
+            addCommentButton = $(this).find('[name="addCommentButton"]')
+            addCommentButton.attr("disabled", true);
+
+            $(this).find(":input").on("input", function (){
+              addCommentButton.attr("disabled", $(this).val().length < 10 || $(this).val().length > 100);
+            });
+
+            $(this).find('[name="addCommentButton"]').click(function(){
+              $("a[name='edit']").next('form').hide()
+              $("a[name='edit']").show()
+              body = form.find("#body").val()
+              form.find(":input").val('')
+              addCmt(); 
+            });
+
+            $(this).find('[name="cancelButton"]').click(function(){
+              $("a[name='edit']").next('form').hide()
+              $("a[name='edit']").show()
+              form.find(":input").val('')
+            });
+
+            if($(this).is(":visible")){
+              $(this).find('input').focus();
+            }
+          });
+        }); 
+      }
+
+      function configActionsForAnswer(){
+        let addAnswerButton = $('[name="addAnswerButton"]')
+        addAnswerButton.attr("disabled", true);
+        answerForm.find('[name="body"]').on("input", function (){
+          addAnswerButton.attr("disabled", $(this).val().length < 30);
+        });
+      }
+
+      function configGestionErrorsForComments(form){
+        form.validate({
+          rules: {
+            body:{
+              required: true,
+              minlength: 10,
+              maxlength: 100
+            }
+          },
+          messages: {
+            body: {
+              required: "Write a comment or click on \"cancel\" button",
+              minlength: "The length of the comment must be greater than or equal to 10.",
+              maxlength: "Comment length must be less than or equal to 100."
+            }
+          },
+          errorPlacement: function(error, element) {
+            error.addClass("invalid-feedback")
+            error.insertAfter(form.find("#cancelButton"));
+          },
+          highlight: function ( element, error ) {
+            $(element).addClass("is-invalid");
+				  },
+				  unhighlight: function ( element, error) {
+            $(element).removeClass("is-invalid");
+				  }
+        });
+      }
+
+
+      function configGestionErrorsForAnswer(){
+        answerForm.validate({
+          rules: {
+            body:{
+              required: true,
+              minlength: 30,
+            }
+          },
+          messages: {
+            body: {
+              required: "the field above requires a minimum of 30 characters",
+              minlength: "The length of the body must be greater than or equal to 30 characters.",
+            }
+          },
+          errorPlacement: function(error, element) {
+            error.addClass("invalid-feedback")
+            error.insertBefore(answerForm.find("#addAnswerButton"));
+          },
+          highlight: function ( element, error ) {
+            $(element).addClass("is-invalid");
+				  },
+				  unhighlight: function ( element, error) {
+            $(element).removeClass("is-invalid");
+				  }
+        });
+      }
+      
+
+      function addCmt(){
+        if(answerId == questionId)
+          answerId = '';
+        $.post("comment/add_comment_service/"+questionId+"/"+answerId+"/", {body : body}, function(data){
+          //Probleme avec parsing et data defined
+          data = JSON.parse(data);
+          console.log(data)
+          editLink.before(buildComment(data));
+        });
+      }
+
+      function buildComment(data){
+        html = "<hr><small>"+data[0]['body']+"<a href='user/profile/"+data[0]['userId']+"'>"+data[0]['fullName']+"</a></small> <small style='color:rgb(250, 128, 114)'>"+data[0]['timestamp']+"</small>";
+                if(answerId === ''){
+                  html += "<a href=\"comment/edit/"+data[0]['commentId']+"/"+questionId+"/\"><small style=\"color:rgb(119, 136, 153);\"> edit</small></a>"+
+                          "<a href=\"comment/delete/"+data[0]['commentId']+"/"+questionId+"/\"><small style=\"color:rgb(119, 136, 153);\"> delete</small></a>";
+                }else{
+                  html += "<a href=\"comment/edit/"+data[0]['commentId']+"/"+answerId+"/"+questionId+"/\"><small style=\"color:rgb(119, 136, 153);\"> edit</small></a>"+
+                          "<a href=\"comment/delete/"+data[0]['commentId']+"/"+answerId+"/"+questionId+"/\"><small style=\"color:rgb(119, 136, 153);\"> delete</small></a>";  
+                }
+        html += "</hr><br>";
+        return html;                    
+      }
+    </script>
+
   </head>
   <body>
     <?php
@@ -111,7 +265,6 @@
                     <i class="far fa-frown" ></i>
                   </a>
                 <?php endif ?>
-                          
               
               <?php else: ?>  
 
@@ -142,7 +295,18 @@
                     </hr>
                   <?php endforeach ?><br>
                 <?php endif ?>
-                <?php if($user !== null): ?><a href="comment/add/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>
+                <?php if($user !== null): ?><a id="<?= $post->getPostId() ?>" type="button" name="edit" href="comment/add/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>
+                
+                <!-- formulaire JAVASCRIPT -->
+                <form style="display:none">
+                  <div class="form-group form-inline">
+                    <input id="body" name="body" type="text" class="form-control mb-2 mr-sm-1 col-8">
+                    <button name="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
+                    <button name="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
+                  </div>
+                </form>
+                <!-- formulaire JAVASCRIPT -->
+
               </div>    
             </div> 
           </div>
@@ -214,7 +378,7 @@
 
                 <!-- Affiche le corps de la réponse -->
                 <?= $answer->getBodyMarkedown(); ?><br> 
-                <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($post->getTimestamp())." by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameAuthor()."</a></small>"; ?>              
+                <?= "<small style='color:rgb(250, 128, 114)'>Asked ".Utils::time_elapsed_string($answer->getTimestamp())." by <a href='user/profile/".$answer->getAuthorId()."'>".$answer->getFullNameAuthor()."</a></small>"; ?>              
                 <?php if($user !== null): ?>
                   <!-- Gestion des boutons d'acceptance -->
                   <?php if($post->getAcceptedAnswerId() !== $answer->getPostId() && ($user->isAdmin() || $user->getUserId() === $post->getAuthorId())): ?>
@@ -241,14 +405,26 @@
                     <?php if($answer->hasComments()):  ?>
                       <?php foreach($answer->getComments() as $comment): ?>
                         <hr><?= "<small>".$comment->getBodyMarkedown()."<a href='user/profile/".$comment->getAuthorId()."'>".$comment->getFullNameAuthor()."</a></small> <small style='color:rgb(250, 128, 114)'>".Utils::time_elapsed_string($comment->getTimestamp())."</small>"?>
-                          <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
+                        <?php if($user !== null && ($user->isAdmin() || $user->getUserid() === $comment->getAuthorId())): ?>
                             <a href="comment/edit/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">edit</small></a>
                             <a href="comment/delete/<?= $comment->getCommentId() ?>/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">delete</small></a>
                           <?php endif ?>
                         </hr>
                       <?php endforeach ?><br>
                     <?php endif ?>
-                    <?php if($user !== null): ?><a href="comment/add/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>    
+
+                    <?php if($user !== null): ?><a id="<?= $answer->getPostId() ?>" name="edit" href="comment/add/<?= $answer->getPostId() ?>/<?= $post->getPostId() ?>"><small style="color:rgb(119, 136, 153);">add a comment</small></a><?php endif ?>    
+                    
+                    <!-- formulaire JAVASCRIPT -->
+                    <form style="display:none">
+                      <div class="form-group form-inline">
+                        <input id="body" name="body" type="text" class="form-control mb-2 mr-sm-1 col-8">
+                        <button id="addCommentButton" type="button" class="btn btn-dark btn-primary mb-2 mr-sm-1">Add your comment</button>
+                        <button id="cancelButton" type="button" class="btn btn-light btn-primary mb-2">Cancel</button>
+                      </div>
+                    </form>
+                    <!-- formulaire JAVASCRIPT -->
+
                   </div> 
                 </div> 
 
@@ -259,9 +435,9 @@
         <?php endforeach ?>
 
       </ul><br>
+
       <!-- Formulaire pour ajouter une réponse -->
-      
-      <form action="post/answer/<?= $post->getPostId() ?>" method="post">
+      <form id="answerForm" action="post/answer/<?= $post->getPostId() ?>" method="post">
         <div class="form-group">
           <small>Your answer</small>
             <?php if(array_key_exists('body', $error)): ?>
@@ -273,7 +449,7 @@
               <textarea class="form-control rounded-0" name="body" rows="10"></textarea>
             <?php endif ?>
         </div>
-        <button type="submit" class="btn btn-primary btn-dark">Post your answer</button>
+        <button id="addAnswerButton" name="addAnswerButton" type="submit" class="btn btn-primary btn-dark">Post your answer</button>
       </form>
     </main>          
   </body>

@@ -8,9 +8,8 @@ require_once 'framework/Utils.php';
 
 class ControllerPost extends Controller{
 
+    //                                                                  PHP
 
-    //Il est clairement possible de factoriser/découper le code,
-    //je devrais le faire avant la fin de l'itération si possible....
     public function index() {
         $user = null;
         $page = 1;
@@ -94,7 +93,7 @@ class ControllerPost extends Controller{
             $questions = Question::get_questions_active($search_dec, $start_from, $record_per_page);
             $nb_pages = ceil(Question::count_questions_active($search_dec)/$record_per_page);
         }
-        (new View("index"))->show(array("posts"=> $questions, "user" => $user, "filter" => 'active', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
+        (new View("index"))->show(array("posts"=> $questions , "user" => $user, "filter" => 'active', "search_enc" => $search_enc, "nb_pages" => $nb_pages, "page" => $page));
     }
 
     public function unanswered() {
@@ -519,8 +518,6 @@ class ControllerPost extends Controller{
         if(isset($_GET['param1']) && isset($_POST['tag'])){
             $postId = $_GET['param1'];
             $tagName = $_POST['tag'];
-            //Devrais-je laisser le test sur le tag reçu en $_POST sachant qu'un utilisateur pourrait 
-            //envoyer de données erronées...
             $max_tags = Configuration::get("max_tags");
             $question = Question::get_question($postId);
             if(($user->isAdmin() || $user->getUserId() === $question->getAuthorId()) 
@@ -555,6 +552,76 @@ class ControllerPost extends Controller{
             }
         }else{
             $this->redirect();
+        }
+    }
+
+
+    //                                                                      JAVASCRIPT
+
+    //Découpe nécessaire.
+    public function get_questions_service(){
+        $search = null;
+        $page = 1;
+        $typeList;
+        $start_from = 0;
+        $record_per_page = 5;
+
+        if(isset($_POST['search'])){
+            $search = $_POST['search'];
+        }
+        if(isset($_GET['param1'])){
+            $typeList = $_GET['param1'];
+        }
+        if(isset($_GET['param2']) && is_numeric($_GET['param2']) && $_GET['param2'] > 0){
+            $page = $_GET['param2'];
+        }       
+        
+        $start_from = ($page-1)*$record_per_page;
+
+        if($typeList == 'newest'){
+            $nb_pages = ceil(Question::count_questions($search)/$record_per_page);
+            if($page != 1 && $page > $nb_pages){
+                self::return_json_question(Question::get_questions($search, 0, $record_per_page), $nb_pages); 
+            }
+            self::return_json_question(Question::get_questions($search, $start_from, $record_per_page), $nb_pages);
+
+        }else if ($typeList === 'active'){
+            $nb_pages = ceil(Question::count_questions_active(null)/$record_per_page);
+            if($page != 1 && $page > $start_from){
+                self::return_json_question(Question::get_questions(null, 0, $record_per_page), $nb_pages); 
+            }
+            self::return_json_question(Question::get_questions_active(null, $start_from, $record_per_page), $nb_pages);
+
+        }else if ($typeList === 'unanswered'){
+            $nb_pages = ceil(Question::count_questions_unanswered(null)/$record_per_page);
+            if($page != 1 && $page > $start_from){
+                self::return_json_question(Question::get_questions(null, 0, $record_per_page), $nb_pages); 
+            }
+            self::return_json_question(Question::get_questions_unanswered(null, $start_from, $record_per_page), $nb_pages);
+
+        }else if ($typeList === 'votes'){
+            $nb_pages = ceil(Question::count_questions_by_votes(null)/$record_per_page);
+            if($page != 1 && $page > $start_from){
+                self::return_json_question(Question::get_questions(null, 0, $record_per_page), $nb_pages); 
+            }
+            self::return_json_question(Question::get_questions_by_votes(null, $start_from, $record_per_page), $nb_pages);
+
+        }else if ($typeList === 'tags' && isset($_GET['param3']) && is_numeric($_GET['param3'])){
+            $tagId = $_GET['param3'];
+            $nb_pages = ceil(Question::count_questions_by_tag($tagId, null)/$record_per_page);
+            if($page != 1 && $page > $start_from){
+                self::return_json_question(Question::get_questions(null, 0, $record_per_page), $nb_pages); 
+            }
+            self::return_json_question(Question::get_questions_by_tag($tagId, null, $start_from, $record_per_page), $nb_pages);
+        }
+    }
+    
+
+    private function return_json_question($questions, $nb_pages){
+        if($questions){
+            echo $questions_json = Question::get_questions_as_json($questions, $nb_pages); 
+        }else{
+            echo "[]";
         }
     }
 }

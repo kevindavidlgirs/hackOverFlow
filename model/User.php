@@ -102,7 +102,7 @@ class User extends Model {
         $errors = [];
         $user = self::get_user_by_userName($username);
         if ($user) {
-            $errors['user'] = "This user already exists.";
+            $errors['user'] = "This username already exists.";
         }
         $user = self::get_user_by_fullName($fullname);
         if ($user) {
@@ -178,23 +178,58 @@ class User extends Model {
         }
         return $errors;
     }
+
+    public static function get_user_stats_as_json($number, $time){
+
+        //Solution rapide à changer (full join n'existe pas pour MySql) 
+        //https://stackoverflow.com/questions/4796872/how-to-do-a-full-outer-join-in-mysql
+        $query = self::execute("(SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions 
+                                FROM (select authorId, count(*) s from post where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(authorId)) t1 
+                                LEFT JOIN (select userId, count(*) s2 from comment where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(userId)) t2 
+                                ON (t1.authorId = t2.userId), user u where u.userId = t1.authorId) 
+                                
+                                UNION 
+                                
+                                (SELECT U.username userName, (ifnull(t1.s, 0) + ifnull(t2.s2, 0)) sumActions 
+                                FROM (select userId, count(*) s from comment where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(userId)) t1 
+                                LEFT JOIN (select authorId, count(*) s2 from post where Timestamp >= (NOW() - INTERVAL ".$number." ".$time.") group by(authorId)) t2 
+                                ON (t1.userId = t2.authorId), user u where u.userId = t1.userId ) order by sumActions DESC",array());
+        $data = $query->fetchAll();
+        $limit = Configuration::get("member_stats_limit");
+        if(sizeof($data) < $limit)
+            $limit = sizeof($data);
+        $str = "";
+        for($i = 0; $i < $limit; ++$i){
+            $userName = json_encode($data[$i]['userName']);
+            $sumActions = json_encode($data[$i]['sumActions']);
+            $str .="{\"userName\":$userName,\"sumActions\":$sumActions},";   
+        }
+        if($str !== "")
+            $str = substr($str,0,strlen($str)-1);
+        return "[$str]";
+    }
+
+    public static function get_user_activity_as_json($number, $time, $userName){
+        $query = self::execute("select authorId id, title ttl,timestamp, 'question' as type from post, user where AuthorId = UserId and userName = :userName and title!='' and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                UNION
+                                select authorId id, body as ttl, timestamp, 'reponse' as type from post, user where AuthorId = UserId and userName = :userName and (title='' or title is null) and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                UNION
+                                select u.userId id, body as ttl, timestamp, 'comment' as type from comment c, user u where c.UserId=u.UserId and userName = :userName and Timestamp >= (NOW() - INTERVAL ".$number." ".$time.")
+                                order by Timestamp desc", array("userName" => $userName));
+        $data = $query->fetchAll();
+        $str = "";
+        $userName = json_encode($userName);
+        for($i = 0; $i < sizeof($data); ++$i){
+            $title = json_encode($data[$i]['ttl']);
+            $timestamp = json_encode(Utils::time_elapsed_string($data[$i]['timestamp']));
+            $type = json_encode($data[$i]['type']);
+            $userId = json_encode($data[$i]['id']);
+            $str .= "{\"userId\":$userId,\"userName\":$userName,\"title\":$title,\"timestamp\":$timestamp,\"type\":$type},";
+        }
+        if($str !== "")
+            $str = substr($str,0,strlen($str)-1);
+        return "[$str]";
+    }
+
+    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

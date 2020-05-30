@@ -62,6 +62,35 @@ class Question extends Post {
         return $this->nbTags;
     }
 
+    public static function get_questions_as_json($questions, $nb_pages){
+        $str = "";
+        $json = "";
+        foreach($questions as $question){
+            $postId = json_encode($question->getPostId());
+            $authorId = json_encode($question->getAuthorId());
+            $fullname = json_encode($question->getFullNameAuthor());
+            $title = json_encode($question->getTitle());
+            $body = json_encode($question->getBody());
+            $timestamp = json_encode(Utils::time_elapsed_string($question->getTimestamp()));
+            $totalVote = json_encode($question->getTotalVote());
+            $nbAnswers = json_encode($question->getNbAnswers());
+            $str .= "
+            {\"postId\":$postId,\"authorId\":$authorId,\"fullName\":$fullname,\"title\":$title,\"body\":$body,\"timestamp\":$timestamp,\"totalVote\":$totalVote,\"nbAnswers\":$nbAnswers,\"tags\":["; 
+            for($i = 0; $i < sizeof($question->getTags()); $i++){
+                $tagId = json_encode($question->getTags()[$i]->getTagId());
+                $tagName = json_encode($question->getTags()[$i]->getTagName());
+                $str .= "{\"tagId\":$tagId,\"tagName\":$tagName}";
+                $str .= $i < sizeof($question->getTags())-1 ? "," : "";
+            }
+            $str .= "]},";
+        }
+        if($str !== ""){
+            $str = substr($str,0,strlen($str)-1);
+            $json = "{\"questions\":[$str]},{\"pages\":[$nb_pages]}";
+        }
+        return "[$json]";
+    }
+
     //Récupère un post grace à son id
     public static function get_question($postId){
         $query = self::execute("SELECT * FROM post WHERE PostId = :PostId and title != \"\" ", array("PostId"=>$postId));
@@ -79,6 +108,7 @@ class Question extends Post {
 
     //Permet de récupérer tous les posts, le nom de l'auteur de chaque post, la somme des votes pour chaque post,  
     //et le nombre de réponse de chaque post.
+    //Changer $nb_pages par $record_per_page
     public static function get_questions($decode, $start_from, $nb_pages){
         if($decode === null){
             $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC LIMIT $start_from, $nb_pages", array());
@@ -100,6 +130,7 @@ class Question extends Post {
 
     //Une méthode pour compter des array d'objets ?
     public static function count_questions($decode){
+
         if($decode === null){
             $query = self::execute("SELECT * FROM post WHERE title !='' ORDER BY timestamp DESC", array());
         }else{
@@ -163,10 +194,10 @@ class Question extends Post {
         $data = $query->fetchAll();
         $results = [];
         foreach($data as $row){
-            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), Tools::sanitize(self::remove_markdown($row["Body"])), 
+            $results[] = new Question($row["PostId"], $row["AuthorId"], Tools::sanitize($row["Title"]), self::remove_markdown($row["Body"]), 
                                     $row["Timestamp"], User::get_user_by_id($row["AuthorId"])->getFullName(), Vote::get_SumVote($row["PostId"])->getTotalVote(), 
                                         Answer::get_nbAnswers($row["PostId"]), null, null, Tag::get_tags_by_postId($row["PostId"]), null, null);
-        }
+           }
         return $results;
     }
 
@@ -431,7 +462,7 @@ class Question extends Post {
     }
 
     public function update(){
-        self::execute("UPDATE post SET Title = :Title, Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
+        self::execute("UPDATE post SET Title = :Title, Body = :Body, timestamp = now() WHERE PostId = :PostId", array("PostId"=>$this->postId,"Title"=>$this->title, "Body"=>$this->body));
         return true;
     }
 
@@ -448,6 +479,7 @@ class Question extends Post {
     public function isQuestion(){
         return true;
     }
+
 }
 
 ?>

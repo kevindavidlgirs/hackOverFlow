@@ -149,4 +149,31 @@ class ControllerComment extends Controller{
             $this->redirect();
         }
     }
+
+    public function add_comment_service(){
+        $user = $this->get_user_or_redirect();
+        if(isset($_GET['param1']) && is_numeric($_GET['param1']) && isset($_POST['body'])){
+            $body = $_POST['body'];
+            if(isset($_GET['param2']) && is_numeric($_GET['param2'])){
+                $answer = Answer::get_answer($_GET['param2']);
+                $question = Question::get_question($_GET['param1']);
+                if($answer && $question){
+                    $comment = new Comment(null, $user->getUserId(), null, $answer->getPostId(), $body, null);
+                    $error = Comment::validate($comment);
+                    if(count($error) == 0){
+                        echo Comment::get_comment_as_json($comment->create());
+                    }
+                }
+            }else{
+                $question = Question::get_question($_GET['param1']);
+                if($question){
+                    $comment = new Comment(null, $user->getUserId(), null, $question->getPostId(), $body, null);
+                    $error = Comment::validate($comment);
+                    if(count($error) == 0){
+                        echo Comment::get_comment_as_json($comment->create());
+                    } 
+                }
+            }
+        }
+    }
 }

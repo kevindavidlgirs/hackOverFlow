@@ -14,7 +14,46 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
+
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="lib/jquery.validate.min.js" type="text/javascript"></script>
+    <script>
+      $(function(){
+        
+        $('#loginForm').validate({
+          rules: {
+            username: {
+              required: true
+            },
+            password: {
+              required: true
+            }    
+          },
+          messages: {
+            username: {
+              required: 'username is required.'              
+            },
+            password: {
+              required: 'password is required.'
+            }
+          },
+          errorPlacement: function(error, element) {
+            error.addClass("invalid-feedback")
+            error.insertAfter(element);
+          },
+          highlight: function ( element, error ) {
+            $(element).addClass("is-invalid");
+				  },
+				  unhighlight: function ( element, error) {
+            $(element).removeClass("is-invalid");
+				  }
+        });
+
+        $("#username").focus();
+
+      });
+
+    </script>
   </head>
   <body>
     <?php
@@ -28,27 +67,27 @@
           <h5>Sign in</h5>
         </div>
         <div class="card-body">
-          <form action="user/login" method="post">
+          <form id="loginForm" action="user/login" method="post">
 
             <?php if(array_key_exists('user', $errors)):?>            
-              <input type="text" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
+              <input type="text" id="username" name="username" class="form-control is-invalid" placeholder="<?= $username ?>" required>
               <div class="invalid-feedback">
                 <?= $errors['user']; ?>
               </div>  
             <?php else: ?> 
               <div class="form-group">
-                <input type="text" class="form-control" name="username" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?> />
+                <input type="text" id="username" name="username" class="form-control" <?php if($username != null){echo 'value="'.$username.'"';}else{echo 'placeholder="Username"';}?> />
               </div>
             <?php endif ?> 
 
             <?php if(array_key_exists('password', $errors)):?>            
-              <input type="password" name="password" class="form-control is-invalid" placeholder="Password" required>
+              <input type="password" id="password" name="password" class="form-control is-invalid" placeholder="Password" required>
               <div class="invalid-feedback">
                 <?= $errors['password']; ?>
               </div>  
             <?php else: ?> 
               <div class="form-group">
-                <input type="password" class="form-control" name="password" placeholder="Password"/>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Password"/>
               </div>
             <?php endif ?>
             

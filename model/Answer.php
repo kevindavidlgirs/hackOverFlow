@@ -125,7 +125,7 @@ class Answer extends Post{
     }
         
     public function update(){
-        self::execute("UPDATE post SET Body = :Body WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
+        self::execute("UPDATE post SET Body = :Body, timestamp = now() WHERE PostId = :PostId", array("PostId"=>$this->postId, "Body"=>$this->body));
         return true;
     }
 

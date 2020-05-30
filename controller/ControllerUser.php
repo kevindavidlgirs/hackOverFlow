@@ -89,4 +89,66 @@ class ControllerUser extends Controller {
         
     }
 
+    public function stats(){
+        $user = null;
+        if(self::get_user_or_false())
+            $user = self::get_user_or_false();   
+        (new View("stats"))->show(array("user" => $user));   
+    }
+
+    public function get_stats_service(){
+        if(isset($_GET['param1']) && is_numeric($_GET['param1']) && isset($_GET['param2']) && ctype_alpha($_GET['param2'])){
+            $number = $_GET['param1'];
+            $time = $_GET['param2'];
+            if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
+                echo User::get_user_stats_as_json($number, $time);    
+            }
+        }
+    }
+
+    public function get_details_activity_service(){
+        if(isset($_GET['param1']) && is_numeric($_GET['param1']) && isset($_GET['param2']) && ctype_alpha($_GET['param2']) && isset($_GET['param3']) && ctype_alpha($_GET['param3'])){
+            $number = $_GET['param1'];
+            $time = $_GET['param2'];
+            $user = $_GET['param3'];
+            if(($number > 0 && $number < 100) && ($time === 'day' || $time === 'week' || $time === 'month' || $time === 'year')){
+                if(User::get_user_by_userName($user)){
+                    echo User::get_user_activity_as_json($number, $time, $user);
+                }  
+            }
+        }
+    }
+
+    public function username_signup_service(){
+        $res = "true";
+        if(isset($_POST['username']) && $_POST["username"] !== ""){
+            $user = User::get_user_by_userName($_POST["username"]);
+            if($user){
+                $res = "false";
+            }
+        } 
+        echo $res;   
+    }
+
+    public function email_signup_service(){
+        $res = "true";
+        if(isset($_POST['email']) && $_POST["email"] !== ""){
+            $user = User::get_user_by_email($_POST["email"]);
+            if($user){
+                $res = "false";
+            }
+        } 
+        echo $res;   
+    }
+
+    public function username_login_service(){
+        $res = "false";
+        if(isset($_POST['username']) && $_POST["username"] !== ""){
+            $user = User::get_user_by_username($_POST["username"]);
+            if($user){
+                $res = "true";
+            }
+        } 
+        echo $res;  
+    }
 }

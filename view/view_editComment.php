@@ -14,10 +14,10 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <link href="navbar-top.css" rel="stylesheet">
   </head>
   <body>
     <?php
+      $active = 'question';
       include('header.html');  
     ?>
     <!-- MAIN -->
