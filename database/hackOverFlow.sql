@@ -1,3 +1,5 @@
+-- Cette base de données à été créée par l'EPFC
+--
 -- phpMyAdmin SQL Dump
 -- version 4.9.1
 -- https://www.phpmyadmin.net/
@@ -19,11 +21,11 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données :  `prwb_1920_G09`
+-- Base de données :  `hackoverflow`
 --
-DROP DATABASE IF EXISTS `prwb_1920_G09`;
-CREATE DATABASE IF NOT EXISTS `prwb_1920_G09` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `prwb_1920_G09`;
+DROP DATABASE IF EXISTS `hackoverflow`;
+CREATE DATABASE IF NOT EXISTS `hackoverflow` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `hackoverflow`;
 
 -- --------------------------------------------------------
 

@@ -14,7 +14,6 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="css/myStyle.css" rel="stylesheet">
     <link href="css/fontawesome/fontawesome-free-5.12.0-web/css/all.css" rel="stylesheet">
-    <!-- je préfère une installation en local du chart plutôt qu'une connexion à un serveur distant (à changer)-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
     <script src="lib/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script>

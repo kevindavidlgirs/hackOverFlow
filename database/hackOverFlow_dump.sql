@@ -1,6 +1,8 @@
+-- Cette base de données à été créée par l'EPFC
+--
 -- MariaDB dump 10.17  Distrib 10.4.8-MariaDB, for osx10.10 (x86_64)
 --
--- Host: 127.0.0.1    Database: prwb_1920_G09
+-- Host: 127.0.0.1    Database: hackoverflow
 -- ------------------------------------------------------
 -- Server version	10.4.8-MariaDB
 
@@ -159,7 +161,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'ben','56ce92d1de4f05017cf03d6cd514d6d1','Benoît Penelle','ben@test.com','admin'),(2,'bruno','56ce92d1de4f05017cf03d6cd514d6d1','Bruno Lacroix','bruno@test.com','user'),(3,'admin','56ce92d1de4f05017cf03d6cd514d6d1','Administrator','admin@test.com','admin'),(4,'boris','56ce92d1de4f05017cf03d6cd514d6d1','Boris Verhaegen','boris@test.com','admin'),(5,'alain','56ce92d1de4f05017cf03d6cd514d6d1','Alain Silovy','alain@test.com','user');
+INSERT INTO `user` VALUES (1,'user1','56ce92d1de4f05017cf03d6cd514d6d1','user_1','user1@test.com','user'),(2,'user2','56ce92d1de4f05017cf03d6cd514d6d1','user_2','user2@test.com','user'),(3,'admin','56ce92d1de4f05017cf03d6cd514d6d1','Administrator','admin@test.com','admin'),(4,'user3','56ce92d1de4f05017cf03d6cd514d6d1','user_3','user3@test.com','user'),(5,'user4','56ce92d1de4f05017cf03d6cd514d6d1','user_4','user4@test.com','user');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 

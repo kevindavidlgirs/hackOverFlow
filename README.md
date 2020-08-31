@@ -1,20 +1,12 @@
-# Projet PRWB 1920 - StackOverflow
-
-## Notes de version itération 1 
+# Projet HackOverFlow
 
 ### Liste des utilisateurs et mots de passes
 
-  * Utilisateur `admin` (Administrator), mot de passe `Password1,`
-  * Utilisateur `alain` (Alain Silovy), mot de passe `Password1,`
-  * Utilisateur `ben` (Benoît Penelle), mot de passe `Password1,`
-  * Utilisateur `bruno` (Bruno Lacroix), mot de passe `Password1,`
-  * Utilisateur `boris` (Boris Verhaegen), mot de passe `Password1,`
-
-### Liste des bugs connus
-
-  * bug 1
-  * bug 2
-  * ...
+  * Utilisateur `admin`, mot de passe `Password1,`
+  * Utilisateur `user1`, mot de passe `Password1,`
+  * Utilisateur `user2`, mot de passe `Password1,`
+  * Utilisateur `user3`, mot de passe `Password1,`
+  * Utilisateur `user4`, mot de passe `Password1,`
 
 ### Liste des fonctionnalités supplémentaires
 
